@@ -58,8 +58,15 @@ if(d.t==='join'&&!c.joined){c.name=String(d.name||'광장 시민').replace(/[\x0
 if(!c.joined)return;
 if(d.t==='interact'){
  const action=String(d.action||''),x=num(d.x,-45,45,999),z=num(d.z,-170,125,999);
- const fixtures={branch:[...[-128,-83,-51,-10,45,91].map(t=>[-24,t+5])],stones:[[-19,12],[-25,-69],[-20,-119],[-21,89],[15,40]],shop:[[-33,21]],food:[[-33,-36]],rest:[...[-128,-83,-51,-10,45,91].map(t=>[-17,t])]};
- if(!fixtures[action]||c.hp<=0||c.car||Math.hypot(c.x-x,c.z-z)>5.5||!fixtures[action].some(([fx,fz])=>Math.hypot(fx-x,fz-z)<.3))return;
+ // Physical gathering locations match the meshes actually created by the 3D client.
+ const visibleTreeSpots=[];
+ for(let treeZ=-130;treeZ<112;treeZ+=34)for(let n=-1;n<=1;n++)visibleTreeSpots.push([-21,treeZ+n*4]);
+ for(let treeZ=-133;treeZ<116;treeZ+=24)if(treeZ>-118)visibleTreeSpots.push([9,treeZ+10]);
+ const fixtures={branch:[...[-128,-83,-51,-10,45,91].map(t=>[-24,t+5]),...visibleTreeSpots],stones:[[-19,12],[-25,-69],[-20,-119],[-21,89],[15,40]],shop:[[-33,21]],food:[[-33,-36]],rest:[...[-128,-83,-51,-10,45,91].map(t=>[-17,t])]};
+ // Trees and benches built by a player are valid, but the client cannot fabricate coordinates.
+ for(const obj of props.values())if(obj.kind==='나무')fixtures.branch.push([obj.x,obj.z]);else if(obj.kind==='의자')fixtures.rest.push([obj.x,obj.z]);
+ const interactionRadius=action==='stones'?2.2:action==='branch'?2.65:action==='rest'?2.8:3.6;
+ if(!fixtures[action]||c.hp<=0||c.car||Math.hypot(c.x-x,c.z-z)>interactionRadius||!fixtures[action].some(([fx,fz])=>Math.hypot(fx-x,fz-z)<.3))return;
  if((action==='branch'||action==='stones')&&now-(c.lastGather||0)<10000){syncInventory(c,'⏳ 채집은 10초마다 할 수 있습니다');return}
  if(action==='branch'){c.branches=Math.min(99,c.branches+1);c.lastGather=now}
  else if(action==='stones'){c.stones=Math.min(99,c.stones+2);c.lastGather=now}
