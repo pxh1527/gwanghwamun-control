@@ -1,0 +1,12 @@
+{
+  "name": "gwanghwamun-control",
+  "version": "4.2.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
