@@ -48,9 +48,10 @@ if(moveDist>bound){rawX=c.x+(rawX-c.x)*bound/moveDist;rawZ=c.z+(rawZ-c.z)*bound/
 if(!c.car&&moveDist>6*elapsed){c.stamina=Math.max(0,c.stamina-(moveDist-6*elapsed)*1.2)}
 c.x=rawX;c.z=rawZ;c.heading=num(d.heading,-Math.PI*20,Math.PI*20,c.heading);// Stamina and hunger are server-managed, not blindly copied from the browser.
 
-if(c.car){let car=vehicles.get(c.car);car.x=c.x;car.z=c.z;car.heading=c.heading;checkCarCollision(c,car,now)}
+if(c.car){let car=vehicles.get(c.car),x=c.x,z=c.z,heading=c.heading;if([...vehicles.values()].some(other=>other!==car&&carCarOverlap({x,z,heading},other))){c.x=car.x;c.z=car.z;c.heading=car.heading;send(c,{t:'vehicleCollision',car:car.id,x:c.x,z:c.z,heading:c.heading});}else{car.x=x;car.z=z;car.heading=heading;checkCarCollision(c,car,now)}}
 broadcast({t:'move',...publicPlayer(c)},c);
 }
+function carCarOverlap(a,b){const ay=a.heading||0,by=b.heading||0;const [arx,arz,afx,afz]=[Math.cos(ay),-Math.sin(ay),Math.sin(ay),Math.cos(ay)];const [brx,brz,bfx,bfz]=[Math.cos(by),-Math.sin(by),Math.sin(by),Math.cos(by)];const dx=b.x-a.x,dz=b.z-a.z;if(Math.hypot(dx,dz)>6.5)return false;for(const [ax,az] of [[arx,arz],[afx,afz],[brx,brz],[bfx,bfz]]){const ra=1.42*Math.abs(arx*ax+arz*az)+2.72*Math.abs(afx*ax+afz*az);const rb=1.42*Math.abs(brx*ax+brz*az)+2.72*Math.abs(bfx*ax+bfz*az);if(Math.abs(dx*ax+dz*az)>=ra+rb)return false;}return true;}
 function checkCarCollision(driver,car,now){let speed=Math.hypot(car.x-(car.prevX??car.x),car.z-(car.prevZ??car.z))/Math.max(.06,(now-(car.prevAt??now-70))/1000);car.prevX=car.x;car.prevZ=car.z;car.prevAt=now;if(speed<3.9)return;for(let p of clients.values()){if(p===driver||!p.joined||p.hp<=0||p.car)continue;if(Math.hypot(p.x-car.x,p.z-car.z)>2.4)continue;let last=car.lastHit.get(p.id)||0;if(now-last<1300)continue;car.lastHit.set(p.id,now);let dx=p.x-car.x,dz=p.z-car.z;hurt(p,Math.round(Math.min(60,speed*2.4)),dx,dz,Math.min(13,speed*.7),'car')}}
 function handleMessage(c,str){let d;try{d=JSON.parse(str)}catch{return}if(!d||typeof d!=='object'||Array.isArray(d))return;let now=Date.now();
 if(d.t==='roleRefresh'){c.role=roleOf(c.req);send(c,{t:'staffRole',role:c.role});return}
