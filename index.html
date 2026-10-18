@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>광화문 점령전 V4.7 — 캐릭터 모션·차량 유리창 개선</title>
+<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>광화문 점령전 V4.8 — 이동 시스템 안정화</title>
 <style>
 :root{--a:#66e1de;--bg:#061724;--edge:#ffffff27;--glass:#0b2134e8}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#b5d6e0;font-family:system-ui,'Malgun Gothic',sans-serif;color:#fff}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #95fff2;outline-offset:2px}
 #game{position:fixed;inset:0}#game canvas{display:block;width:100%;height:100%}.glass{background:var(--glass);border:1px solid var(--edge);box-shadow:0 14px 45px #0a203e44;backdrop-filter:blur(14px)}#top{position:fixed;top:16px;left:18px;right:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;pointer-events:none}#top>*{pointer-events:auto}.logo{font-weight:1000;font-size:22px;line-height:1;letter-spacing:-1.4px;text-shadow:0 2px 7px #0008}.logo em{font-style:normal;color:#63fae2}.subtitle{font-size:9px;color:#e6f5ff;letter-spacing:2px;margin-top:7px;font-weight:700}.pill{padding:10px 13px;border-radius:13px;font-size:12px;font-weight:800}.pill span{color:#9eefe3}.panel{position:fixed;border-radius:17px;padding:14px}#left{top:94px;left:18px;width:250px}#right{top:94px;right:18px;width:234px}h3{margin:0 0 12px;color:#bdd7dd;letter-spacing:1px;font-size:11px}.teamLine{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;margin:7px 0}.dot{width:10px;height:10px;border-radius:50%}.teamLine b{margin-left:auto}.zones{margin-top:12px;border-top:1px solid #ffffff22;padding-top:11px}.zoneLine{margin:10px 0}.zoneTop{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;color:#e5edf0}.track{background:#ffffff1c;border-radius:10px;height:6px;overflow:hidden}.fill{height:100%;width:0;background:#66e1de;transition:width .2s}.zoneIcon{font-size:13px}#stats{position:fixed;left:18px;bottom:23px;width:252px;border-radius:17px;padding:15px}#stats .barLabel{display:flex;justify-content:space-between;font-weight:800;font-size:12px;margin:8px 0 4px}.statbar{height:10px;border-radius:8px;background:#ffffff2b;overflow:hidden}.statbar i{height:100%;display:block;transition:width .15s;width:100%}#hpBar{background:linear-gradient(90deg,#f04856,#ff9992)}#spBar{background:linear-gradient(90deg,#40b7ec,#6be8df)}#foodBar{background:linear-gradient(90deg,#e5a74c,#ffdd81)}#xp{text-align:right;color:#c6dce7;font-size:10px;margin-top:12px}#map{width:204px;height:224px;display:block;border-radius:10px;background:#223b48}#coords{font-size:10px;text-align:center;color:#bfced7;margin-top:8px}#chat{position:fixed;right:18px;bottom:23px;width:292px;border-radius:15px;overflow:hidden}#chatLog{height:110px;overflow:auto;font-size:11px;padding:9px 12px;background:#0002}#chatLog p{margin:3px 0;color:#cfeced}#chatLog b{color:#72ffe4}.chatRow{display:flex;border-top:1px solid #ffffff26;padding:8px;gap:5px}#chatInput{background:#ffffff16;border:1px solid #ffffff22;border-radius:8px;padding:8px;color:white;min-width:0;flex:1;font-size:11px}#send{border:0;border-radius:8px;background:#69e7d6;font-size:12px;font-weight:900;color:#073543;padding:5px 9px}#help{position:fixed;left:50%;bottom:23px;transform:translateX(-50%);display:flex;gap:11px;align-items:center;padding:12px 17px;border-radius:16px;font-size:11px;white-space:nowrap;color:#d9eaef}kbd{border:1px solid #ffffff55;border-radius:4px;padding:2px 4px;background:#ffffff19;font-weight:900}#context{position:fixed;bottom:87px;left:50%;transform:translateX(-50%);background:#081a2ae0;padding:9px 15px;border:1px solid #76ffe675;border-radius:12px;font-weight:900;font-size:12px;display:none}#notices{position:fixed;top:18%;left:50%;transform:translateX(-50%);padding:14px 22px;border-radius:13px;background:#0b2238e8;border:1px solid #81f6e680;font-weight:900;opacity:0;transition:.2s;pointer-events:none;z-index:12;max-width:80vw;text-align:center}#notices.show{opacity:1}#reticle{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;font-size:24px;color:#fff8;display:none}
@@ -160,7 +160,8 @@ for(let side of [-1,1]){let eye=ball(side*.177,.03,-.467,.091,mat(0xfffcf8),head
 ball(0,-.11,-.502,.095,skinmat,head,12).scale.set(.8,1.15,.67);cube(0,-.274,-.45,.19,.035,.024,mat(0x965d57),head);
 const arms=[],legs=[];for(let s of [-1,1]){let arm=new THREE.Group();arm.position.set(s*(.55*narrow+.08),2.2,0);torso.add(arm);cube(0,-.43,0,.29,.87,.32,coat,arm);ball(0,-.9,-.01,.18,skinmat,arm);arms.push(arm);let leg=new THREE.Group();leg.position.set(s*.29,.91,0);root.add(leg);cube(0,-.48,0,.39,.96,.43,pants,leg);cube(0,-.97,-.12,.43,.18,.69,shoe,leg);legs.push(leg)}
 if(d.team==='white'){const badge=sign(torso,'자유와혁신\nYOON AGAIN',.86,.48,0,1.75,-.283,Math.PI,'#192634','#f3f5f3');badge.material.depthWrite=false;ball(-.29,2.1,-.29,.09,mat(0x2748af),torso)}else{const patch=sign(torso,TEAM[d.team].name,.7,.23,0,1.78,-.284,Math.PI,'#ffffff','#315068')}
-root.traverse(child=>{if(child.isMesh)child.frustumCulled=false});
+root.traverse(child=>{if(child.isMesh){child.frustumCulled=false;child.matrixAutoUpdate=true;}});
+root.visible=true;root.matrixAutoUpdate=true;
 const shadow=mesh(new THREE.CircleGeometry(.67,22),new THREE.MeshBasicMaterial({color:0x102c31,transparent:true,opacity:.18,depthWrite:false}),root,0,.023,0,false);shadow.rotation.x=-Math.PI/2;shadow.frustumCulled=false;root.userData={head,torso,arms,legs,data:d,shadow};return root}
 function addNPC(i){let t=TEAMS[i%4];let x=-17+rand(i+24)*22,z=-145+rand(i*7+63)*240;let n={id:'npc'+i,team:t,name:'광장NPC '+(i+1),x,z,y:0,vx:0,vz:0,vy:0,hp:100,stamina:100,hunger:100,walk:rand(i)*2,attack:0,stun:0,heading:rand(i*4)*6,brain:0,goal:Math.floor(rand(i+32)*4),avatar:null,gender:i%2?'female':'male',hair:i%4,skin:i%3,hairColor:i%3,isNPC:true,down:0,cooldown:0};n.avatar=makeAvatar(n);scene.add(n.avatar);n.avatar.position.set(n.x,0,n.z);npcs.push(n)}for(let i=0;i<18;i++)addNPC(i);
 // Distance LOD: keep detailed rig near the player; draw distant NPCs with GPU instancing.
@@ -273,7 +274,7 @@ function ensurePlayerFinite(where='frame'){
  }
  if(!Number.isFinite(cam.yaw)||!Number.isFinite(orbitYaw)){resetCamera();repaired=true}
  if(repaired){positionFixCount++;PLAYER.vx=PLAYER.vz=0;sticks.x=Number.isFinite(sticks.x)?sticks.x:0;sticks.y=Number.isFinite(sticks.y)?sticks.y:0;
-  if(positionFixCount<=2)toast('📷 비정상적인 위치값을 자동 복구했습니다');
+  if(positionFixCount<=1)console.warn('좌표 계산 오류 자동 방어됨',where,positionFixCount);
  }
  for(const k of ['x','y','z','heading'])lastSafePlayer[k]=PLAYER[k];
 }
@@ -342,27 +343,122 @@ function updateCars(dt){for(let car of cars){if(!Number.isFinite(car.x)||!Number
 if(car.assetBody){car.assetBody.visible=!car.driver;car.fallbackShell.visible=!!car.driver;}
 if(car.driverModel){car.driverModel.visible=!!car.driver; if(car.driver&&car.driverModel.children[0])car.driverModel.children[0].material=mat(car.driver===selfId||car.driver==='local'?TEAM[team].color:0x587b99)}}}
 function updateThirdPersonCamera(dt){
- // Keep the camera above the ground and looking downward at the avatar.
- // Never interpolate its XYZ position through the target on a 180-degree turn.
- if(!Number.isFinite(cam.yaw))cam.yaw=0;
- cam.pitch=clamp(Number.isFinite(cam.pitch)?cam.pitch:.40,.27,.84);
- cam.dist=clamp(Number.isFinite(cam.dist)?cam.dist:12,inCar?10:7,inCar?23:18);
- const delta=Math.atan2(Math.sin(cam.yaw-orbitYaw),Math.cos(cam.yaw-orbitYaw));
- orbitYaw+=delta*Math.min(1,dt*12);
- const horizontal=cam.dist*Math.cos(cam.pitch);
- const height=PLAYER.y+3.0+cam.dist*Math.sin(cam.pitch);
- camera.position.set(PLAYER.x+Math.sin(orbitYaw)*horizontal,
-  Math.max(PLAYER.y+5,height),
-  PLAYER.z+Math.cos(orbitYaw)*horizontal);
+ const yaw=safeDirection(cam.yaw);
+ cam.yaw=yaw;cam.pitch=clamp(safeScalar(cam.pitch,.4),.30,.77);
+ cam.dist=clamp(safeScalar(cam.dist,12),inCar?11:9,inCar?22:17);
+ // Perspective stays above the character; no interpolation of camera POSITION across body.
+ const targetYaw=yaw;
+ const angleDelta=Math.atan2(Math.sin(targetYaw-orbitYaw),Math.cos(targetYaw-orbitYaw));
+ orbitYaw=safeDirection(orbitYaw+angleDelta*Math.min(1,dt*12));
+ const targetX=safeScalar(PLAYER.x,playerMovement.lastX),targetY=safeScalar(PLAYER.y,0),targetZ=safeScalar(PLAYER.z,playerMovement.lastZ);
+ const radius=cam.dist*Math.cos(cam.pitch);
+ const height=targetY+3.5+cam.dist*Math.sin(cam.pitch);
+ camera.position.set(targetX+Math.sin(orbitYaw)*radius,Math.max(targetY+5,height),targetZ+Math.cos(orbitYaw)*radius);
  camera.up.set(0,1,0);
- camera.lookAt(PLAYER.x,PLAYER.y+1.65,PLAYER.z);
- camera.updateMatrixWorld();
+ // Reset rotation each frame before lookAt: a previous nonfinite quaternion cannot persist.
+ camera.quaternion.identity();
+ camera.lookAt(targetX,targetY+2.05,targetZ);
+ camera.updateMatrixWorld(true);
 }
-window.__GWANG_DEBUG__={get player(){return PLAYER},get npcs(){return npcs},get cars(){return cars},get world(){return scene},get camera(){return camera},get renderer(){return renderer},get driver(){return inCar},resetCamera};
-const clock=new THREE.Clock();let frame=0,fpsClock=0;function loop(){let dt=Math.min(.04,clock.getDelta());if(!Number.isFinite(dt)||dt<0)dt=0;ensurePlayerFinite('frame start');now+=dt;attackCooldown=Math.max(0,attackCooldown-dt);hitFlash=Math.max(0,hitFlash-dt);
-if(started){if(PLAYER.hp<=0){if(now>deadUntil&&!online)spawn()}else{let vx=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0)+sticks.x;let vz=((keys.KeyS||keys.ArrowDown)?1:0)-((keys.KeyW||keys.ArrowUp)?1:0)+sticks.y;let magnitude=Math.hypot(vx,vz);const sprint=!inCar&&(keys.ShiftLeft||keys.ShiftRight||sticks.run)&&PLAYER.stamina>2&&PLAYER.hunger>0;let speed=sprint?9:5.4;if(!inCar){if(magnitude>.1&&PLAYER.stun<=0){vx/=magnitude;vz/=magnitude;let dx=vx*Math.cos(cam.yaw)+vz*Math.sin(cam.y),dz=-vx*Math.sin(cam.yaw)+vz*Math.cos(cam.yaw);PLAYER.x+=dx*speed*dt;PLAYER.z+=dz*speed*dt;PLAYER.heading=Math.atan2(-dx,-dz);PLAYER.walk+=dt*(sprint?1.68:1.12);PLAYER.moving=true;PLAYER.sprinting=sprint;if(sprint)PLAYER.stamina=Math.max(0,PLAYER.stamina-20*dt)}else{PLAYER.moving=false;PLAYER.sprinting=false;}PLAYER.x=clamp(PLAYER.x,-38,40);PLAYER.z=clamp(PLAYER.z,-158,118);moveEntity(PLAYER,dt);if(!sprint)PLAYER.stamina=Math.min(PLAYER.maxStamina,PLAYER.stamina+(PLAYER.hunger<12?3.0:12)*dt);if(!online){PLAYER.hunger=Math.max(0,PLAYER.hunger-dt*HUNGER_PER_SECOND);offlineSurvival(dt);if(PLAYER.hunger===0)PLAYER.hp=Math.max(0,PLAYER.hp-dt*1.7);if(PLAYER.hp===0)fall()};PLAYER.avatar.position.set(PLAYER.x,PLAYER.y,PLAYER.z);PLAYER.avatar.rotation.y=PLAYER.heading;PLAYER.avatar.visible=true;animateAvatar(PLAYER,dt)}else{PLAYER.stamina=Math.min(PLAYER.maxStamina,PLAYER.stamina+7*dt);if(!online)PLAYER.hunger=Math.max(0,PLAYER.hunger-HUNGER_PER_SECOND*dt);PLAYER.avatar.visible=false;PLAYER.moving=false;PLAYER.sprinting=false}}
-updateCars(dt);ensurePlayerFinite('after movement and vehicles');updateNPC(dt);updateNPCLOD();hitVehicles(dt);updateCapture(dt);updateRocks(dt);for(let p of remotes.values()){p.x=lerp(p.x,p.targetX??p.x,Math.min(1,dt*9));p.z=lerp(p.z,p.targetZ??p.z,Math.min(1,dt*9));p.vy=(p.vy||0)-23*dt;p.y=Math.max(0,(p.y||0)+p.vy*dt);if(p.y===0)p.vy=0;p.avatar.position.set(p.x,p.y,p.z);p.avatar.rotation.y=p.heading;p.avatar.visible=!p.car&&Math.hypot(p.x-PLAYER.x,p.z-PLAYER.z)<(qualityMode==='auto'||qualityMode==='low'?60:100);p.moving=Math.hypot(p.targetX-p.x,p.targetZ-p.z)>.028;p.sprinting=false;if(p.moving)p.walk+=dt*1.3;p.stun=Math.max(0,p.stun-dt);p.x+=(p.vx||0)*dt;p.z+=(p.vz||0)*dt;p.vx*=Math.exp(-6*dt);p.vz*=Math.exp(-6*dt);if(p.avatar.visible)animateAvatar(p,dt)}
-if(online&&now-lastSend>.08){lastSend=now;send({t:'move',x:PLAYER.x,z:PLAYER.z,heading:PLAYER.heading,stamina:PLAYER.stamina,hunger:PLAYER.hunger,car:inCar?.id||null})} }
+window.__GWANG_DEBUG__={get player(){return PLAYER},get npcs(){return npcs},get cars(){return cars},get world(){return scene},get camera(){return camera},get renderer(){return renderer},get driver(){return inCar},get locomotion(){return playerMovement},resetCamera};
+// V4.8: single writer for player movement. Render model/camera only READ finalized coordinates.
+const safeScalar=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
+const safeAxis=(value)=>clamp(safeScalar(value),-1,1);
+const safeDirection=(value)=>Math.atan2(Math.sin(safeScalar(value)),Math.cos(safeScalar(value)));
+const playerMovement={lastX:PLAYER.x,lastY:0,lastZ:PLAYER.z,frames:0,badInputs:0,animationFrames:0};
+function stepPlayerWalking(dt){
+ // Hard boundary: never calculate physics on an invalid position.
+ if(!Number.isFinite(PLAYER.x)||!Number.isFinite(PLAYER.z)||!Number.isFinite(PLAYER.y)){
+  PLAYER.x=playerMovement.lastX;PLAYER.y=playerMovement.lastY;PLAYER.z=playerMovement.lastZ;
+  PLAYER.vx=PLAYER.vy=PLAYER.vz=0;playerMovement.badInputs++;
+ }
+ const mx=safeAxis(((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0)+safeAxis(sticks.x));
+ const mz=safeAxis(((keys.KeyS||keys.ArrowDown)?1:0)-((keys.KeyW||keys.ArrowUp)?1:0)+safeAxis(sticks.y));
+ const len=Math.hypot(mx,mz);
+ const sprint=!!(keys.ShiftLeft||keys.ShiftRight||sticks.run)&&PLAYER.stamina>2&&PLAYER.hunger>0;
+ const speed=sprint?9:5.4;
+ const moveAllowed=len>.05&&safeScalar(PLAYER.stun)<=0;
+ PLAYER.moving=moveAllowed;PLAYER.sprinting=moveAllowed&&sprint;
+ if(moveAllowed){
+  const ax=mx/len,az=mz/len;
+  // Movement is relative to CAMERA heading, using a finite scalar yaw.
+  const yaw=safeDirection(cam.yaw);
+  const dx=ax*Math.cos(yaw)+az*Math.sin(yaw);
+  const dz=-ax*Math.sin(yaw)+az*Math.cos(yaw);
+  const nextX=PLAYER.x+dx*speed*dt;
+  const nextZ=PLAYER.z+dz*speed*dt;
+  if(Number.isFinite(nextX)&&Number.isFinite(nextZ)){
+   PLAYER.x=clamp(nextX,-38,40);PLAYER.z=clamp(nextZ,-158,118);
+   PLAYER.heading=safeDirection(Math.atan2(-dx,-dz));
+   PLAYER.walk+=dt*(sprint?1.68:1.12);
+  }else playerMovement.badInputs++;
+  if(sprint)PLAYER.stamina=Math.max(0,PLAYER.stamina-20*dt);
+ }
+ // Physics (vertical jump, knockback) is processed once, without driving animation visibility.
+ moveEntity(PLAYER,dt);
+ if(!sprint)PLAYER.stamina=Math.min(PLAYER.maxStamina,PLAYER.stamina+(PLAYER.hunger<12?3:12)*dt);
+ if(!online){
+  PLAYER.hunger=Math.max(0,PLAYER.hunger-dt*HUNGER_PER_SECOND);
+  offlineSurvival(dt);
+  if(PLAYER.hunger===0)PLAYER.hp=Math.max(0,PLAYER.hp-dt*1.7);
+  if(PLAYER.hp===0)fall();
+ }
+}
+function syncLocalAvatar(dt){
+ const a=PLAYER.avatar;
+ if(!a||!started)return;
+ // The local avatar is ALWAYS rendered when on foot; NPC distance/LOD never applies to it.
+ const finite=Number.isFinite(PLAYER.x)&&Number.isFinite(PLAYER.y)&&Number.isFinite(PLAYER.z)&&Number.isFinite(PLAYER.heading);
+ if(!finite){
+  PLAYER.x=playerMovement.lastX;PLAYER.y=playerMovement.lastY;PLAYER.z=playerMovement.lastZ;PLAYER.heading=0;
+  PLAYER.vx=PLAYER.vy=PLAYER.vz=0;playerMovement.badInputs++;
+ }
+ a.position.set(PLAYER.x,PLAYER.y,PLAYER.z);
+ a.rotation.set(0,safeDirection(PLAYER.heading),0);
+ a.visible=!inCar;
+ if(!inCar){animateAvatar(PLAYER,dt);playerMovement.animationFrames++}
+ a.updateMatrixWorld(true);
+ playerMovement.lastX=PLAYER.x;playerMovement.lastY=PLAYER.y;playerMovement.lastZ=PLAYER.z;
+ playerMovement.frames++;
+}
+function tickPlayer(dt){
+ if(!started)return;
+ if(PLAYER.hp<=0){if(now>deadUntil&&!online)spawn();return}
+ if(inCar){
+  PLAYER.moving=false;PLAYER.sprinting=false;
+  PLAYER.stamina=Math.min(PLAYER.maxStamina,PLAYER.stamina+7*dt);
+  if(!online)PLAYER.hunger=Math.max(0,PLAYER.hunger-dt*HUNGER_PER_SECOND);
+ }else stepPlayerWalking(dt);
+}
+const clock=new THREE.Clock();let frame=0,fpsClock=0;
+function loop(){
+ let dt=clamp(safeScalar(clock.getDelta(),.016),0,.04);
+ ensurePlayerFinite('start');
+ now+=dt;
+ attackCooldown=Math.max(0,attackCooldown-dt);
+ hitFlash=Math.max(0,hitFlash-dt);
+ tickPlayer(dt);
+ updateCars(dt);
+ ensurePlayerFinite('after simulation');
+ syncLocalAvatar(dt);
+ updateNPC(dt);
+ updateNPCLOD();
+ hitVehicles(dt);
+ updateCapture(dt);
+ updateRocks(dt);
+ for(let p of remotes.values()){
+  p.targetX=safeScalar(p.targetX,p.x);p.targetZ=safeScalar(p.targetZ,p.z);
+  p.x=lerp(p.x,p.targetX,Math.min(1,dt*9));p.z=lerp(p.z,p.targetZ,Math.min(1,dt*9));
+  p.vy=safeScalar(p.vy)-23*dt;p.y=Math.max(0,safeScalar(p.y)+p.vy*dt);if(p.y===0)p.vy=0;
+  p.avatar.position.set(p.x,p.y,p.z);p.avatar.rotation.y=safeDirection(p.heading);
+  p.avatar.visible=!p.car&&Math.hypot(p.x-PLAYER.x,p.z-PLAYER.z)<(qualityMode==='auto'||qualityMode==='low'?60:100);
+  p.moving=Math.hypot(p.targetX-p.x,p.targetZ-p.z)>.028;p.sprinting=false;
+  if(p.moving)p.walk+=dt*1.3;p.stun=Math.max(0,p.stun-dt);
+  p.x+=safeScalar(p.vx)*dt;p.z+=safeScalar(p.vz)*dt;
+  p.vx=safeScalar(p.vx)*Math.exp(-6*dt);p.vz=safeScalar(p.vz)*Math.exp(-6*dt);
+  if(p.avatar.visible)animateAvatar(p,dt);
+ }
+ if(online&&now-lastSend>.08){lastSend=now;send({t:'move',x:PLAYER.x,z:PLAYER.z,heading:PLAYER.heading,stamina:PLAYER.stamina,hunger:PLAYER.hunger,car:inCar?.id||null})}
 ensurePlayerFinite('before rendering');updateThirdPersonCamera(dt);renderer.render(scene,camera);fpsClock+=dt;frame++;if(fpsClock>=1){const fps=frame/fpsClock;
 $('#fps').textContent=Math.round(fps)+' FPS · '+renderer.info.render.calls+' calls';
 qualityAvgFPS=qualityAvgFPS*.65+fps*.35;
