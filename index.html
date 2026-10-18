@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>광화문 점령전 V4.9 — 조작·상호작용 수정</title>
+<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>광화문 점령전 V5.1 — 차량 물리·인체형 캐릭터</title>
 <style>
 :root{--a:#66e1de;--bg:#061724;--edge:#ffffff27;--glass:#0b2134e8}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#b5d6e0;font-family:system-ui,'Malgun Gothic',sans-serif;color:#fff}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #95fff2;outline-offset:2px}
 #game{position:fixed;inset:0}#game canvas{display:block;width:100%;height:100%}.glass{background:var(--glass);border:1px solid var(--edge);box-shadow:0 14px 45px #0a203e44;backdrop-filter:blur(14px)}#top{position:fixed;top:16px;left:18px;right:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;pointer-events:none}#top>*{pointer-events:auto}.logo{font-weight:1000;font-size:22px;line-height:1;letter-spacing:-1.4px;text-shadow:0 2px 7px #0008}.logo em{font-style:normal;color:#63fae2}.subtitle{font-size:9px;color:#e6f5ff;letter-spacing:2px;margin-top:7px;font-weight:700}.pill{padding:10px 13px;border-radius:13px;font-size:12px;font-weight:800}.pill span{color:#9eefe3}.panel{position:fixed;border-radius:17px;padding:14px}#left{top:94px;left:18px;width:250px}#right{top:94px;right:18px;width:234px}h3{margin:0 0 12px;color:#bdd7dd;letter-spacing:1px;font-size:11px}.teamLine{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;margin:7px 0}.dot{width:10px;height:10px;border-radius:50%}.teamLine b{margin-left:auto}.zones{margin-top:12px;border-top:1px solid #ffffff22;padding-top:11px}.zoneLine{margin:10px 0}.zoneTop{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;color:#e5edf0}.track{background:#ffffff1c;border-radius:10px;height:6px;overflow:hidden}.fill{height:100%;width:0;background:#66e1de;transition:width .2s}.zoneIcon{font-size:13px}#stats{position:fixed;left:18px;bottom:23px;width:252px;border-radius:17px;padding:15px}#stats .barLabel{display:flex;justify-content:space-between;font-weight:800;font-size:12px;margin:8px 0 4px}.statbar{height:10px;border-radius:8px;background:#ffffff2b;overflow:hidden}.statbar i{height:100%;display:block;transition:width .15s;width:100%}#hpBar{background:linear-gradient(90deg,#f04856,#ff9992)}#spBar{background:linear-gradient(90deg,#40b7ec,#6be8df)}#foodBar{background:linear-gradient(90deg,#e5a74c,#ffdd81)}#xp{text-align:right;color:#c6dce7;font-size:10px;margin-top:12px}#map{width:204px;height:224px;display:block;border-radius:10px;background:#223b48}#coords{font-size:10px;text-align:center;color:#bfced7;margin-top:8px}#chat{position:fixed;right:18px;bottom:23px;width:292px;border-radius:15px;overflow:hidden}#chatLog{height:110px;overflow:auto;font-size:11px;padding:9px 12px;background:#0002}#chatLog p{margin:3px 0;color:#cfeced}#chatLog b{color:#72ffe4}.chatRow{display:flex;border-top:1px solid #ffffff26;padding:8px;gap:5px}#chatInput{background:#ffffff16;border:1px solid #ffffff22;border-radius:8px;padding:8px;color:white;min-width:0;flex:1;font-size:11px}#send{border:0;border-radius:8px;background:#69e7d6;font-size:12px;font-weight:900;color:#073543;padding:5px 9px}#help{position:fixed;left:50%;bottom:23px;transform:translateX(-50%);display:flex;gap:11px;align-items:center;padding:12px 17px;border-radius:16px;font-size:11px;white-space:nowrap;color:#d9eaef}kbd{border:1px solid #ffffff55;border-radius:4px;padding:2px 4px;background:#ffffff19;font-weight:900}#context{position:fixed;bottom:87px;left:50%;transform:translateX(-50%);background:#081a2ae0;padding:9px 15px;border:1px solid #76ffe675;border-radius:12px;font-weight:900;font-size:12px;display:none}#notices{position:fixed;top:18%;left:50%;transform:translateX(-50%);padding:14px 22px;border-radius:13px;background:#0b2238e8;border:1px solid #81f6e680;font-weight:900;opacity:0;transition:.2s;pointer-events:none;z-index:12;max-width:80vw;text-align:center}#notices.show{opacity:1}#reticle{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;font-size:24px;color:#fff8;display:none}
@@ -17,13 +17,14 @@
 <section id="right" class="panel glass"><h3>세종대로 · 광화문</h3><canvas id="map" width="400" height="448"></canvas><div id="coords">GPS 모사 · 광화문광장</div></section>
 <section id="stats" class="glass"><div class="barLabel"><span>❤️ 체력 HP</span><b id="hpN">100 / 100</b></div><div class="statbar"><i id="hpBar"></i></div><div class="barLabel"><span>⚡ 기력 STAMINA</span><b id="spN">100 / 100</b></div><div class="statbar"><i id="spBar"></i></div><div class="barLabel"><span>🍙 배고픔 HUNGER</span><b id="foodN">100 / 100</b></div><div class="statbar"><i id="foodBar"></i></div><div id="xp">🍙 간식 3개 · 1키 먹기</div><div id="economy">🪙 0 코인 · 🌿 가지 0 · 🪨 돌 0<br>🥊 맨손 · 생존 0분 · 성장포인트 0 <button id="growthBtn" class="tinybtn">능력치 U</button></div></section><section id="growth" class="glass"><strong>📈 생존 능력치 강화</strong><div id="growthInfo"></div><button data-up="health">체력 +20</button><button data-up="power">공격력 +4</button><button data-up="stamina">최대 기력 +15</button><p style="font-size:10px;color:#bfd5dc">배고픔 20 이상 유지하며 5분 생존할 때마다 포인트 1 획득.</p></section>
 <section id="chat" class="glass"><div id="chatLog"><p><b>시스템</b> WASD 이동 · 좌클릭 공격 · J 돌 투척 · E 상호작용</p></div><div class="chatRow"><input id="chatInput" maxlength="120" placeholder="메시지 (Enter)" autocomplete="off"/><button id="send">전송</button></div></section>
-<div id="help" class="glass"><span><kbd>WASD</kbd> 이동</span><span><kbd>Shift</kbd> 빠른 질주</span><span><kbd>좌클릭</kbd> 공격</span><span><kbd>E</kbd> 승하차</span><span><kbd>Space</kbd> 높이 점프</span><span><kbd>1</kbd> 식사</span><span><kbd>J</kbd> 돌던지기</span><span><kbd>2~4</kbd> 무기</span><span><kbd>U</kbd> 성장</span><span><kbd>B</kbd> 제작</span><span><kbd>G</kbd> 차 뺏기</span><span><kbd>우클릭 드래그</kbd> 시점</span><span><kbd>C</kbd> 시점복구</span></div><div id="context"></div><div id="notices"></div><div id="respawn">의식을 잃었습니다<small>곧 진영 시작 지점에서 다시 등장합니다</small></div>
+<div id="help" class="glass"><span><kbd>WASD</kbd> 이동</span><span><kbd>Shift</kbd> 빠른 질주</span><span><kbd>좌클릭</kbd> 공격</span><span><kbd>E</kbd> 승하차</span><span><kbd>Space</kbd> 도보: 점프 / 차량: 브레이크</span><span><kbd>Shift</kbd> 차량: 터보 가속</span><span><kbd>Ctrl</kbd> 차량: 드리프트</span><span><kbd>1</kbd> 식사</span><span><kbd>J</kbd> 돌던지기</span><span><kbd>2~4</kbd> 무기</span><span><kbd>U</kbd> 성장</span><span><kbd>B</kbd> 제작</span><span><kbd>G</kbd> 차 뺏기</span><span><kbd>우클릭 드래그</kbd> 시점</span><span><kbd>C</kbd> 시점복구</span></div><div id="context"></div><div id="notices"></div><div id="respawn">의식을 잃었습니다<small>곧 진영 시작 지점에서 다시 등장합니다</small></div>
 <div id="mobile"><div class="joy" id="joy"><div id="knob"></div></div><div class="actionPad"><button id="mHit">공격</button><button id="mUse">승차</button><button id="mJump">점프</button><button id="mEat">간식</button><button id="mRun">질주</button></div></div>
 <div id="start"><div class="startWrap"><div class="tiny">⚑ FOUR FACTIONS · AREA CONTROL · 3D</div><h1 class="title">광화문에서<br/><em>점령전을 시작하라.</em></h1><p class="desc">광화문 · 세종대왕상 · 이순신 장군상 · 시민광장.<br/>4개 진영이 거점을 차지하는 브라우저 3D 대전 게임입니다. 1명당 5분 동안 1%만 점령됩니다.</p><div class="form"><label for="nick">플레이어 닉네임</label><input id="nick" maxlength="14" placeholder="닉네임 입력" value="광화문플레이어"/><label>참가할 진영</label><div class="teamGrid"><button class="teamBtn sel" data-team="blue"><span class="ticon" style="background:#428bff"></span>파랑</button><button class="teamBtn" data-team="red"><span class="ticon" style="background:#f26368"></span>빨강</button><button class="teamBtn" data-team="green"><span class="ticon" style="background:#4abd82"></span>초록</button><button class="teamBtn" data-team="white"><span class="ticon" style="background:#fff"></span>자유와혁신</button></div><div class="custom"><div><label for="gender">캐릭터 체형</label><select id="gender"><option value="male">남성</option><option value="female">여성</option></select></div><div><label for="hair">머리 스타일</label><select id="hair"><option value="0">짧은 머리</option><option value="1">가르마 머리</option><option value="2">긴 머리</option><option value="3">곱슬 머리</option></select></div><div><label for="skin">피부색</label><select id="skin"><option value="0">밝은 피부</option><option value="1">보통 피부</option><option value="2">짙은 피부</option></select></div><div><label for="hairColor">머리색</label><select id="hairColor"><option value="0">검정</option><option value="1">갈색</option><option value="2">금발</option></select></div></div><button id="startPlay">게임 입장 →</button><div id="loadStatus" class="loading">그래픽 자동 최적화 준비 중…</div><div class="note">흰색 진영 유니폼에는 '자유와혁신 · YOON AGAIN' 문구가 들어갑니다. 실제 정치 집회가 아닌 가상 게임입니다. <b>가입 없이 게스트 입장</b>하며, 관리자 권한은 별도 서버 설정이 필요합니다.</div></div></div><div class="heroSide"><div class="big">SEOUL<br/>2026<br/>CONTROL</div><div class="badge">GWANGHWAMUN PLAZA • THIRD PERSON</div></div></div>
 <script>setTimeout(()=>{if(!window.__gwangEngineReady){document.querySelector('#loadErr').style.display='grid';document.querySelector('#loadStatus').textContent='엔진 로딩 실패: 네트워크를 확인하세요';}},15000)</script>
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinnedModel } from 'three/addons/utils/SkeletonUtils.js';
 window.__gwangEngineReady=true;const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];const clamp=THREE.MathUtils.clamp;const lerp=THREE.MathUtils.lerp;const rand=n=>(Math.sin(n*135.79+3.12)*43758.54%1+1)%1;
 const TOOL_TYPES=['의자','나무','화분','바리케이드','팻말','가로등','상자'];let toolType='의자',lastHudTick=0,lastMapTick=0,lastPhysTick=0,rockCooldown=0,interactTarget=null,benchRest=0,localRole='guest',props=new Map(),rockShots=[],boardText='광화문 점령전 · 서로 존중하는 플레이',boardImage=null;const TEAM={blue:{name:'파랑',color:0x428bff,css:'#428bff',spawn:[-13,62]},red:{name:'빨강',color:0xf26368,css:'#f26368',spawn:[10,62]},green:{name:'초록',color:0x4abd82,css:'#4abd82',spawn:[-19,-112]},white:{name:'자유와혁신',color:0xf0f3f7,css:'#f2f7ff',spawn:[18,12]}};const TEAMS=Object.keys(TEAM);
 const ZONES=[{id:'admiral',name:'이순신 동상',z:-43,x:-5.8,r:12},{id:'king',name:'세종대왕 동상',z:-96,x:-5.8,r:13},{id:'gate',name:'광화문 앞',z:-152,x:-5,r:13},{id:'square',name:'시민광장',z:32,x:-5,r:16}];
@@ -152,6 +153,43 @@ function qualitySetting(q){
 qualitySetting((()=>{try{return sessionStorage.getItem('gwang_quality')}catch{return null}})()||'auto');$('#quality').onchange=e=>qualitySetting(e.target.value);
 // optional real CC0 Kenney building glb, from documented CC0 public model mirror
 const assetLoader=new GLTFLoader();let loadedCC0=0;
+// Quaternius Animated Human CC0, retrieved from avatar-stage demo repository.
+// Skeleton and 7 authored clips: Idle, Walk, Run, Punch, Jump, Working, Death.
+let humanGltf=null;
+function upgradePlayerToHuman(){
+ if(!humanGltf||!PLAYER.avatar||!started||PLAYER.avatar.userData.humanBody)return;
+ const root=PLAYER.avatar,body=cloneSkinnedModel(humanGltf.scene);
+ body.traverse(o=>{if(o.isMesh||o.isSkinnedMesh){o.castShadow=false;o.receiveShadow=true;o.frustumCulled=false}});
+ const initial=new THREE.Box3().setFromObject(body),sz=initial.getSize(new THREE.Vector3());
+ if(!Number.isFinite(sz.y)||sz.y<.1)return;
+ body.scale.setScalar(3.35/sz.y);
+ const bounds=new THREE.Box3().setFromObject(body);
+ body.position.set(-bounds.getCenter(new THREE.Vector3()).x,-bounds.min.y,-bounds.getCenter(new THREE.Vector3()).z);
+ // The original toon model has a human silhouette, textured face and a full rig.
+ root.add(body);
+ root.userData.humanBody=body;
+ root.userData.humanMixer=new THREE.AnimationMixer(body);
+ root.userData.humanActions={};
+ for(const clip of humanGltf.animations||[]){root.userData.humanActions[clip.name.toLowerCase()]=root.userData.humanMixer.clipAction(clip)}
+ const first=root.userData.humanActions.idle||Object.values(root.userData.humanActions)[0];
+ if(first){first.play();root.userData.humanActive=first}
+ if(root.userData.torso)root.userData.torso.visible=false;
+ if(root.userData.legs)root.userData.legs.forEach(leg=>leg.visible=false);
+ $('#loadStatus').textContent='✓ 실제 인체형 CC0 모델과 뼈대 모션 적용 완료';
+}
+const HUMAN_MODEL_URL=location.protocol==='file:'?'https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/assets/characters/human_animated.glb':'/assets/characters/human_animated.glb';
+assetLoader.load(HUMAN_MODEL_URL,gltf=>{if(!gltf.animations?.length){console.warn('Human model loaded without actions');return}humanGltf=gltf;upgradePlayerToHuman()},undefined,e=>console.info('Human asset unavailable: using procedural avatar',e));
+function animateHumanAvatar(p,dt){
+ const u=p.avatar?.userData;if(!u?.humanBody)return false;
+ const actions=u.humanActions;
+ const phase=p.attack>0?'punch':p.y>.15?'jump':p.moving?(p.sprinting?'run':'walk'):'idle';
+ let next=actions[phase]||actions[phase.toLowerCase()]||actions.idle||Object.values(actions)[0];
+ if(next&&next!==u.humanActive){next.reset().play();if(u.humanActive)next.crossFadeFrom(u.humanActive,.15,true);u.humanActive=next}
+ u.humanMixer.update(dt);
+ if(p.attack>0)p.attack=Math.max(0,p.attack-dt);
+ return true;
+}
+
 function loadCC0Building(url,x,z,targetHeight){assetLoader.load(url,(g)=>{let model=g.scene;model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());if(size.y<.001)return;model.scale.setScalar(targetHeight/size.y);bounds.setFromObject(model);let center=bounds.getCenter(new THREE.Vector3());model.position.set(x-center.x,-bounds.min.y,z-center.z);scene.add(model);loadedCC0++;$('#loadStatus').textContent='✓ CC0 건물 3D 에셋 '+loadedCC0+'개 불러옴';},undefined,()=>{$('#loadStatus').textContent='기본 맵 준비 완료 · 외부 3D 모델은 인터넷 연결 필요';});}
 loadCC0Building(location.protocol==='file:'?'https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/assets/buildings/building-d.glb':'/assets/buildings/building-d.glb',55,-13,24);
 loadCC0Building(location.protocol==='file:'?'https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/assets/buildings/building-n.glb':'/assets/buildings/building-n.glb',-54,30,26);
@@ -166,15 +204,15 @@ function applyKenneyCarAsset(car,model){
  const instance=model.clone(true);
  let bbox=new THREE.Box3().setFromObject(instance),sz=bbox.getSize(new THREE.Vector3());
  if(!Number.isFinite(sz.x)||sz.x<.001||sz.y<.001||sz.z<.001)return;
- // Kenney's car models normally face ±Z: normalize to local -Z like game controls.
- // Kenney sedan.glb has named FRONT wheels at local z=+0.66 and REAR wheels
- // at local z=-0.66. The gameplay front is local -Z, so rotate Kenney by 180 degrees.
- instance.rotation.y=sz.x>sz.z?Math.PI/2:Math.PI; // Kenney model front-wheel axle is +Z; game forward is -Z
+ // Kenney Car Kit sedan and SUV front-wheel axle is at local +Z.
+ // The visual vehicle holder is rotated PI (procedural cars were built facing -Z),
+ // so rotate the GLB back PI to make its real front wheels point +Z in world space.
+ instance.rotation.y=sz.x>sz.z?Math.PI/2:Math.PI;
  bbox.setFromObject(instance);sz=bbox.getSize(new THREE.Vector3());
  instance.scale.setScalar(Math.min(2.7/sz.x,2.23/sz.y,5.1/sz.z));
  bbox.setFromObject(instance);const center=bbox.getCenter(new THREE.Vector3());
  instance.position.set(-center.x,-bbox.min.y,-center.z);
- car.obj.add(instance);car.assetBody=instance;
+ car.visual.add(instance);car.assetBody=instance;
  // Do not hide the whole fallback cabin: glass + driver must remain visible.
  // Keep the shell while user uses real assets, because it has functioning see-through windows.
  instance.visible=true;
@@ -234,7 +272,7 @@ function updateNPCLOD(){if(now-lastLODTime<.38)return;lastLODTime=now;
 const carGlass=new THREE.MeshPhysicalMaterial({color:0x8dc9e5,metalness:0.0,roughness:.16,transparent:true,opacity:.32,depthWrite:false,side:THREE.DoubleSide});
 const carChrome=mat(0xd7e2e2,.24,.75),carRubber=mat(0x222c35,.83,.06),carSeat=mat(0x364353,.9,.05);
 function makeSeatOccupant(car){
- const driver=new THREE.Group();car.obj.add(driver);driver.position.set(-.50,0,-.57);driver.visible=false;
+ const driver=new THREE.Group();car.visual.add(driver);driver.position.set(-.50,0,-.57);driver.visible=false;
  const jacket=mat(0x587b99),face=mat(0xd6a47f),hair=mat(0x303037);
  cube(0,1.39,.08,.62,.52,.48,jacket,driver);
  ball(0,1.90,.08,.31,face,driver,14);
@@ -242,12 +280,12 @@ function makeSeatOccupant(car){
  for(const dx of [-.19,.19]){ball(dx,1.94,-.19,.052,mat(0xffffff),driver,9);ball(dx,1.94,-.22,.022,mat(0x242631),driver,8)}
  for(const dx of [-.38,.38]){let arm=cube(dx,1.35,-.28,.17,.26,.3,jacket,driver);arm.rotation.x=-.5}
  car.driverModel=driver;
- const steering=new THREE.Group();car.obj.add(steering);steering.position.set(-.50,1.38,-1.23);
+ const steering=new THREE.Group();car.visual.add(steering);steering.position.set(-.50,1.38,-1.23);
  let wheel=cylinder(0,0,0,.30,.30,.04,carRubber,steering,18);wheel.rotation.x=Math.PI/2;
  cylinder(0,0,0,.055,.055,.07,carChrome,steering,12).rotation.x=Math.PI/2;
 }
 function makeCarBody(car){
- const p=car.obj;const shell=new THREE.Group();p.add(shell);car.fallbackShell=shell;
+ const p=car.visual;const shell=new THREE.Group();p.add(shell);car.fallbackShell=shell;
  const paint=mat([0xe9eeee,0x226196,0x417d68,0xcac0aa,0xc2d0dc,0x596a84][car.index%6],.34,.34);
  // Body below windows; windshield / side / rear windows are see-through.
  cube(0,.80,0,2.72,.88,5.10,paint,shell);
@@ -281,7 +319,8 @@ function makeCarBody(car){
  makeSeatOccupant(car);
 }
 function addCar(x,z,i){
- const v={id:'car'+i,index:i,x,z,yaw:i%2?Math.PI:0,speed:0,driver:null,lastHit:new Map(),obj:new THREE.Group(),driverModel:null,fallbackShell:null,assetBody:null};
+ const v={id:'car'+i,index:i,x,z,yaw:i%2?Math.PI:0,speed:0,vx:0,vz:0,drifting:false,driftEnergy:0,driver:null,lastHit:new Map(),obj:new THREE.Group(),visual:new THREE.Group(),driverModel:null,fallbackShell:null,assetBody:null};
+ v.obj.add(v.visual);v.visual.rotation.y=Math.PI; // procedural bonnets were authored toward -Z; visible front is now +Z
  scene.add(v.obj);makeCarBody(v);v.obj.position.set(x,0,z);v.obj.rotation.y=v.yaw;cars.push(v);
 }
 addCar(29,57,0);addCar(33,-17,1);addCar(31,-110,2);addCar(25,89,3);addCar(-12,68,4);addCar(18,16,5);
@@ -325,19 +364,19 @@ function ensurePlayerFinite(where='frame'){
  }
  for(const k of ['x','y','z','heading'])lastSafePlayer[k]=PLAYER[k];
 }
-function spawn(){let start=TEAM[team].spawn;PLAYER.x=start[0];PLAYER.z=start[1];PLAYER.y=0;PLAYER.hp=PLAYER.maxHp;PLAYER.stamina=PLAYER.maxStamina;PLAYER.hunger=100;PLAYER.vx=PLAYER.vy=PLAYER.vz=0;PLAYER.stun=0;PLAYER.car=null;if(inCar){inCar.driver=null;inCar=null}if(PLAYER.avatar)scene.remove(PLAYER.avatar);PLAYER.avatar=makeAvatar({team,gender,hair,skin,hairColor});weaponDisplay=null;syncWeaponAppearance();scene.add(PLAYER.avatar);PLAYER.avatar.position.set(PLAYER.x,0,PLAYER.z);PLAYER.heading=0;ensurePlayerFinite('spawn');deadUntil=0;$('#respawn').style.display='none'}
+function spawn(){let start=TEAM[team].spawn;PLAYER.x=start[0];PLAYER.z=start[1];PLAYER.y=0;PLAYER.hp=PLAYER.maxHp;PLAYER.stamina=PLAYER.maxStamina;PLAYER.hunger=100;PLAYER.vx=PLAYER.vy=PLAYER.vz=0;PLAYER.stun=0;PLAYER.car=null;if(inCar){inCar.driver=null;inCar=null}if(PLAYER.avatar)scene.remove(PLAYER.avatar);PLAYER.avatar=makeAvatar({team,gender,hair,skin,hairColor});upgradePlayerToHuman();weaponDisplay=null;syncWeaponAppearance();scene.add(PLAYER.avatar);PLAYER.avatar.position.set(PLAYER.x,0,PLAYER.z);PLAYER.heading=0;ensurePlayerFinite('spawn');deadUntil=0;$('#respawn').style.display='none'}
 function send(data){if(ws&&ws.readyState===1)ws.send(JSON.stringify(data))}
 function connect(){if(location.protocol==='file:')return;try{ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/play');ws.onopen=()=>{send({t:'join',name:nick,team,gender,hair,skin,hairColor});};ws.onmessage=e=>{let d;try{d=JSON.parse(e.data)}catch{return}processNet(d)};ws.onclose=()=>{online=false;$('#online').textContent='로컬 체험';remotes.forEach(p=>scene.remove(p.avatar));remotes.clear()}}catch(e){online=false}}
-function processNet(d){if(d.t==='inventory'){inventoryPacket(d);if(d.notice)toast(d.notice)}if(d.t==='welcome'){online=true;selfId=d.id;$('#online').textContent='멀티플레이 접속';$('#population').textContent=d.players.length;for(let p of d.players)if(p.id!==selfId)addRemote(p);if(d.zones){d.zones.forEach((z,i)=>Object.assign(zoneState[i],z))}if(d.scores)scores=d.scores;if(d.props)for(let item of d.props)makeProp(item);if(d.billboard){boardText=d.billboard.text||boardText;boardImage=null;if(d.billboard.image){let image=new Image();image.onload=()=>{boardImage=image;paintBillboard()};image.src=d.billboard.image}else paintBillboard()}if(d.inventory)inventoryPacket(d.inventory);toast('서버에 연결되었습니다!')}if(d.t==='join')addRemote(d.player);if(d.t==='leave'){let p=remotes.get(d.id);if(p){scene.remove(p.avatar);remotes.delete(d.id)}for(let v of cars)if(v.driver===d.id)v.driver=null}if(d.t==='move'){let p=remotes.get(d.id);if(p){p.targetX=d.x;p.targetZ=d.z;p.heading=d.heading;p.hp=d.hp;p.hunger=d.hunger;p.stamina=d.stamina;p.attack=d.attack?0.3:p.attack;p.car=d.car||null;for(let v of cars){if(d.car===v.id){v.driver=d.id;v.x=d.x;v.z=d.z;v.yaw=d.heading}else if(v.driver===d.id)v.driver=null}}}if(d.t==='count')$('#population').textContent=d.count;if(d.t==='chat')chat(d.name,d.text);if(d.t==='zones'){d.zones.forEach((z,i)=>Object.assign(zoneState[i],z));scores=d.scores}if(d.t==='damage'){if(d.id===selfId){damage(0,d.dx||0,d.dz||0,d.power||0,true);PLAYER.hp=d.hp;PLAYER.vy=Math.max(PLAYER.vy,d.up||0)}else{let p=remotes.get(d.id);if(p){p.hp=d.hp;p.vx=(d.dx||0)*(d.power||6);p.vz=(d.dz||0)*(d.power||6);p.vy=d.up||0;p.stun=.32}}}if(d.t==='hit'){let p=remotes.get(d.id);if(p)p.attack=.22}if(d.t==='ko'&&d.id===selfId){PLAYER.hp=0;fall()}if(d.t==='respawn'&&d.id===selfId){spawn();if(d.inventory)inventoryPacket(d.inventory)}if(d.t==='propAdd'){makeProp(d.prop)}if(d.t==='propRemove'){removeProp(d.id)}if(d.t==='billboard'){boardText=String(d.text||'광화문 점령전');boardImage=null;if(d.image){let im=new Image();im.onload=()=>{boardImage=im;paintBillboard()};im.src=d.image}else paintBillboard()}if(d.t==='rock'){if(d.id!==selfId)rockProjectile(d.x,d.z,d.dx,d.dz,false)}if(d.t==='carTaken'){let c=cars.find(c=>c.id===d.car);if(c){c.driver=d.to;if(d.to===selfId){inCar=c;PLAYER.x=c.x;PLAYER.z=c.z;PLAYER.avatar.visible=false;toast('🚗 차량 인수 성공! WASD 운전')}else if(d.from===selfId&&inCar===c){inCar=null;PLAYER.x=c.x+3.5;PLAYER.z=c.z;PLAYER.avatar.visible=true;toast('다른 플레이어가 차량을 차지했습니다')}}}if(d.t==='staffRole'){localRole=d.role||'guest';$('#adminRole').textContent='접속 권한: '+localRole}}
+function processNet(d){if(d.t==='inventory'){inventoryPacket(d);if(d.notice)toast(d.notice)}if(d.t==='welcome'){online=true;selfId=d.id;$('#online').textContent='멀티플레이 접속';$('#population').textContent=d.players.length;for(let p of d.players)if(p.id!==selfId)addRemote(p);if(d.zones){d.zones.forEach((z,i)=>Object.assign(zoneState[i],z))}if(d.scores)scores=d.scores;if(d.props)for(let item of d.props)makeProp(item);if(d.billboard){boardText=d.billboard.text||boardText;boardImage=null;if(d.billboard.image){let image=new Image();image.onload=()=>{boardImage=image;paintBillboard()};image.src=d.billboard.image}else paintBillboard()}if(d.inventory)inventoryPacket(d.inventory);toast('서버에 연결되었습니다!')}if(d.t==='join')addRemote(d.player);if(d.t==='leave'){let p=remotes.get(d.id);if(p){scene.remove(p.avatar);remotes.delete(d.id)}for(let v of cars)if(v.driver===d.id)v.driver=null}if(d.t==='move'){let p=remotes.get(d.id);if(p){p.targetX=d.x;p.targetZ=d.z;p.heading=d.heading;p.hp=d.hp;p.hunger=d.hunger;p.stamina=d.stamina;p.attack=d.attack?0.3:p.attack;p.car=d.car||null;for(let v of cars){if(d.car===v.id){v.driver=d.id;v.x=d.x;v.z=d.z;v.yaw=d.heading}else if(v.driver===d.id)v.driver=null}}}if(d.t==='count')$('#population').textContent=d.count;if(d.t==='chat')chat(d.name,d.text);if(d.t==='zones'){d.zones.forEach((z,i)=>Object.assign(zoneState[i],z));scores=d.scores}if(d.t==='damage'){if(d.id===selfId){damage(0,d.dx||0,d.dz||0,d.power||0,true);PLAYER.hp=d.hp;PLAYER.vy=Math.max(PLAYER.vy,d.up||0)}else{let p=remotes.get(d.id);if(p){p.hp=d.hp;p.vx=(d.dx||0)*(d.power||6);p.vz=(d.dz||0)*(d.power||6);p.vy=d.up||0;p.stun=.32}}}if(d.t==='hit'){let p=remotes.get(d.id);if(p)p.attack=.22}if(d.t==='ko'&&d.id===selfId){PLAYER.hp=0;fall()}if(d.t==='respawn'&&d.id===selfId){spawn();if(d.inventory)inventoryPacket(d.inventory)}if(d.t==='propAdd'){makeProp(d.prop)}if(d.t==='propRemove'){removeProp(d.id)}if(d.t==='billboard'){boardText=String(d.text||'광화문 점령전');boardImage=null;if(d.image){let im=new Image();im.onload=()=>{boardImage=im;paintBillboard()};im.src=d.image}else paintBillboard()}if(d.t==='rock'){if(d.id!==selfId)rockProjectile(d.x,d.z,d.dx,d.dz,false)}if(d.t==='carTaken'){let c=cars.find(c=>c.id===d.car);if(c){c.driver=d.to;if(d.to===selfId){inCar=c;PLAYER.x=c.x;PLAYER.z=c.z;PLAYER.avatar.visible=false;cam.yaw=c.yaw+Math.PI;orbitYaw=cam.yaw;toast('🚗 차량 인수 성공 · W/↑ 전진 · Space 브레이크')}else if(d.from===selfId&&inCar===c){inCar=null;PLAYER.x=c.x+3.5;PLAYER.z=c.z;PLAYER.avatar.visible=true;toast('다른 플레이어가 차량을 차지했습니다')}}}if(d.t==='staffRole'){localRole=d.role||'guest';$('#adminRole').textContent='접속 권한: '+localRole}}
 function addRemote(p){if(remotes.has(p.id))return;let o={...p,id:p.id,targetX:p.x,targetZ:p.z,vx:0,vz:0,vy:0,y:0,stun:0,attack:0,walk:0,heading:p.heading||0};o.avatar=makeAvatar(o);scene.add(o.avatar);remotes.set(p.id,o)}
 function damage(amount,dx,dz,power=6,remoteOnly=false){if(!started||PLAYER.hp<=0)return;dx=Number.isFinite(dx)?clamp(dx,-1,1):0;dz=Number.isFinite(dz)?clamp(dz,-1,1):0;power=Number.isFinite(power)?clamp(power,0,20):0;if(!remoteOnly)PLAYER.hp=clamp(PLAYER.hp-amount,0,PLAYER.maxHp);PLAYER.vx+=dx*power;PLAYER.vz+=dz*power;PLAYER.vy=Math.max(PLAYER.vy,Math.min(7,power*.38));PLAYER.stun=.32;hitFlash=.2;if(PLAYER.hp<=0)fall()}
 function fall(){if(deadUntil>0)return;deadUntil=now+3.3;$('#respawn').style.display='block';toast('HP가 0이 되어 리스폰합니다');if(inCar){inCar.driver=null;inCar=null}}
 function attack(){if(!started||PLAYER.hp<=0||inCar||attackCooldown>0||PLAYER.stamina<3)return;attackCooldown=.28;PLAYER.attack=.22;PLAYER.stamina-=3;let fx=-Math.sin(PLAYER.heading),fz=-Math.cos(PLAYER.heading);let hit=0;for(let n of npcs){if(n.hp<=0)continue;let dx=n.x-PLAYER.x,dz=n.z-PLAYER.z,d=Math.hypot(dx,dz);if(d<2.65&&(dx*fx+dz*fz)/Math.max(d,.001)>.25){let vecX=dx/(d||1),vecZ=dz/(d||1);npcDamage(n,(PLAYER.weapon==='axe'?38:PLAYER.weapon==='club'?30:20)+PLAYER.power,vecX,vecZ,PLAYER.weapon==='fist'?7:9);hit++}}if(online){send({t:'attack',heading:PLAYER.heading,weapon:PLAYER.weapon});}toast(hit?'⚔️ '+(PLAYER.weapon==='fist'?'주먹':LOOT[PLAYER.weapon].name)+' 적중!':'⚔️ '+(PLAYER.weapon==='fist'?'주먹 공격':LOOT[PLAYER.weapon].name+' 공격'));}
 function npcDamage(n,amount,dx,dz,power){if(n.hp<=0)return;n.hp=Math.max(0,n.hp-amount);n.vx+=dx*power;n.vz+=dz*power;n.vy=power*.35;n.stun=.55;if(n.hp<=0){n.down=now+15;if(!online)offlineKnockout(n);}}
 function eat(){if(!started||PLAYER.hp<=0)return;if(PLAYER.food<=0){toast('간식이 없습니다 · 편의점에서 코인으로 사세요');return}if(online){send({t:'eat'});return}PLAYER.food--;PLAYER.hunger=clamp(PLAYER.hunger+38,0,100);PLAYER.hp=clamp(PLAYER.hp+8,0,PLAYER.maxHp);toast('🍙 김밥을 먹었습니다 · 포만감 회복')}
-function use(){if(!started||PLAYER.hp<=0)return;if(inCar){if(online)send({t:'carExit'});inCar.driver=null;PLAYER.x=inCar.x+Math.cos(inCar.yaw)*3.3;PLAYER.z=inCar.z-Math.sin(inCar.yaw)*3.3;inCar=null;PLAYER.avatar.visible=true;toast('차량에서 내렸습니다');return}let nearest=null,best=4.5;for(let c of cars){let d=Math.hypot(PLAYER.x-c.x,PLAYER.z-c.z);if(d<best&&!c.driver){nearest=c;best=d}}let near=findInteract();if(near&&(!nearest||Math.hypot(PLAYER.x-near.x,PLAYER.z-near.z)<best)){activateInteract(near);return}if(!nearest){toast('가까운 상호작용 물체가 없습니다');return}inCar=nearest;nearest.driver=selfId||'local';nearest.speed=0;PLAYER.avatar.visible=false;toast('🚙 운전 시작 · WASD 운전, E 하차')}
+function use(){if(!started||PLAYER.hp<=0)return;if(inCar){if(online)send({t:'carExit'});inCar.driver=null;PLAYER.x=inCar.x+Math.cos(inCar.yaw)*3.3;PLAYER.z=inCar.z-Math.sin(inCar.yaw)*3.3;inCar=null;PLAYER.avatar.visible=true;toast('차량에서 내렸습니다');return}let nearest=null,best=4.5;for(let c of cars){let d=Math.hypot(PLAYER.x-c.x,PLAYER.z-c.z);if(d<best&&!c.driver){nearest=c;best=d}}let near=findInteract();if(near&&(!nearest||Math.hypot(PLAYER.x-near.x,PLAYER.z-near.z)<best)){activateInteract(near);return}if(!nearest){toast('가까운 상호작용 물체가 없습니다');return}inCar=nearest;nearest.driver=selfId||'local';nearest.speed=0;PLAYER.avatar.visible=false;cam.yaw=nearest.yaw+Math.PI;orbitYaw=cam.yaw;toast('🚙 W/↑ 전진 · Shift 터보 · Space 브레이크 · Ctrl 드리프트')}
 function moveEntity(e,dt){if(!Number.isFinite(e.vx))e.vx=0;if(!Number.isFinite(e.vz))e.vz=0;if(!Number.isFinite(e.vy))e.vy=0;e.vy=(e.vy||0)-22*dt;e.y=(e.y||0)+e.vy*dt;if(e.y<0){e.y=0;e.vy=0}e.x=clamp(e.x+(e.vx||0)*dt,-43,43);e.z=clamp(e.z+(e.vz||0)*dt,-161,125);e.vx*=Math.exp(-6.5*dt);e.vz*=Math.exp(-6.5*dt);e.stun=Math.max(0,(e.stun||0)-dt)}
-function hitVehicles(dt){for(let car of cars){if(!car.driver)continue;let speed=Math.abs(car.speed);if(speed<3.7)continue;const dirX=-Math.sin(car.yaw),dirZ=-Math.cos(car.y);for(let n of npcs){if(n.hp<=0)continue;let d=Math.hypot(n.x-car.x,n.z-car.z),lastHit=car.lastHit.get(n.id)||0;if(d<2.2&&now-lastHit>.95){car.lastHit.set(n.id,now);npcDamage(n,Math.round(Math.min(70,speed*3.7)),dirX,dirZ,Math.min(13,speed*.95));car.speed*=.72}}if(!inCar||car!==inCar){let d=Math.hypot(PLAYER.x-car.x,PLAYER.z-car.z);if(d<2.2&&now-(car.lastHit.get('self')||0)>1){car.lastHit.set('self',now);damage(Math.round(speed*3),dirX,dirZ,Math.min(12,speed))}}}}
+function hitVehicles(dt){for(let car of cars){if(!car.driver)continue;let speed=Math.abs(car.speed);if(speed<3.7)continue;const dirX=Math.sin(car.yaw),dirZ=Math.cos(car.yaw);for(let n of npcs){if(n.hp<=0)continue;let d=Math.hypot(n.x-car.x,n.z-car.z),lastHit=car.lastHit.get(n.id)||0;if(d<2.2&&now-lastHit>.95){car.lastHit.set(n.id,now);npcDamage(n,Math.round(Math.min(70,speed*3.7)),dirX,dirZ,Math.min(13,speed*.95));car.speed*=.72}}if(!inCar||car!==inCar){let d=Math.hypot(PLAYER.x-car.x,PLAYER.z-car.z);if(d<2.2&&now-(car.lastHit.get('self')||0)>1){car.lastHit.set('self',now);damage(Math.round(speed*3),dirX,dirZ,Math.min(12,speed))}}}}
 function updateNPC(dt){for(const n of npcs){
  if(n.hp<=0){n.avatar.visible=false;if(now>n.down){n.hp=100;n.x=n.baseX;n.z=n.baseZ;n.y=0;n.vx=n.vz=n.vy=0}continue}
  // Only react to player attacks or vehicle collisions. No wandering and no automatic punching.
@@ -350,6 +389,7 @@ function updateNPC(dt){for(const n of npcs){
  }}
 function animateAvatar(p,dt){
  if(!p.avatar)return;
+ if(animateHumanAvatar(p,dt))return;
  const u=p.avatar.userData;
  // Locomotion is driven by actual moving state, NOT the accumulated walk-clock.
  // A one-frame stop keeps the phase but eases the pose back to idle instead of snapping.
@@ -387,9 +427,58 @@ function updateCapture(dt){if(online)return;for(let i=0;i<ZONES.length;i++){
  if(v.owner)scores[v.owner]+=dt*.12
 }}
 function updateUI(){for(let t of TEAMS)$('#sc_'+t).textContent=Math.floor(scores[t]);for(let [i,v] of zoneState.entries()){let owner=v.owner?TEAM[v.owner].name:'중립',el=$('#zoneOwner'+i),b=$('#zoneFill'+i);el.textContent=owner+' '+(v.progress<1?v.progress.toFixed(3):v.progress.toFixed(2))+'%';el.style.color=v.owner?TEAM[v.owner].css:'#d9c28a';b.style.width=v.progress+'%';b.style.background=v.owner?TEAM[v.owner].css:v.lead?TEAM[v.lead].css:'#d9c28a';ZONES[i].ring.material.color.set(v.owner?TEAM[v.owner].color:0xe1c57a)}
-for(let [selector,num] of [['hp',PLAYER.hp],['sp',PLAYER.stamina],['food',PLAYER.hunger]]){let b=$('#'+selector+'Bar');b.style.width=clamp(num/(selector==='hp'?PLAYER.maxHp:selector==='sp'?PLAYER.maxStamina:100)*100,0,100)+'%';$('#'+selector+'N').textContent=(selector==='food'?Math.ceil(Math.max(0,num)-1e-9):Math.floor(Math.max(0,num)))+' / '+(selector==='hp'?PLAYER.maxHp:selector==='sp'?PLAYER.maxStamina:100)}$('#xp').textContent='🍙 간식 '+PLAYER.food+'개 · 1키 먹기';$('#economy').firstChild.textContent='🪙 '+PLAYER.coins+' 코인 · 🌿 가지 '+PLAYER.branches+' · 🪨 돌 '+PLAYER.stones+'\n';$('#economy').childNodes[2].textContent='🥊 '+(PLAYER.weapon==='fist'?'맨손':LOOT[PLAYER.weapon]?.name)+' · 생존 '+Math.floor(PLAYER.aliveSeconds/60)+'분 · 성장 '+PLAYER.skillPoints+'p ';$('#materials').textContent='🌿 가지 '+PLAYER.branches+' · 🪨 돌 '+PLAYER.stones;$('#growthInfo').textContent='포인트 '+PLAYER.skillPoints+'p | 체력 '+PLAYER.maxHp+' · 힘 +'+PLAYER.power+' · 기력 '+PLAYER.maxStamina;let closest=cars.find(c=>Math.hypot(c.x-PLAYER.x,c.z-PLAYER.z)<4.5&&!c.driver);let near=findInteract();$('#context').style.display=inCar||closest||near?'block':'none';$('#context').textContent=inCar?'[E] 차량에서 내리기':closest?'[E] 자동차 운전하기':near?'[E] '+near.kind+' 상호작용':''}
+for(let [selector,num] of [['hp',PLAYER.hp],['sp',PLAYER.stamina],['food',PLAYER.hunger]]){let b=$('#'+selector+'Bar');b.style.width=clamp(num/(selector==='hp'?PLAYER.maxHp:selector==='sp'?PLAYER.maxStamina:100)*100,0,100)+'%';$('#'+selector+'N').textContent=(selector==='food'?Math.ceil(Math.max(0,num)-1e-9):Math.floor(Math.max(0,num)))+' / '+(selector==='hp'?PLAYER.maxHp:selector==='sp'?PLAYER.maxStamina:100)}$('#xp').textContent='🍙 간식 '+PLAYER.food+'개 · 1키 먹기';$('#economy').firstChild.textContent='🪙 '+PLAYER.coins+' 코인 · 🌿 가지 '+PLAYER.branches+' · 🪨 돌 '+PLAYER.stones+'\n';$('#economy').childNodes[2].textContent='🥊 '+(PLAYER.weapon==='fist'?'맨손':LOOT[PLAYER.weapon]?.name)+' · 생존 '+Math.floor(PLAYER.aliveSeconds/60)+'분 · 성장 '+PLAYER.skillPoints+'p ';$('#materials').textContent='🌿 가지 '+PLAYER.branches+' · 🪨 돌 '+PLAYER.stones;$('#growthInfo').textContent='포인트 '+PLAYER.skillPoints+'p | 체력 '+PLAYER.maxHp+' · 힘 +'+PLAYER.power+' · 기력 '+PLAYER.maxStamina;let closest=cars.find(c=>Math.hypot(c.x-PLAYER.x,c.z-PLAYER.z)<4.5&&!c.driver);let near=findInteract();$('#context').style.display=inCar||closest||near?'block':'none';$('#context').textContent=inCar?'[E] 하차 · ↑ 전진 / ↓ 후진 · Shift 가속 · Space 브레이크 · Ctrl 드리프트':closest?'[E] 자동차 운전하기':near?'[E] '+near.kind+' 상호작용':''}
 const mapCtx=$('#map').getContext('2d');function minimap(){let c=mapCtx,w=400,h=448;c.clearRect(0,0,w,h);c.fillStyle='#395d60';c.fillRect(0,0,w,h);c.fillStyle='#b0bbb0';c.fillRect(116,0,140,h);c.fillStyle='#59636e';c.fillRect(255,0,85,h);c.fillStyle='#ddd6ba';c.fillRect(127,0,110,h);c.fillStyle='#6d9e7e';for(let i=0;i<6;i++)c.fillRect(126,i*77,9,53);const proj=(x,z)=>[180+x*2.4,235+(z+52)*1.41];for(let z of ZONES){let [x,y]=proj(z.x,z.z),v=zoneState[ZONES.indexOf(z)];c.beginPath();c.arc(x,y,z.r*1.6,0,Math.PI*2);c.fillStyle=v.owner?TEAM[v.owner].css+'55':'#ffde8f55';c.fill();c.strokeStyle=v.owner?TEAM[v.owner].css:'#f4d89a';c.lineWidth=2;c.stroke()}for(let n of npcs){if(n.hp<=0)continue;let [x,y]=proj(n.x,n.z);c.fillStyle=TEAM[n.team].css;c.fillRect(x-2,y-2,4,4)}for(let p of remotes.values()){let [x,y]=proj(p.x,p.z);c.fillStyle=TEAM[p.team].css;c.fillRect(x-3,y-3,6,6)}for(let car of cars){let [x,y]=proj(car.x,car.z);c.fillStyle='#f7ffff';c.fillRect(x-3,y-5,6,10)}let [px,py]=proj(PLAYER.x,PLAYER.z);c.beginPath();c.arc(px,py,7,0,Math.PI*2);c.fillStyle='#faffff';c.fill();c.lineWidth=3;c.strokeStyle='#55eaca';c.stroke();c.font='bold 14px system-ui';c.textAlign='center';c.fillStyle='#192e30';c.fillText('광화문',165,18);c.fillText('N ↑',365,18);ensurePlayerFinite('minimap');$('#coords').textContent='좌표 '+Math.round(PLAYER.x)+', '+Math.round(PLAYER.z)+' · '+(inCar?'🚙 운전 중':'도보')}
-function updateCars(dt){for(let car of cars){if(!Number.isFinite(car.x)||!Number.isFinite(car.z)||!Number.isFinite(car.yaw)||!Number.isFinite(car.speed)){console.warn('Vehicle coordinates recovered',car.id);car.x=Number.isFinite(car.x)?car.x:25;car.z=Number.isFinite(car.z)?car.z:57;car.yaw=Number.isFinite(car.yaw)?car.yaw:0;car.speed=0}if(car===inCar){let acc=((keys.KeyW||keys.ArrowUp||sticks.y<-.35)?1:0)-((keys.KeyS||keys.ArrowDown||sticks.y>.35)?1:0),turn=((keys.KeyA||keys.ArrowLeft||sticks.x<-.4)?1:0)-((keys.KeyD||keys.ArrowRight||sticks.x>.4)?1:0);car.speed=clamp(car.speed+acc*21*dt,-10,24);if(!acc)car.speed*=Math.exp(-1.45*dt);car.yaw+=turn*dt*2.2*clamp(Math.abs(car.speed)/7,0,1)*(car.speed<0?-1:1);car.x=clamp(car.x-Math.sin(car.yaw)*car.speed*dt,-37,38);car.z=clamp(car.z-Math.cos(car.yaw)*car.speed*dt,-158,117);PLAYER.x=car.x;PLAYER.z=car.z;PLAYER.heading=car.yaw;PLAYER.y=0}car.obj.position.set(car.x,0,car.z);car.obj.rotation.y=car.yaw;
+function updateCars(dt){
+ for(const car of cars){
+  if(!Number.isFinite(car.x)||!Number.isFinite(car.z)||!Number.isFinite(car.yaw)||!Number.isFinite(car.speed)||!Number.isFinite(car.vx)||!Number.isFinite(car.vz)){
+   car.x=Number.isFinite(car.x)?car.x:25;car.z=Number.isFinite(car.z)?car.z:57;
+   car.yaw=Number.isFinite(car.yaw)?car.yaw:0;car.speed=0;car.vx=0;car.vz=0;
+  }
+  if(car===inCar){
+   const throttle=(keys.KeyW||keys.ArrowUp||sticks.y<-.35?1:0)-(keys.KeyS||keys.ArrowDown||sticks.y>.35?1:0);
+   const steer=(keys.KeyA||keys.ArrowLeft||sticks.x<-.4?1:0)-(keys.KeyD||keys.ArrowRight||sticks.x>.4?1:0);
+   const turbo=!!(keys.ShiftLeft||keys.ShiftRight||sticks.run);
+   const braking=!!keys.Space;
+   const drift=!!(keys.ControlLeft||keys.ControlRight)&&Math.abs(car.speed)>6.5&&!braking;
+   car.drifting=drift;
+   const targetTop=turbo?43:25;
+   const engineAccel=turbo?44:27;
+   if(braking){
+    const loss=48*dt;
+    car.speed=Math.abs(car.speed)<=loss?0:car.speed-Math.sign(car.speed)*loss;
+   }else if(throttle>0){
+    car.speed=Math.min(targetTop,car.speed+engineAccel*dt);
+   }else if(throttle<0){
+    car.speed=Math.max(-12.5,car.speed-24*dt);
+   }else{
+    car.speed*=Math.exp(-(drift?.42:1.85)*dt);
+    if(Math.abs(car.speed)<.045)car.speed=0;
+   }
+   const turning=Math.min(1,Math.abs(car.speed)/9);
+   const steerGain=(drift?2.85:1.85)*turning;
+   car.yaw+=(steer||0)*dt*steerGain*(car.speed<0?-1:1);
+   car.yaw=Math.atan2(Math.sin(car.yaw),Math.cos(car.yaw));
+   // In Three.js +Z is explicitly the positive vehicle-forward axis.
+   // Kenney's named front wheels are at local Z>0; car.visual faces +Z too.
+   const fx=Math.sin(car.yaw),fz=Math.cos(car.yaw);
+   const track=drift?1.1:(braking?13.5:8.8);
+   const blend=1-Math.exp(-track*dt);
+   car.vx+=(fx*car.speed-car.vx)*blend;
+   car.vz+=(fz*car.speed-car.vz)*blend;
+   if(braking){car.vx*=Math.exp(-3.0*dt);car.vz*=Math.exp(-3.0*dt)}
+   const nextX=car.x+car.vx*dt,nextZ=car.z+car.vz*dt;
+   const cappedX=clamp(nextX,-37,38),cappedZ=clamp(nextZ,-158,117);
+   if(cappedX!==nextX)car.vx=0;
+   if(cappedZ!==nextZ)car.vz=0;
+   car.x=cappedX;car.z=cappedZ;
+   PLAYER.x=car.x;PLAYER.z=car.z;PLAYER.heading=car.yaw;PLAYER.y=0;
+   // Chase camera tracks the rear of the vehicle without crossing its cabin.
+   const desiredCamYaw=car.yaw+Math.PI;
+   const yawDelta=Math.atan2(Math.sin(desiredCamYaw-cam.yaw),Math.cos(desiredCamYaw-cam.yaw));
+   if(!cam.drag)cam.yaw+=yawDelta*Math.min(1,dt*2.4);
+  }else{car.drifting=false;car.vx*=Math.exp(-6*dt);car.vz*=Math.exp(-6*dt)}
+  car.obj.position.set(car.x,0,car.z);car.obj.rotation.y=car.yaw;
 // When occupied, display the see-through modeled cabin and seated driver.
 // When empty, the real CC0 GLB body is used when available.
 if(car.assetBody){car.assetBody.visible=!car.driver;car.fallbackShell.visible=!!car.driver;}
@@ -482,6 +571,8 @@ function tickPlayer(dt){
   if(!online)PLAYER.hunger=Math.max(0,PLAYER.hunger-dt*HUNGER_PER_SECOND);
  }else stepPlayerWalking(dt);
 }
+const carHUD=document.createElement('div');carHUD.id='carSpeedometer';carHUD.style.cssText='display:none;position:fixed;left:50%;bottom:105px;transform:translateX(-50%);z-index:6;min-width:255px;padding:12px 16px;border-radius:14px;background:#09243ad9;color:#fff;font:900 14px system-ui,sans-serif;text-align:center;box-shadow:0 8px 30px #0008;pointer-events:none';document.body.appendChild(carHUD);
+function refreshCarHUD(){if(!inCar){carHUD.style.display='none';return}carHUD.style.display='block';carHUD.textContent='🚘 '+Math.round(Math.hypot(inCar.vx||0,inCar.vz||0)*3.6)+' km/h · '+(keys.Space?'브레이크':inCar.drifting?'💨 드리프트':keys.ShiftLeft||keys.ShiftRight?'⚡ 터보':'일반 주행');}
 const clock=new THREE.Clock();let frame=0,fpsClock=0;
 function loop(){
  let dt=clamp(safeScalar(clock.getDelta(),.016),0,.04);
@@ -491,6 +582,7 @@ function loop(){
  hitFlash=Math.max(0,hitFlash-dt);
  tickPlayer(dt);
  updateCars(dt);
+ refreshCarHUD();
  ensurePlayerFinite('after simulation');
  syncLocalAvatar(dt);
  updateNPC(dt);
@@ -552,7 +644,7 @@ $('#staffJoin').onclick=async()=>{let d=await adminPost('/api/staff/redeem',{cod
 $('#inviteStaff').onclick=async()=>{let d=await adminPost('/api/admin/invite',{role:'moderator'});if(d)$('#inviteResult').textContent='초대코드 (한 번만 표시): '+d.code};
 $('#publishScreen').onclick=async()=>{let text=$('#billboardText').value.trim();if(!text)return;let d=await adminPost('/api/admin/billboard',{text});if(d)$('#adminFeedback').textContent='전광판 문구가 게시됐습니다'};
 $('#publishPicture').onclick=()=>{const file=$('#billboardFile').files[0];if(!file||!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>150000){$('#adminFeedback').textContent='PNG/JPEG/WEBP, 최대 150KB만 가능합니다';return}let reader=new FileReader();reader.onload=async()=>{let d=await adminPost('/api/admin/billboard',{text:$('#billboardText').value.slice(0,90)||'광화문광장',image:reader.result});if(d)$('#adminFeedback').textContent='이미지 전광판이 게시됐습니다'};reader.readAsDataURL(file)};
-function jump(){if(!started||PLAYER.hp<=0||inCar||PLAYER.y>.03)return;PLAYER.vy=10.8}function onKeyDown(e){if(e.target.closest('input,select')||$('#tools').classList.contains('open')&&!['KeyB','KeyP'].includes(e.code)||$('#adminPanel').classList.contains('open')&&e.code!=='Escape')return;if(['Space','ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(!started||e.repeat)return;if(e.code==='KeyC')resetCamera();if(e.code==='KeyJ')throwRock();if(e.code==='Digit2')equipWeapon('fist');if(e.code==='Digit3')equipWeapon('club');if(e.code==='Digit4')equipWeapon('axe');if(e.code==='KeyU')$('#growth').classList.toggle('open');if(e.code==='KeyE')use();if(e.code==='Digit1')eat();if(e.code==='Space')jump();if(e.code==='Enter'){e.preventDefault();$('#chatInput').focus()}if(e.code==='KeyF'){PLAYER.cheer=1.1;toast('🙌 응원!')}if(e.code==='KeyB')showTools();if(e.code==='KeyP')placeProp();if(e.code==='KeyG')takeCar()}
+function jump(){if(!started||PLAYER.hp<=0||inCar||PLAYER.y>.03)return;PLAYER.vy=10.8}function onKeyDown(e){if(e.target.closest('input,select')||$('#tools').classList.contains('open')&&!['KeyB','KeyP'].includes(e.code)||$('#adminPanel').classList.contains('open')&&e.code!=='Escape')return;if(['Space','ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(!started||e.repeat)return;if(e.code==='KeyC')resetCamera();if(e.code==='KeyJ')throwRock();if(e.code==='Digit2')equipWeapon('fist');if(e.code==='Digit3')equipWeapon('club');if(e.code==='Digit4')equipWeapon('axe');if(e.code==='KeyU')$('#growth').classList.toggle('open');if(e.code==='KeyE')use();if(e.code==='Digit1')eat();if(e.code==='Space'&&!inCar)jump();if(e.code==='Enter'){e.preventDefault();$('#chatInput').focus()}if(e.code==='KeyF'){PLAYER.cheer=1.1;toast('🙌 응원!')}if(e.code==='KeyB')showTools();if(e.code==='KeyP')placeProp();if(e.code==='KeyG')takeCar()}
 window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',e=>{keys[e.code]=false});window.addEventListener('blur',()=>{keys={}});
 const cvs=renderer.domElement;
 cvs.addEventListener('contextmenu',e=>e.preventDefault());
@@ -565,6 +657,6 @@ cvs.addEventListener('pointerdown',e=>{
 });cvs.addEventListener('pointermove',e=>{if(!cam.drag)return;cam.yaw-=(e.clientX-cam.px)*.006;cam.pitch=clamp(cam.pitch+(e.clientY-cam.py)*.004,.27,.84);cam.px=e.clientX;cam.py=e.clientY});cvs.addEventListener('pointerup',()=>cam.drag=false);cvs.addEventListener('pointercancel',()=>cam.drag=false);cvs.addEventListener('lostpointercapture',()=>cam.drag=false);cvs.addEventListener('wheel',e=>{cam.dist=clamp(cam.dist+Math.sign(e.deltaY)*1.1,6,18)},{passive:true});
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false)});
 let touchId=null;const j=$('#joy'),kn=$('#knob');function joyMove(e){let r=j.getBoundingClientRect(),x=(e.clientX-(r.left+r.width/2))/(r.width/2),y=(e.clientY-(r.top+r.height/2))/(r.height/2),l=Math.max(1,Math.hypot(x,y));sticks.x=Number.isFinite(x/l)?x/l:0;sticks.y=Number.isFinite(y/l)?y/l:0;kn.style.transform=`translate(${sticks.x*32}px,${sticks.y*32}px)`}j.addEventListener('pointerdown',e=>{touchId=e.pointerId;j.setPointerCapture(e.pointerId);joyMove(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===touchId)joyMove(e)});for(let ev of ['pointerup','pointercancel'])j.addEventListener(ev,()=>{sticks.x=sticks.y=0;touchId=null;kn.style.transform='' });$('#mHit').onclick=attack;$('#mUse').onclick=use;$('#mEat').onclick=eat;$('#mJump').onclick=jump;$('#mRun').addEventListener('pointerdown',()=>sticks.run=true);for(let ev of ['pointerup','pointercancel','pointerleave'])$('#mRun').addEventListener(ev,()=>sticks.run=false);
-$$('.teamBtn').forEach(b=>b.onclick=()=>{$$('.teamBtn').forEach(e=>e.classList.toggle('sel',b===e));team=b.dataset.team});try{let profile=JSON.parse(localStorage.getItem('gwang_profile')||'null');if(profile){$('#nick').value=profile.nick||'';for(let f of ['gender','hair','skin','hairColor'])if(profile[f]!==undefined)$('#'+f).value=profile[f];if(TEAM[profile.team]){$$('.teamBtn').find(b=>b.dataset.team===profile.team)?.click()}}}catch{}$('#loadStatus').textContent='V4.9 · 좌클릭 공격 / J 돌 투척 / E 실제 물체 채집';$('#startPlay').onclick=()=>{nick=($('#nick').value.trim()||'광장 시민').slice(0,14);gender=$('#gender').value;hair=Number($('#hair').value);skin=Number($('#skin').value);hairColor=Number($('#hairColor').value);PLAYER.team=team;PLAYER.food=3;try{localStorage.setItem('gwang_profile',JSON.stringify({nick,gender,hair,skin,hairColor,team}))}catch{}spawn();started=true;$('#start').classList.add('hidden');connect();toast('광화문 점령전에 입장했습니다!')};
+$$('.teamBtn').forEach(b=>b.onclick=()=>{$$('.teamBtn').forEach(e=>e.classList.toggle('sel',b===e));team=b.dataset.team});try{let profile=JSON.parse(localStorage.getItem('gwang_profile')||'null');if(profile){$('#nick').value=profile.nick||'';for(let f of ['gender','hair','skin','hairColor'])if(profile[f]!==undefined)$('#'+f).value=profile[f];if(TEAM[profile.team]){$$('.teamBtn').find(b=>b.dataset.team===profile.team)?.click()}}}catch{}$('#loadStatus').textContent='V4.9 · 좌클릭 공격 / J 돌 투척 / E 실제 물체 채집';$('#startPlay').onclick=()=>{nick=($('#nick').value.trim()||'광장 시민').slice(0,14);gender=$('#gender').value;hair=Number($('#hair').value);skin=Number($('#skin').value);hairColor=Number($('#hairColor').value);PLAYER.team=team;PLAYER.food=3;try{localStorage.setItem('gwang_profile',JSON.stringify({nick,gender,hair,skin,hairColor,team}))}catch{}spawn();started=true;upgradePlayerToHuman();$('#start').classList.add('hidden');connect();toast('광화문 점령전에 입장했습니다!')};
 window.addEventListener('unhandledrejection',e=>{console.warn('3D asset load issue:',e.reason)});
 </script></body></html>
