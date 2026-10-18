@@ -43,7 +43,7 @@ function updateMove(c,d){let now=Date.now();if(now-c.lastMove<55)return;let elap
 if(c.hp<=0)return;
 let rawX=num(d.x,-38,40,c.x),rawZ=num(d.z,-158,118,c.z);let carID=typeof d.car==='string'?d.car:null;let wantsCar=carID&&vehicles.has(carID)?carID:null;
 if(wantsCar!==c.car){releaseCar(c);if(wantsCar){let car=vehicles.get(wantsCar);if(!car.driver&&Math.hypot(car.x-c.x,car.z-c.z)<7.5){car.driver=c.id;c.car=wantsCar}}}
-let maxSpeed=c.car?32:(c.stamina<=0?6.2:15.2);let moveDist=Math.hypot(rawX-c.x,rawZ-c.z),bound=maxSpeed*elapsed+3;
+let maxSpeed=c.car?49:(c.stamina<=0?6.2:15.2);let moveDist=Math.hypot(rawX-c.x,rawZ-c.z),bound=maxSpeed*elapsed+3;
 if(moveDist>bound){rawX=c.x+(rawX-c.x)*bound/moveDist;rawZ=c.z+(rawZ-c.z)*bound/moveDist}
 if(!c.car&&moveDist>6*elapsed){c.stamina=Math.max(0,c.stamina-(moveDist-6*elapsed)*1.2)}
 c.x=rawX;c.z=rawZ;c.heading=num(d.heading,-Math.PI*20,Math.PI*20,c.heading);// Stamina and hunger are server-managed, not blindly copied from the browser.
@@ -148,7 +148,7 @@ setInterval(()=>{for(const c of clients.values())if(c.joined&&c.hp>0){
  if(c.aliveSeconds%3===0)syncInventory(c);
  }},1000);
 setInterval(()=>{let now=Date.now();for(let c of clients.values())if(c.joined&&c.hp<=0&&c.deadUntil&&now>=c.deadUntil){releaseCar(c);respawn(c)}},250);
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.md':'text/plain; charset=utf-8','.json':'application/json'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.md':'text/plain; charset=utf-8','.json':'application/json','.glb':'model/gltf-binary','.gltf':'model/gltf+json','.png':'image/png','.webp':'image/webp'};
 const server=http.createServer((req,res)=>{let route;try{route=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}catch{res.writeHead(400);res.end();return}if(route==='/health'){res.writeHead(200,{'Content-Type':'text/plain'});res.end('OK');return}
 const allowedRoutes=new Set(['/api/admin/login','/api/staff/redeem','/api/admin/invite','/api/admin/billboard']);
 if(req.method==='POST'&&allowedRoutes.has(route)){
@@ -175,7 +175,7 @@ if(req.method==='POST'&&allowedRoutes.has(route)){
  }
  jsonReply(res,404,{error:'not found'})
  });return
- }if(req.method!=='GET'||!['/','/index.html','/README.md'].includes(route)){res.writeHead(404);res.end('not found');return}let file=route==='/'?'/index.html':route;fs.readFile(path.join(ROOT,file),(err,b)=>{if(err){res.writeHead(500);res.end('Unable to read file');return}res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'public, max-age=600','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY'});res.end(b)})});
+ }const allowStatic=route.startsWith('/assets/')&&/\.(?:glb|gltf|png|webp)$/i.test(route);if(req.method!=='GET'||!(['/','/index.html','/README.md','/LICENSE_ASSETS.md'].includes(route)||allowStatic)){res.writeHead(404);res.end('not found');return}let file=route==='/'?'/index.html':route;let safePath=path.resolve(ROOT,'.'+file);if(!safePath.startsWith(ROOT+path.sep)){res.writeHead(403);res.end();return}fs.readFile(safePath,(err,b)=>{if(err){res.writeHead(404);res.end('not found');return}res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'public, max-age=600','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY'});res.end(b)})});
 server.on('upgrade',(req,socket,head)=>{if(req.url!=='/play'||String(req.headers.upgrade).toLowerCase()!=='websocket'||!req.headers['sec-websocket-key']){socket.destroy();return}const origin=String(req.headers.origin||'');if(origin){try{let u=new URL(origin);let host=String(req.headers.host||'');if(u.host!==host){socket.destroy();return}}catch{socket.destroy();return}}
 let ip=ipOf(req);if(!rate(ip,'upgrade',30,60000)||[...clients.values()].filter(c=>c.ip===ip).length>=6){socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n');return}
 if(clients.size>=80){socket.end('HTTP/1.1 503 Service Unavailable\r\n\r\n');return}let key=crypto.createHash('sha1').update(req.headers['sec-websocket-key']+'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: '+key+'\r\n\r\n');let c={socket,req,ip,role:roleOf(req),id:crypto.randomUUID(),joined:false,name:'',team:'blue',x:0,z:60,hp:100,lastMove:0,lastChat:0,lastAttack:0,car:null,stamina:100,hunger:100,coins:0,branches:0,stones:0,food:3,weapons:{club:false,axe:false},weapon:'fist',maxHp:100,maxStamina:100,power:0,skillPoints:0,aliveSeconds:0,wellFedSeconds:0,lastPaidKO:0,lastGather:0,buffer:Buffer.alloc(0),invulnerableUntil:0};clients.set(c.id,c);socket.setNoDelay(true);socket.on('data',data=>parseFrames(c,data));if(head.length)parseFrames(c,head);let leave=()=>{if(!clients.has(c.id))return;clients.delete(c.id);releaseCar(c);if(c.joined){broadcast({t:'leave',id:c.id});count()}};socket.on('close',leave);socket.on('error',leave)});
