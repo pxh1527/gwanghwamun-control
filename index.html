@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>광화문 점령전 V5.1 — 차량 물리·인체형 캐릭터</title>
+<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>광화문 점령전 V5.2 — 광화문 배경·인체형 캐릭터 캐릭터</title>
 <style>
 :root{--a:#66e1de;--bg:#061724;--edge:#ffffff27;--glass:#0b2134e8}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#b5d6e0;font-family:system-ui,'Malgun Gothic',sans-serif;color:#fff}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #95fff2;outline-offset:2px}
 #game{position:fixed;inset:0}#game canvas{display:block;width:100%;height:100%}.glass{background:var(--glass);border:1px solid var(--edge);box-shadow:0 14px 45px #0a203e44;backdrop-filter:blur(14px)}#top{position:fixed;top:16px;left:18px;right:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;pointer-events:none}#top>*{pointer-events:auto}.logo{font-weight:1000;font-size:22px;line-height:1;letter-spacing:-1.4px;text-shadow:0 2px 7px #0008}.logo em{font-style:normal;color:#63fae2}.subtitle{font-size:9px;color:#e6f5ff;letter-spacing:2px;margin-top:7px;font-weight:700}.pill{padding:10px 13px;border-radius:13px;font-size:12px;font-weight:800}.pill span{color:#9eefe3}.panel{position:fixed;border-radius:17px;padding:14px}#left{top:94px;left:18px;width:250px}#right{top:94px;right:18px;width:234px}h3{margin:0 0 12px;color:#bdd7dd;letter-spacing:1px;font-size:11px}.teamLine{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;margin:7px 0}.dot{width:10px;height:10px;border-radius:50%}.teamLine b{margin-left:auto}.zones{margin-top:12px;border-top:1px solid #ffffff22;padding-top:11px}.zoneLine{margin:10px 0}.zoneTop{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;color:#e5edf0}.track{background:#ffffff1c;border-radius:10px;height:6px;overflow:hidden}.fill{height:100%;width:0;background:#66e1de;transition:width .2s}.zoneIcon{font-size:13px}#stats{position:fixed;left:18px;bottom:23px;width:252px;border-radius:17px;padding:15px}#stats .barLabel{display:flex;justify-content:space-between;font-weight:800;font-size:12px;margin:8px 0 4px}.statbar{height:10px;border-radius:8px;background:#ffffff2b;overflow:hidden}.statbar i{height:100%;display:block;transition:width .15s;width:100%}#hpBar{background:linear-gradient(90deg,#f04856,#ff9992)}#spBar{background:linear-gradient(90deg,#40b7ec,#6be8df)}#foodBar{background:linear-gradient(90deg,#e5a74c,#ffdd81)}#xp{text-align:right;color:#c6dce7;font-size:10px;margin-top:12px}#map{width:204px;height:224px;display:block;border-radius:10px;background:#223b48}#coords{font-size:10px;text-align:center;color:#bfced7;margin-top:8px}#chat{position:fixed;right:18px;bottom:23px;width:292px;border-radius:15px;overflow:hidden}#chatLog{height:110px;overflow:auto;font-size:11px;padding:9px 12px;background:#0002}#chatLog p{margin:3px 0;color:#cfeced}#chatLog b{color:#72ffe4}.chatRow{display:flex;border-top:1px solid #ffffff26;padding:8px;gap:5px}#chatInput{background:#ffffff16;border:1px solid #ffffff22;border-radius:8px;padding:8px;color:white;min-width:0;flex:1;font-size:11px}#send{border:0;border-radius:8px;background:#69e7d6;font-size:12px;font-weight:900;color:#073543;padding:5px 9px}#help{position:fixed;left:50%;bottom:23px;transform:translateX(-50%);display:flex;gap:11px;align-items:center;padding:12px 17px;border-radius:16px;font-size:11px;white-space:nowrap;color:#d9eaef}kbd{border:1px solid #ffffff55;border-radius:4px;padding:2px 4px;background:#ffffff19;font-weight:900}#context{position:fixed;bottom:87px;left:50%;transform:translateX(-50%);background:#081a2ae0;padding:9px 15px;border:1px solid #76ffe675;border-radius:12px;font-weight:900;font-size:12px;display:none}#notices{position:fixed;top:18%;left:50%;transform:translateX(-50%);padding:14px 22px;border-radius:13px;background:#0b2238e8;border:1px solid #81f6e680;font-weight:900;opacity:0;transition:.2s;pointer-events:none;z-index:12;max-width:80vw;text-align:center}#notices.show{opacity:1}#reticle{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;font-size:24px;color:#fff8;display:none}
@@ -19,7 +19,7 @@
 <section id="chat" class="glass"><div id="chatLog"><p><b>시스템</b> WASD 이동 · 좌클릭 공격 · J 돌 투척 · E 상호작용</p></div><div class="chatRow"><input id="chatInput" maxlength="120" placeholder="메시지 (Enter)" autocomplete="off"/><button id="send">전송</button></div></section>
 <div id="help" class="glass"><span><kbd>WASD</kbd> 이동</span><span><kbd>Shift</kbd> 빠른 질주</span><span><kbd>좌클릭</kbd> 공격</span><span><kbd>E</kbd> 승하차</span><span><kbd>Space</kbd> 도보: 점프 / 차량: 브레이크</span><span><kbd>Shift</kbd> 차량: 터보 가속</span><span><kbd>Ctrl</kbd> 차량: 드리프트</span><span><kbd>1</kbd> 식사</span><span><kbd>J</kbd> 돌던지기</span><span><kbd>2~4</kbd> 무기</span><span><kbd>U</kbd> 성장</span><span><kbd>B</kbd> 제작</span><span><kbd>G</kbd> 차 뺏기</span><span><kbd>우클릭 드래그</kbd> 시점</span><span><kbd>C</kbd> 시점복구</span></div><div id="context"></div><div id="notices"></div><div id="respawn">의식을 잃었습니다<small>곧 진영 시작 지점에서 다시 등장합니다</small></div>
 <div id="mobile"><div class="joy" id="joy"><div id="knob"></div></div><div class="actionPad"><button id="mHit">공격</button><button id="mUse">승차</button><button id="mJump">점프</button><button id="mEat">간식</button><button id="mRun">질주</button></div></div>
-<div id="start"><div class="startWrap"><div class="tiny">⚑ FOUR FACTIONS · AREA CONTROL · 3D</div><h1 class="title">광화문에서<br/><em>점령전을 시작하라.</em></h1><p class="desc">광화문 · 세종대왕상 · 이순신 장군상 · 시민광장.<br/>4개 진영이 거점을 차지하는 브라우저 3D 대전 게임입니다. 1명당 5분 동안 1%만 점령됩니다.</p><div class="form"><label for="nick">플레이어 닉네임</label><input id="nick" maxlength="14" placeholder="닉네임 입력" value="광화문플레이어"/><label>참가할 진영</label><div class="teamGrid"><button class="teamBtn sel" data-team="blue"><span class="ticon" style="background:#428bff"></span>파랑</button><button class="teamBtn" data-team="red"><span class="ticon" style="background:#f26368"></span>빨강</button><button class="teamBtn" data-team="green"><span class="ticon" style="background:#4abd82"></span>초록</button><button class="teamBtn" data-team="white"><span class="ticon" style="background:#fff"></span>자유와혁신</button></div><div class="custom"><div><label for="gender">캐릭터 체형</label><select id="gender"><option value="male">남성</option><option value="female">여성</option></select></div><div><label for="hair">머리 스타일</label><select id="hair"><option value="0">짧은 머리</option><option value="1">가르마 머리</option><option value="2">긴 머리</option><option value="3">곱슬 머리</option></select></div><div><label for="skin">피부색</label><select id="skin"><option value="0">밝은 피부</option><option value="1">보통 피부</option><option value="2">짙은 피부</option></select></div><div><label for="hairColor">머리색</label><select id="hairColor"><option value="0">검정</option><option value="1">갈색</option><option value="2">금발</option></select></div></div><button id="startPlay">게임 입장 →</button><div id="loadStatus" class="loading">그래픽 자동 최적화 준비 중…</div><div class="note">흰색 진영 유니폼에는 '자유와혁신 · YOON AGAIN' 문구가 들어갑니다. 실제 정치 집회가 아닌 가상 게임입니다. <b>가입 없이 게스트 입장</b>하며, 관리자 권한은 별도 서버 설정이 필요합니다.</div></div></div><div class="heroSide"><div class="big">SEOUL<br/>2026<br/>CONTROL</div><div class="badge">GWANGHWAMUN PLAZA • THIRD PERSON</div></div></div>
+<div id="start"><div class="startWrap"><div class="tiny">⚑ FOUR FACTIONS · AREA CONTROL · 3D</div><h1 class="title">광화문에서<br/><em>점령전을 시작하라.</em></h1><p class="desc">광화문 · 세종대왕상 · 이순신 장군상 · 시민광장.<br/>4개 진영이 거점을 차지하는 브라우저 3D 대전 게임입니다. 1명당 5분 동안 1%만 점령됩니다.</p><div class="form"><label for="nick">플레이어 닉네임</label><input id="nick" maxlength="14" placeholder="닉네임 입력" value="광화문플레이어"/><label>참가할 진영</label><div class="teamGrid"><button class="teamBtn sel" data-team="blue"><span class="ticon" style="background:#428bff"></span>파랑</button><button class="teamBtn" data-team="red"><span class="ticon" style="background:#f26368"></span>빨강</button><button class="teamBtn" data-team="green"><span class="ticon" style="background:#4abd82"></span>초록</button><button class="teamBtn" data-team="white"><span class="ticon" style="background:#fff"></span>자유와혁신</button></div><div class="custom"><div><label for="gender">캐릭터 체형</label><select id="gender"><option value="male">남성</option><option value="female">여성</option></select></div><div><label for="hair">머리 스타일</label><select id="hair"><option value="0">짧은 머리</option><option value="1">가르마 머리</option><option value="2">긴 머리</option><option value="3">곱슬 머리</option></select></div><div><label for="skin">피부색</label><select id="skin"><option value="0">밝은 피부</option><option value="1">보통 피부</option><option value="2">짙은 피부</option></select></div><div><label for="hairColor">머리색</label><select id="hairColor"><option value="0">검정</option><option value="1">갈색</option><option value="2">금발</option></select></div></div><button id="startPlay">게임 입장 →</button><div id="loadStatus" class="loading">그래픽 자동 최적화 준비 중…</div><div id="humanStatus" style="font-size:11px;color:#a5bfd4;margin-top:6px">3D 인체형: 로딩 준비</div><div class="note">흰색 진영 유니폼에는 '자유와혁신 · YOON AGAIN' 문구가 들어갑니다. 실제 정치 집회가 아닌 가상 게임입니다. <b>가입 없이 게스트 입장</b>하며, 관리자 권한은 별도 서버 설정이 필요합니다.</div></div></div><div class="heroSide"><div class="big">SEOUL<br/>2026<br/>CONTROL</div><div class="badge">GWANGHWAMUN PLAZA • THIRD PERSON</div></div></div>
 <script>setTimeout(()=>{if(!window.__gwangEngineReady){document.querySelector('#loadErr').style.display='grid';document.querySelector('#loadStatus').textContent='엔진 로딩 실패: 네트워크를 확인하세요';}},15000)</script>
 <script type="module">
 import * as THREE from 'three';
@@ -70,7 +70,7 @@ function mesh(geo,material,parent=scene,x=0,y=0,z=0,cast=true){let m=new THREE.M
 function cube(x,y,z,w,h,d,m,parent=scene){return mesh(cachedGeo('box',[w,h,d],()=>new THREE.BoxGeometry(w,h,d)),m,parent,x,y,z)}function ball(x,y,z,r,m,parent=scene,seg=14){return mesh(cachedGeo('sphere',[r,seg,10],()=>new THREE.SphereGeometry(r,seg,10)),m,parent,x,y,z)}function cylinder(x,y,z,rt,rb,h,m,parent=scene,seg=12){return mesh(cachedGeo('cylinder',[rt,rb,h,seg],()=>new THREE.CylinderGeometry(rt,rb,h,seg)),m,parent,x,y,z)}
 function canvasTexture(text,fg,bg,w=512,h=256,font='bold 57px sans-serif'){let c=document.createElement('canvas');c.width=w;c.height=h;let ctx=c.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.fillStyle=fg;ctx.font=font;ctx.textAlign='center';ctx.textBaseline='middle';let lines=text.split('\n');lines.forEach((l,i)=>ctx.fillText(l,w/2,h/2+(i-(lines.length-1)/2)*67,w-25));let t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 function sign(parent,text,w,h,x,y,z,rot=0,fg='#fff',bg='#123d55'){let mt=new THREE.MeshStandardMaterial({map:canvasTexture(text,fg,bg),roughness:.78,side:THREE.DoubleSide});let s=mesh(new THREE.PlaneGeometry(w,h),mt,parent,x,y,z,false);s.rotation.y=rot;return s}
-function ground(){const groundMaterial=new THREE.MeshBasicMaterial({color:0x92b8a2,side:THREE.DoubleSide,depthWrite:true});const ground=mesh(new THREE.PlaneGeometry(900,900),groundMaterial,scene,0,-.18,0,false);ground.rotation.x=-Math.PI/2;ground.frustumCulled=false;ground.receiveShadow=false;const pl=mesh(new THREE.PlaneGeometry(27,333),mat(0xc2c6bf),scene,-8,-.12,-12,false);pl.rotation.x=-Math.PI/2;const road=mesh(new THREE.PlaneGeometry(23,355),mat(0x3e4856),scene,28,-.13,-10,false);road.rotation.x=-Math.PI/2;const west=mesh(new THREE.PlaneGeometry(15,340),mat(0x9b9fa0),scene,-29,-.125,-10,false);west.rotation.x=-Math.PI/2;const pad=mesh(new THREE.PlaneGeometry(19,325),mat(0xc8c9c0),scene,-7,-.1,-10,false);pad.rotation.x=-Math.PI/2;
+function ground(){const groundMaterial=new THREE.MeshBasicMaterial({color:0x92b8a2,side:THREE.DoubleSide,depthWrite:true});const ground=mesh(new THREE.PlaneGeometry(900,900),groundMaterial,scene,0,-.18,0,false);ground.rotation.x=-Math.PI/2;ground.frustumCulled=false;ground.receiveShadow=false;const pl=mesh(new THREE.PlaneGeometry(27,333),mat(0xc2c6bf),scene,-8,-.12,-12,false);pl.rotation.x=-Math.PI/2;const road=mesh(new THREE.PlaneGeometry(23,450),mat(0x3e4856),scene,28,-.13,-10,false);road.rotation.x=-Math.PI/2;const west=mesh(new THREE.PlaneGeometry(15,340),mat(0x9b9fa0),scene,-29,-.125,-10,false);west.rotation.x=-Math.PI/2;const pad=mesh(new THREE.PlaneGeometry(19,325),mat(0xc8c9c0),scene,-7,-.1,-10,false);pad.rotation.x=-Math.PI/2;
 for(let x=-19;x<=4;x+=3){let strip=mesh(new THREE.PlaneGeometry(.024,324),mat(0x8e958e),scene,x,-.086,-10,false);strip.rotation.x=-Math.PI/2}for(let z=-165;z<=137;z+=3){let strip=mesh(new THREE.PlaneGeometry(27,.024),mat(0x979b96),scene,-8,-.083,z,false);strip.rotation.x=-Math.PI/2}
 for(let x of [19,26.5,34.2])for(let z=-172;z<145;z+=10){let marking=mesh(new THREE.PlaneGeometry(.22,4.7),line,scene,x,-.107,z,false);marking.rotation.x=-Math.PI/2}for(let z of [-144,-30,50])for(let x=16;x<41;x+=2.4){let m=mesh(new THREE.PlaneGeometry(1.25,6),line,scene,x,-.103,z,false);m.rotation.x=-Math.PI/2}
 for(let z=-160;z<142;z+=12){let tile=mesh(new THREE.PlaneGeometry(.45,1.7),mat(0xa9b2a3),scene,-8,-.072,z,false);tile.rotation.x=-Math.PI/2}for(let x of [14.8,41.3]){cube(x,.1,-10,.4,.3,341,mat(0xe3d4a9))}
@@ -153,32 +153,45 @@ function qualitySetting(q){
 qualitySetting((()=>{try{return sessionStorage.getItem('gwang_quality')}catch{return null}})()||'auto');$('#quality').onchange=e=>qualitySetting(e.target.value);
 // optional real CC0 Kenney building glb, from documented CC0 public model mirror
 const assetLoader=new GLTFLoader();let loadedCC0=0;
-// Quaternius Animated Human CC0, retrieved from avatar-stage demo repository.
-// Skeleton and 7 authored clips: Idle, Walk, Run, Punch, Jump, Working, Death.
-let humanGltf=null;
+// Retry human GLB on sandbox previews as well as production hosts.
+let humanGltf=null, humanLoadReady=false;
+const RESOURCE_BASE='https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/';
+const RESOURCE_CDN='https://cdn.jsdelivr.net/gh/pxh1527/gwanghwamun-control@main/';
+function resourceCandidates(path){
+ const urls=[];
+ if(['http:','https:'].includes(location.protocol)&&!/chatgpt|sandbox|openai|usercontent|files\.oai/i.test(location.host))urls.push(new URL(path,location.href).href);
+ urls.push(RESOURCE_CDN+path,RESOURCE_BASE+path);
+ return [...new Set(urls)];
+}
+function loadGLBWithRetry(path,onSuccess,onFailure){
+ const urls=resourceCandidates(path);let i=0;
+ function next(){if(i>=urls.length){onFailure?.();return}
+ const url=urls[i++];assetLoader.load(url,onSuccess,undefined,e=>{console.warn('GLB URL retry',url,e?.message||e);next()})}
+ next();
+}
 function upgradePlayerToHuman(){
  if(!humanGltf||!PLAYER.avatar||!started||PLAYER.avatar.userData.humanBody)return;
  const root=PLAYER.avatar,body=cloneSkinnedModel(humanGltf.scene);
  body.traverse(o=>{if(o.isMesh||o.isSkinnedMesh){o.castShadow=false;o.receiveShadow=true;o.frustumCulled=false}});
- const initial=new THREE.Box3().setFromObject(body),sz=initial.getSize(new THREE.Vector3());
+ body.updateMatrixWorld(true);
+ const bounds=new THREE.Box3().setFromObject(body),sz=bounds.getSize(new THREE.Vector3());
  if(!Number.isFinite(sz.y)||sz.y<.1)return;
- body.scale.setScalar(3.35/sz.y);
- const bounds=new THREE.Box3().setFromObject(body);
- body.position.set(-bounds.getCenter(new THREE.Vector3()).x,-bounds.min.y,-bounds.getCenter(new THREE.Vector3()).z);
- // The original toon model has a human silhouette, textured face and a full rig.
- root.add(body);
- root.userData.humanBody=body;
- root.userData.humanMixer=new THREE.AnimationMixer(body);
- root.userData.humanActions={};
- for(const clip of humanGltf.animations||[]){root.userData.humanActions[clip.name.toLowerCase()]=root.userData.humanMixer.clipAction(clip)}
- const first=root.userData.humanActions.idle||Object.values(root.userData.humanActions)[0];
- if(first){first.play();root.userData.humanActive=first}
+ body.scale.setScalar(3.35/sz.y);body.updateMatrixWorld(true);
+ bounds.setFromObject(body);const center=bounds.getCenter(new THREE.Vector3());
+ body.position.set(-center.x,-bounds.min.y,-center.z);body.rotation.y=0;root.add(body);
+ root.userData.humanBody=body;root.userData.humanMixer=new THREE.AnimationMixer(body);root.userData.humanActions={};
+ for(const clip of humanGltf.animations||[])root.userData.humanActions[clip.name.toLowerCase()]=root.userData.humanMixer.clipAction(clip);
+ const idle=root.userData.humanActions.idle||Object.values(root.userData.humanActions)[0];
+ if(idle){idle.reset().play();root.userData.humanActive=idle}
  if(root.userData.torso)root.userData.torso.visible=false;
  if(root.userData.legs)root.userData.legs.forEach(leg=>leg.visible=false);
- $('#loadStatus').textContent='✓ 실제 인체형 CC0 모델과 뼈대 모션 적용 완료';
+ $('#loadStatus').textContent='✓ Quaternius 인체형 3D 모델 적용 완료';
+ $('#humanStatus').textContent='3D 인체형: 적용 완료';$('#humanStatus').style.color='#7ef6d6';
 }
-const HUMAN_MODEL_URL=location.protocol==='file:'?'https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/assets/characters/human_animated.glb':'/assets/characters/human_animated.glb';
-assetLoader.load(HUMAN_MODEL_URL,gltf=>{if(!gltf.animations?.length){console.warn('Human model loaded without actions');return}humanGltf=gltf;upgradePlayerToHuman()},undefined,e=>console.info('Human asset unavailable: using procedural avatar',e));
+loadGLBWithRetry('assets/characters/human_animated.glb',gltf=>{
+ if(!gltf.animations?.length){$('#humanStatus').textContent='3D 인체형: 애니메이션 누락';return}
+ humanGltf=gltf;humanLoadReady=true;upgradePlayerToHuman();
+},()=>{$('#humanStatus').textContent='3D 인체형 로딩 실패 · 네트워크 확인';console.error('Human GLB failed all mirror URLs')});
 function animateHumanAvatar(p,dt){
  const u=p.avatar?.userData;if(!u?.humanBody)return false;
  const actions=u.humanActions;
@@ -191,8 +204,8 @@ function animateHumanAvatar(p,dt){
 }
 
 function loadCC0Building(url,x,z,targetHeight){assetLoader.load(url,(g)=>{let model=g.scene;model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());if(size.y<.001)return;model.scale.setScalar(targetHeight/size.y);bounds.setFromObject(model);let center=bounds.getCenter(new THREE.Vector3());model.position.set(x-center.x,-bounds.min.y,z-center.z);scene.add(model);loadedCC0++;$('#loadStatus').textContent='✓ CC0 건물 3D 에셋 '+loadedCC0+'개 불러옴';},undefined,()=>{$('#loadStatus').textContent='기본 맵 준비 완료 · 외부 3D 모델은 인터넷 연결 필요';});}
-loadCC0Building(location.protocol==='file:'?'https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/assets/buildings/building-d.glb':'/assets/buildings/building-d.glb',55,-13,24);
-loadCC0Building(location.protocol==='file:'?'https://raw.githubusercontent.com/pxh1527/gwanghwamun-control/main/assets/buildings/building-n.glb':'/assets/buildings/building-n.glb',-54,30,26);
+loadGLBWithRetry('assets/buildings/building-d.glb',g=>{const m=g.scene,b=new THREE.Box3().setFromObject(m),d=b.getSize(new THREE.Vector3());if(d.y>.1){m.scale.setScalar(24/d.y);b.setFromObject(m);let c=b.getCenter(new THREE.Vector3());m.position.set(55-c.x,-b.min.y,-13-c.z);scene.add(m)}},()=>{});
+loadGLBWithRetry('assets/buildings/building-n.glb',g=>{const m=g.scene,b=new THREE.Box3().setFromObject(m),d=b.getSize(new THREE.Vector3());if(d.y>.1){m.scale.setScalar(26/d.y);b.setFromObject(m);let c=b.getCenter(new THREE.Vector3());m.position.set(-54-c.x,-b.min.y,30-c.z);scene.add(m)}},()=>{});
 // Kenney Car Kit models are CC0-1.0. The verified filenames are from the
 // public tge-assets catalog. These external downloads are optional: the fully
 // driveable transparent-window fallback always remains if the CDN is blocked.
@@ -207,7 +220,7 @@ function applyKenneyCarAsset(car,model){
  // Kenney Car Kit sedan and SUV front-wheel axle is at local +Z.
  // The visual vehicle holder is rotated PI (procedural cars were built facing -Z),
  // so rotate the GLB back PI to make its real front wheels point +Z in world space.
- instance.rotation.y=sz.x>sz.z?Math.PI/2:Math.PI;
+ instance.rotation.y=Math.PI; // Kenney front axle local +Z, visual holder is rotated PI
  bbox.setFromObject(instance);sz=bbox.getSize(new THREE.Vector3());
  instance.scale.setScalar(Math.min(2.7/sz.x,2.23/sz.y,5.1/sz.z));
  bbox.setFromObject(instance);const center=bbox.getCenter(new THREE.Vector3());
@@ -227,9 +240,7 @@ function applyKenneyCarAsset(car,model){
 }
 function loadKenneyCarModels(){
  const modelNames=['sedan','suv','sedan','sedan','suv','suv'];
- modelNames.forEach((name,i)=>assetLoader.load(KENNEY_ASSET_HOST+((name==='suv'||name==='sedan')?name:'sedan')+'.glb',
-    gltf=>applyKenneyCarAsset(cars[i],gltf.scene),undefined,
-    err=>{console.info('CC0 model unavailable, using complete detailed fallback:',name)}));
+ modelNames.forEach((name,i)=>loadGLBWithRetry('assets/vehicles/'+name+'.glb',gltf=>applyKenneyCarAsset(cars[i],gltf.scene),()=>console.info('CC0 vehicle model unavailable:',name)));
 }
 // Loaded only after car objects are created (below).
 // avatar: deliberately faces LOCAL -Z; rotation follows heading, not camera position
@@ -305,8 +316,8 @@ function makeCarBody(car){
    let tire=cylinder(sx*1.34,.49,zz,.53,.53,.38,carRubber,shell,18);tire.rotation.z=Math.PI/2;
    let rim=cylinder(sx*1.55,.49,zz,.26,.26,.39,carChrome,shell,16);rim.rotation.z=Math.PI/2;
   }
-  cube(sx*.82,1.00,-2.59,.40,.22,.06,mat(0xffe8b4),shell);
-  cube(sx*.82,.92,2.59,.39,.20,.06,mat(0xc74b45),shell);
+  cube(sx*.82,1.00,-2.59,.40,.22,.08,new THREE.MeshBasicMaterial({color:0xfffaf0}),shell);
+  cube(sx*.82,.92,2.59,.39,.20,.08,new THREE.MeshBasicMaterial({color:0xb31919}),shell);
  }
  cube(0,1.76,-1.84,2.22,.87,.035,carGlass,shell);
  cube(0,1.74,1.14,2.20,.86,.035,carGlass,shell);
@@ -319,7 +330,7 @@ function makeCarBody(car){
  makeSeatOccupant(car);
 }
 function addCar(x,z,i){
- const v={id:'car'+i,index:i,x,z,yaw:i%2?Math.PI:0,speed:0,vx:0,vz:0,drifting:false,driftEnergy:0,driver:null,lastHit:new Map(),obj:new THREE.Group(),visual:new THREE.Group(),driverModel:null,fallbackShell:null,assetBody:null};
+ const v={id:'car'+i,index:i,x,z,yaw:Math.PI,speed:0,vx:0,vz:0,drifting:false,driftEnergy:0,driver:null,lastHit:new Map(),obj:new THREE.Group(),visual:new THREE.Group(),driverModel:null,fallbackShell:null,assetBody:null};
  v.obj.add(v.visual);v.visual.rotation.y=Math.PI; // procedural bonnets were authored toward -Z; visible front is now +Z
  scene.add(v.obj);makeCarBody(v);v.obj.position.set(x,0,z);v.obj.rotation.y=v.yaw;cars.push(v);
 }
@@ -444,6 +455,8 @@ function updateCars(dt){
    car.drifting=drift;
    const targetTop=turbo?43:25;
    const engineAccel=turbo?44:27;
+   if(throttle>0&&car.speed<0&&Math.abs(car.speed)<2)car.speed=0;
+   if(throttle<0&&car.speed>0&&Math.abs(car.speed)<2)car.speed=0;
    if(braking){
     const loss=48*dt;
     car.speed=Math.abs(car.speed)<=loss?0:car.speed-Math.sign(car.speed)*loss;
@@ -461,7 +474,7 @@ function updateCars(dt){
    car.yaw=Math.atan2(Math.sin(car.yaw),Math.cos(car.yaw));
    // In Three.js +Z is explicitly the positive vehicle-forward axis.
    // Kenney's named front wheels are at local Z>0; car.visual faces +Z too.
-   const fx=Math.sin(car.yaw),fz=Math.cos(car.yaw);
+   const fx=Math.sin(car.yaw),fz=Math.cos(car.yaw);car.lastForwardX=fx;car.lastForwardZ=fz;
    const track=drift?1.1:(braking?13.5:8.8);
    const blend=1-Math.exp(-track*dt);
    car.vx+=(fx*car.speed-car.vx)*blend;
@@ -572,7 +585,7 @@ function tickPlayer(dt){
  }else stepPlayerWalking(dt);
 }
 const carHUD=document.createElement('div');carHUD.id='carSpeedometer';carHUD.style.cssText='display:none;position:fixed;left:50%;bottom:105px;transform:translateX(-50%);z-index:6;min-width:255px;padding:12px 16px;border-radius:14px;background:#09243ad9;color:#fff;font:900 14px system-ui,sans-serif;text-align:center;box-shadow:0 8px 30px #0008;pointer-events:none';document.body.appendChild(carHUD);
-function refreshCarHUD(){if(!inCar){carHUD.style.display='none';return}carHUD.style.display='block';carHUD.textContent='🚘 '+Math.round(Math.hypot(inCar.vx||0,inCar.vz||0)*3.6)+' km/h · '+(keys.Space?'브레이크':inCar.drifting?'💨 드리프트':keys.ShiftLeft||keys.ShiftRight?'⚡ 터보':'일반 주행');}
+function refreshCarHUD(){if(!inCar){carHUD.style.display='none';return}carHUD.style.display='block';carHUD.textContent='🚘 '+Math.round(Math.hypot(inCar.vx||0,inCar.vz||0)*3.6)+' km/h · W/↑ 보닛 방향 전진 · '+(keys.Space?'브레이크':inCar.drifting?'💨 드리프트':keys.ShiftLeft||keys.ShiftRight?'⚡ 터보':'일반 주행');}
 const clock=new THREE.Clock();let frame=0,fpsClock=0;
 function loop(){
  let dt=clamp(safeScalar(clock.getDelta(),.016),0,.04);
@@ -657,6 +670,6 @@ cvs.addEventListener('pointerdown',e=>{
 });cvs.addEventListener('pointermove',e=>{if(!cam.drag)return;cam.yaw-=(e.clientX-cam.px)*.006;cam.pitch=clamp(cam.pitch+(e.clientY-cam.py)*.004,.27,.84);cam.px=e.clientX;cam.py=e.clientY});cvs.addEventListener('pointerup',()=>cam.drag=false);cvs.addEventListener('pointercancel',()=>cam.drag=false);cvs.addEventListener('lostpointercapture',()=>cam.drag=false);cvs.addEventListener('wheel',e=>{cam.dist=clamp(cam.dist+Math.sign(e.deltaY)*1.1,6,18)},{passive:true});
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false)});
 let touchId=null;const j=$('#joy'),kn=$('#knob');function joyMove(e){let r=j.getBoundingClientRect(),x=(e.clientX-(r.left+r.width/2))/(r.width/2),y=(e.clientY-(r.top+r.height/2))/(r.height/2),l=Math.max(1,Math.hypot(x,y));sticks.x=Number.isFinite(x/l)?x/l:0;sticks.y=Number.isFinite(y/l)?y/l:0;kn.style.transform=`translate(${sticks.x*32}px,${sticks.y*32}px)`}j.addEventListener('pointerdown',e=>{touchId=e.pointerId;j.setPointerCapture(e.pointerId);joyMove(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===touchId)joyMove(e)});for(let ev of ['pointerup','pointercancel'])j.addEventListener(ev,()=>{sticks.x=sticks.y=0;touchId=null;kn.style.transform='' });$('#mHit').onclick=attack;$('#mUse').onclick=use;$('#mEat').onclick=eat;$('#mJump').onclick=jump;$('#mRun').addEventListener('pointerdown',()=>sticks.run=true);for(let ev of ['pointerup','pointercancel','pointerleave'])$('#mRun').addEventListener(ev,()=>sticks.run=false);
-$$('.teamBtn').forEach(b=>b.onclick=()=>{$$('.teamBtn').forEach(e=>e.classList.toggle('sel',b===e));team=b.dataset.team});try{let profile=JSON.parse(localStorage.getItem('gwang_profile')||'null');if(profile){$('#nick').value=profile.nick||'';for(let f of ['gender','hair','skin','hairColor'])if(profile[f]!==undefined)$('#'+f).value=profile[f];if(TEAM[profile.team]){$$('.teamBtn').find(b=>b.dataset.team===profile.team)?.click()}}}catch{}$('#loadStatus').textContent='V4.9 · 좌클릭 공격 / J 돌 투척 / E 실제 물체 채집';$('#startPlay').onclick=()=>{nick=($('#nick').value.trim()||'광장 시민').slice(0,14);gender=$('#gender').value;hair=Number($('#hair').value);skin=Number($('#skin').value);hairColor=Number($('#hairColor').value);PLAYER.team=team;PLAYER.food=3;try{localStorage.setItem('gwang_profile',JSON.stringify({nick,gender,hair,skin,hairColor,team}))}catch{}spawn();started=true;upgradePlayerToHuman();$('#start').classList.add('hidden');connect();toast('광화문 점령전에 입장했습니다!')};
+$$('.teamBtn').forEach(b=>b.onclick=()=>{$$('.teamBtn').forEach(e=>e.classList.toggle('sel',b===e));team=b.dataset.team});try{let profile=JSON.parse(localStorage.getItem('gwang_profile')||'null');if(profile){$('#nick').value=profile.nick||'';for(let f of ['gender','hair','skin','hairColor'])if(profile[f]!==undefined)$('#'+f).value=profile[f];if(TEAM[profile.team]){$$('.teamBtn').find(b=>b.dataset.team===profile.team)?.click()}}}catch{}$('#loadStatus').textContent='V5.2 · 광화문 배경 보강 · Quaternius 모델 로딩 확인 중';$('#startPlay').onclick=()=>{nick=($('#nick').value.trim()||'광장 시민').slice(0,14);gender=$('#gender').value;hair=Number($('#hair').value);skin=Number($('#skin').value);hairColor=Number($('#hairColor').value);PLAYER.team=team;PLAYER.food=3;try{localStorage.setItem('gwang_profile',JSON.stringify({nick,gender,hair,skin,hairColor,team}))}catch{}spawn();started=true;upgradePlayerToHuman();$('#start').classList.add('hidden');connect();toast('광화문 점령전에 입장했습니다!')};
 window.addEventListener('unhandledrejection',e=>{console.warn('3D asset load issue:',e.reason)});
 </script></body></html>
