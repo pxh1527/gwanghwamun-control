@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: gwanghwamun-control
+    runtime: node
+    plan: starter
+    buildCommand: echo 'No build step'
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false
