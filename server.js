@@ -43,7 +43,7 @@ function updateMove(c,d){let now=Date.now();if(now-c.lastMove<55)return;let elap
 if(c.hp<=0)return;
 let rawX=num(d.x,-38,40,c.x),rawZ=num(d.z,-158,118,c.z);let carID=typeof d.car==='string'?d.car:null;let wantsCar=carID&&vehicles.has(carID)?carID:null;
 if(wantsCar!==c.car){releaseCar(c);if(wantsCar){let car=vehicles.get(wantsCar);if(!car.driver&&Math.hypot(car.x-c.x,car.z-c.z)<7.5){car.driver=c.id;c.car=wantsCar}}}
-let maxSpeed=c.car?27:(c.stamina<=0?5.6:12.5);let moveDist=Math.hypot(rawX-c.x,rawZ-c.z),bound=maxSpeed*elapsed+3;
+let maxSpeed=c.car?32:(c.stamina<=0?6.2:15.2);let moveDist=Math.hypot(rawX-c.x,rawZ-c.z),bound=maxSpeed*elapsed+3;
 if(moveDist>bound){rawX=c.x+(rawX-c.x)*bound/moveDist;rawZ=c.z+(rawZ-c.z)*bound/moveDist}
 if(!c.car&&moveDist>6*elapsed){c.stamina=Math.max(0,c.stamina-(moveDist-6*elapsed)*1.2)}
 c.x=rawX;c.z=rawZ;c.heading=num(d.heading,-Math.PI*20,Math.PI*20,c.heading);// Stamina and hunger are server-managed, not blindly copied from the browser.
@@ -93,7 +93,7 @@ if(d.t==='upgrade'){
  c.skillPoints--;if(stat==='health'){c.maxHp+=20;c.hp=Math.min(c.maxHp,c.hp+20)}else if(stat==='stamina'){c.maxStamina+=15;c.stamina=Math.min(c.maxStamina,c.stamina+15)}else c.power+=4;syncInventory(c,'📈 능력치 강화 성공');return;
 }
 if(d.t==='move'){updateMove(c,d)}else if(d.t==='attack'){
-if(c.hp<=0||c.car||now-c.lastAttack<510||c.stamina<8)return;c.lastAttack=now;c.stamina=Math.max(0,c.stamina-9);
+if(c.hp<=0||c.car||now-c.lastAttack<280||c.stamina<3)return;c.lastAttack=now;c.stamina=Math.max(0,c.stamina-3);
 let heading=num(d.heading,-Math.PI*20,Math.PI*20,c.heading),fx=-Math.sin(heading),fz=-Math.cos(heading);broadcast({t:'hit',id:c.id});for(let p of clients.values()){if(!p.joined||p===c||p.team===c.team||p.hp<=0||p.car)continue;let dx=p.x-c.x,dz=p.z-c.z,dist=Math.hypot(dx,dz);if(dist>2.8||dist<.001)continue;let front=(dx*fx+dz*fz)/dist;if(front<.23)continue;hurt(p,(c.weapon==='axe'?38:c.weapon==='club'?30:20)+c.power,dx,dz,8,'fist',c)}}
 else if(d.t==='carExit'){releaseCar(c);broadcast({t:'move',...publicPlayer(c)},c)}
 else if(d.t==='takeCar'){
