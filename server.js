@@ -132,7 +132,7 @@ function updateZones(){const dt=.5;for(let i=0;i<ZONES.length;i++){
  }broadcast({t:'zones',zones,scores})}
 setInterval(updateZones,500);
 setInterval(()=>{for(const c of clients.values())if(c.joined&&c.hp>0){
- c.aliveSeconds++;c.hunger=Math.max(0,c.hunger-(c.car?.075:.36));
+ c.aliveSeconds++;c.hunger=Math.max(0,c.hunger-1/60);
  if(c.hunger>=20)c.wellFedSeconds++;
  if(c.wellFedSeconds>=300){c.wellFedSeconds-=300;c.skillPoints++;syncInventory(c,'🌱 건강하게 5분 생존! 성장 포인트 +1')}
  if(c.hunger<=0){c.hp=Math.max(0,c.hp-1.7);if(c.hp===0){c.deadUntil=Date.now()+3400;c.invulnerableUntil=c.deadUntil+1200;send(c,{t:'ko',id:c.id})}}
