@@ -26,6 +26,7 @@ const TEAMS=new Set(['blue','red','green','white']);
 const SPAWNS={blue:[-13,62],red:[10,62],green:[-19,-112],white:[18,12]};
 const ZONES=[{x:-5.8,z:-43,r:12},{x:-5.8,z:-96,r:13},{x:-5,z:-152,r:13},{x:-5,z:32,r:16}];
 const CARSPAWN={car0:[29,57],car1:[33,-17],car2:[31,-110],car3:[25,89],car4:[-12,68],car5:[18,16]};
+const RESPAWN_DELAY_MS=60_000; // one minute of real-world time before returning to battle
 const CAPTURE_RATE=1/300; // one real human = 1 percentage point per 300 seconds
 const zones=ZONES.map(()=>({owner:null,lead:null,progress:0}));const scores={blue:0,red:0,green:0,white:0};
 const vehicles=new Map(Object.entries(CARSPAWN).map(([id,[x,z]])=>[id,{id,x,z,heading:0,driver:null,lastHit:new Map()}]));
@@ -39,7 +40,7 @@ function rewardKnockout(victim,attacker){if(!attacker||attacker===victim||attack
 function publicPlayer(c){return {id:c.id,name:c.name,team:c.team,gender:c.gender,hair:c.hair,skin:c.skin,hairColor:c.hairColor,x:c.x,z:c.z,heading:c.heading,hp:c.hp,stamina:c.stamina,hunger:c.hunger,car:c.car}}
 function count(){let c=[...clients.values()].filter(x=>x.joined).length;broadcast({t:'count',count:c})}
 function respawn(c){let [x,z]=SPAWNS[c.team];c.x=x;c.z=z;c.hp=c.maxHp;c.stamina=c.maxStamina;c.hunger=100;c.car=null;c.deadUntil=0;send(c,{t:'respawn',id:c.id,inventory:inventory(c)});broadcast({t:'move',...publicPlayer(c)})}
-function hurt(c,damage,dx,dz,power,origin,attacker=null){if(c.hp<=0||Date.now()<c.invulnerableUntil)return;let n=Math.hypot(dx,dz)||1;dx/=n;dz/=n;c.hp=Math.max(0,c.hp-damage);send(c,{t:'damage',id:c.id,hp:c.hp,dx,dz,power,up:Math.min(7,power*.34),source:origin});broadcast({t:'damage',id:c.id,hp:c.hp,dx,dz,power,up:Math.min(7,power*.34),source:origin},c);if(c.hp<=0){c.deadUntil=Date.now()+3400;send(c,{t:'ko',id:c.id});c.invulnerableUntil=c.deadUntil+1200;rewardKnockout(c,attacker);}}
+function hurt(c,damage,dx,dz,power,origin,attacker=null){if(c.hp<=0||Date.now()<c.invulnerableUntil)return;let n=Math.hypot(dx,dz)||1;dx/=n;dz/=n;c.hp=Math.max(0,c.hp-damage);send(c,{t:'damage',id:c.id,hp:c.hp,dx,dz,power,up:Math.min(7,power*.34),source:origin});broadcast({t:'damage',id:c.id,hp:c.hp,dx,dz,power,up:Math.min(7,power*.34),source:origin},c);if(c.hp<=0){c.deadUntil=Date.now()+RESPAWN_DELAY_MS;releaseCar(c);send(c,{t:'ko',id:c.id,respawnAt:c.deadUntil,respawnSeconds:60});c.invulnerableUntil=c.deadUntil+1200;rewardKnockout(c,attacker);}}
 function releaseCar(c){if(!c.car)return;let car=vehicles.get(c.car);if(car&&car.driver===c.id)car.driver=null;c.car=null}
 function updateMove(c,d){let now=Date.now();if(now-c.lastMove<55)return;let elapsed=Math.max(.06,Math.min((now-c.lastMove)/1000,.25));c.lastMove=now;
 if(c.hp<=0)return;
@@ -146,7 +147,7 @@ setInterval(()=>{for(const c of clients.values())if(c.joined&&c.hp>0){
  c.aliveSeconds++;c.hunger=Math.max(0,c.hunger-1/60);
  if(c.hunger>=20)c.wellFedSeconds++;
  if(c.wellFedSeconds>=300){c.wellFedSeconds-=300;c.skillPoints++;syncInventory(c,'🌱 건강하게 5분 생존! 성장 포인트 +1')}
- if(c.hunger<=0){c.hp=Math.max(0,c.hp-1.7);if(c.hp===0){c.deadUntil=Date.now()+3400;c.invulnerableUntil=c.deadUntil+1200;send(c,{t:'ko',id:c.id})}}
+ if(c.hunger<=0){c.hp=Math.max(0,c.hp-1.7);if(c.hp===0){c.deadUntil=Date.now()+RESPAWN_DELAY_MS;releaseCar(c);c.invulnerableUntil=c.deadUntil+1200;send(c,{t:'ko',id:c.id,respawnAt:c.deadUntil,respawnSeconds:60})}}
  // Replenish stamina conservatively between actions.
  c.stamina=Math.min(c.maxStamina,c.stamina+8);
  if(c.aliveSeconds%3===0)syncInventory(c);
