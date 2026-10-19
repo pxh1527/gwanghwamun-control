@@ -46,3 +46,27 @@ jobs:
           curl -fsS "http://127.0.0.1:3000/assets/$asset" > /dev/null
           curl -fsS http://127.0.0.1:3000/assets/characters/human_animated.glb > /dev/null
           echo "OK: Render-style server, bundled JS and GLB assets respond."
+      - name: Install headless Chromium test tools
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify avatar visibility and animations in a browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          node server.js > /tmp/gwang-browser-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          for i in {1..15}; do
+            if curl -fsS http://127.0.0.1:3000/health >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/browser-smoke.cjs
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: avatar-render-smoke
+          path: test-results/
+          if-no-files-found: ignore
+
