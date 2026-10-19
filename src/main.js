@@ -261,6 +261,44 @@ function alignHumanTorsoToForward(u,instant=false,dt=1/60){
  body.rotation.y+=delta*(instant?1:Math.min(1,dt*15));
  return body.rotation.y;
 }
+// Keep the actual skinned character centered on the game entity even when an
+// imported animation has nonzero root / hip motion. Never hide the only avatar.
+const _humanBounds=new THREE.Box3();
+const _humanCenter=new THREE.Vector3();
+const _humanRootWorld=new THREE.Vector3();
+const _humanOffset=new THREE.Vector3();
+const _humanWorldRot=new THREE.Quaternion();
+function stabilizeHumanBody(actor,force=false,dt=0){
+ const root=actor?.avatar,u=root?.userData,body=u?.humanBody;
+ if(!body)return false;
+ if(!force&&((u.humanCheckElapsed=(u.humanCheckElapsed||0)+dt)<.065))return u.humanVisible===true;
+ u.humanCheckElapsed=0;
+ root.updateWorldMatrix(true,true);
+ body.updateWorldMatrix(true,true);
+ _humanBounds.setFromObject(body);
+ const size=_humanBounds.getSize(_humanCenter);
+ const valid=[size.x,size.y,size.z,_humanBounds.min.x,_humanBounds.min.y,_humanBounds.min.z].every(Number.isFinite)
+   && size.y>0.55&&size.y<18&&size.x<15&&size.z<15;
+ if(valid){
+  _humanBounds.getCenter(_humanCenter);
+  root.getWorldPosition(_humanRootWorld);
+  _humanOffset.set(_humanRootWorld.x-_humanCenter.x,
+    _humanRootWorld.y-_humanBounds.min.y,_humanRootWorld.z-_humanCenter.z);
+  root.getWorldQuaternion(_humanWorldRot);
+  _humanOffset.applyQuaternion(_humanWorldRot.invert());
+  if(_humanOffset.lengthSq()>1e-8){
+   body.position.add(_humanOffset);
+   body.updateMatrixWorld(true);
+  }
+ }
+ const showHuman=valid;
+ body.visible=showHuman;
+ if(u.torso)u.torso.visible=!showHuman;
+ for(const leg of u.legs||[])leg.visible=!showHuman;
+ u.humanVisible=showHuman;
+ u.humanClipLabel=showHuman?(u.humanClipLabel||'idle'):'fallback';
+ return showHuman;
+}
 function upgradeAvatarToHuman(actor){
  if(!humanGltf||!actor?.avatar||actor.avatar.userData.humanBody||actor.avatar.userData.humanFailed)return false;
  try {
@@ -308,9 +346,9 @@ function upgradeAvatarToHuman(actor){
  body.position.z-=center.z;
  body.position.y-=correctBounds.min.y;
  u.humanFaceDebug={correctionDeg:Math.round(correction*180/Math.PI),technique:'animated-shoulder-basis'};
- // Procedural proxy has the wrong proportions; hide it for ALL human actors.
- if(u.torso)u.torso.visible=false;
- if(u.legs)u.legs.forEach(leg=>leg.visible=false);
+ // Hide the fallback proxy ONLY when the new skinned body is confirmed
+ // visible and within a normal character-sized bounds; otherwise keep it.
+ stabilizeHumanBody(actor,true);
  // Subtle colored team band below the avatar, not a blocky full-body replacement.
  if(actor.team&&TEAM[actor.team]){
   const ringGeo=new THREE.RingGeometry(.62,.72,24);
@@ -368,8 +406,10 @@ function animateHumanAvatar(p,dt){
  }
  u.humanMixer.update(dt);
  alignHumanTorsoToForward(u,false,dt);
+ u.humanClipLabel=phase;
+ const modelOK=stabilizeHumanBody(p,false,dt);
  if(p.attack>0)p.attack=Math.max(0,p.attack-dt);
- return true;
+ return modelOK;
  }catch(err){console.error('Human animation failed',p?.id,err);gwangReportError('인체형 모션 오류: '+(err?.message||err));if(u.humanBody){u.humanBody.visible=false;u.humanBody=null}if(u.torso)u.torso.visible=true;if(u.legs)for(const leg of u.legs)leg.visible=true;u.humanFailed=true;return false}
 }
 
@@ -711,7 +751,7 @@ function updateThirdPersonCamera(dt){
  camera.lookAt(targetX,targetY+2.05,targetZ);
  camera.updateMatrixWorld(true);
 }
-window.__GWANG_DEBUG__={get player(){return PLAYER},get npcs(){return npcs},get cars(){return cars},get world(){return scene},get camera(){return camera},get renderer(){return renderer},get driver(){return inCar},get locomotion(){return playerMovement},get collision(){return collisionStats},get forward(){return inCar?{x:Math.sin(inCar.yaw),z:Math.cos(inCar.yaw)}:null},get avatarRig(){return {playerModel:!!PLAYER.avatar?.userData?.humanBody,avatarHeading:PLAYER.heading,cameraYaw:cam.yaw,orientation:PLAYER.avatar?.userData?.humanFaceDebug,npcs:npcs.map(n=>({name:n.name,human:!!n.avatar?.userData?.humanBody}))}},resetCamera};
+window.__GWANG_DEBUG__={get player(){return PLAYER},get npcs(){return npcs},get cars(){return cars},get world(){return scene},get camera(){return camera},get renderer(){return renderer},get driver(){return inCar},get locomotion(){return playerMovement},get collision(){return collisionStats},get forward(){return inCar?{x:Math.sin(inCar.yaw),z:Math.cos(inCar.yaw)}:null},get avatarRig(){return {playerModel:!!PLAYER.avatar?.userData?.humanBody,playerVisible:!!PLAYER.avatar?.userData?.humanVisible,avatarPosition:PLAYER.avatar?.position?.toArray(),humanLocalPosition:PLAYER.avatar?.userData?.humanBody?.position?.toArray(),animation:PLAYER.avatar?.userData?.humanClipLabel,avatarHeading:PLAYER.heading,cameraYaw:cam.yaw,orientation:PLAYER.avatar?.userData?.humanFaceDebug,npcs:npcs.map(n=>({name:n.name,human:!!n.avatar?.userData?.humanBody,visible:!!n.avatar?.userData?.humanVisible}))}},resetCamera};
 // V4.8: single writer for player movement. Render model/camera only READ finalized coordinates.
 const safeScalar=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
 const safeAxis=(value)=>clamp(safeScalar(value),-1,1);
