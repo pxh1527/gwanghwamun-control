@@ -417,8 +417,8 @@ async function installRealCharacters(){const ok=await installCharacterLoader();i
  const jobs=modelURLs.map((url,i)=>loadGLTF(url).catch(()=>loadGLTF(url.replace('https://cdn.jsdelivr.net/gh/agentkaerf/FreeModels@main/','https://raw.githubusercontent.com/agentkaerf/FreeModels/main/'))).then(x=>{avatarAssets[i]=x;loadedAvatarCount++;$('#loadingText').textContent=`실제 3D 시민 캐릭터 불러오는 중 · ${loadedAvatarCount}/6`;return x}).catch(e=>{console.warn('Model unavailable',url,e);return null}));
  const timeout=new Promise(resolve=>setTimeout(()=>resolve('timeout'),22000));await Promise.race([Promise.all(jobs),timeout]);
  if(!loadedAvatarCount){try{const local=await loadGLTF('./assets/characters/human_animated.glb');avatarAssets[0]=local;loadedAvatarCount=1;}catch(e){$('#loadingText').textContent='3D 에셋 서버에 접속할 수 없어 기본 모델로 전환했습니다.';$('#loadIndicator').textContent='외부 모델 미로드 · 대체 캐릭터';return}}
- if(avatarAssets[0])player=swapRig(player,qualityAvatar('player',avatarAssets[0]),null);
- for(let i=0;i<npcs.length;i++){let n=npcs[i],candidate=(i*5+Math.floor(i/4))%avatarAssets.length,idx=avatarAssets[candidate]?candidate:avatarAssets.findIndex(x=>x);if(idx<0)continue;let old=n.g;let rig=qualityAvatar('npc',avatarAssets[idx],.86+(i%5)*.035);rig=swapRig(old,rig,n);n.g=rig;}
+ if(avatarAssets[0]){player=swapRig(player,qualityAvatar('player',avatarAssets[0]),null);uniformize(player,currentTeam);if(board)mountBoard();}
+ for(let i=0;i<npcs.length;i++){let n=npcs[i],candidate=(i*5+Math.floor(i/4))%avatarAssets.length,idx=avatarAssets[candidate]?candidate:avatarAssets.findIndex(x=>x);if(idx<0)continue;let old=n.g;let rig=qualityAvatar('npc',avatarAssets[idx],.86+(i%5)*.035);rig=swapRig(old,rig,n);n.g=rig;uniformize(n.g,n.team);}
  const indicator=$('#loadIndicator');if(indicator)indicator.textContent='실제 애니메이션 모델 '+loadedAvatarCount+'종 적용';
 }
 
@@ -452,6 +452,41 @@ async function installStreetModels(){
  }));
 }
 
+
+const FACTIONS=[
+ {name:'국민의힘',short:'빨강',color:'#d63e45'},
+ {name:'더불어민주당',short:'파랑',color:'#2679d7'},
+ {name:'기타 정당',short:'초록',color:'#25a66e'},
+ {name:'태극기',short:'하양',color:'#f2f0e8'}
+];
+let currentTeam=0;
+const flagCanvas=document.createElement('canvas');flagCanvas.width=256;flagCanvas.height=168;
+(function drawKoreanFlag(){const c=flagCanvas.getContext('2d');c.fillStyle='white';c.fillRect(0,0,256,168);
+ c.save();c.translate(128,84);c.rotate(-Math.PI/3.3);
+ c.beginPath();c.arc(0,0,47,Math.PI,0);c.arc(23.5,0,23.5,Math.PI,0,true);c.arc(-23.5,0,23.5,0,Math.PI,true);c.closePath();c.fillStyle='#cd2e3a';c.fill();
+ c.beginPath();c.arc(0,0,47,0,Math.PI);c.arc(-23.5,0,23.5,0,Math.PI,true);c.arc(23.5,0,23.5,Math.PI,0,true);c.closePath();c.fillStyle='#0047a0';c.fill();c.restore();
+ function trigram(x,y,angle,pattern){c.save();c.translate(x,y);c.rotate(angle);c.fillStyle='#111';for(let k=0;k<3;k++){const yy=(k-1)*8;if(pattern[k]){c.fillRect(-23,yy-2,20,4);c.fillRect(3,yy-2,20,4)}else c.fillRect(-23,yy-2,46,4)}c.restore()}
+ trigram(41,33,-.63,[0,0,0]);trigram(215,135,-.63,[1,1,1]);trigram(211,34,.63,[1,0,1]);trigram(45,135,.63,[0,1,0]);
+})();
+const taegeukTex=new THREE.CanvasTexture(flagCanvas);taegeukTex.colorSpace=THREE.SRGBColorSpace;
+function uniformize(g,team){
+ const f=FACTIONS[team]||FACTIONS[0];
+ if(g.userData.teamDecal){g.remove(g.userData.teamDecal);g.userData.teamDecal.traverse(o=>{if(o.isMesh){o.geometry.dispose();if(o.material?.map&&o.material.map!==taegeukTex)o.material.map.dispose();o.material.dispose()}})}
+ if(g.userData.jacket)g.userData.jacket.color.setStyle(f.color);
+ if(g.userData.external){let garments=0;g.userData.torso.traverse(o=>{if(!o.isMesh)return;let n=(o.name+' '+(Array.isArray(o.material)?o.material.map(x=>x.name).join(' '):o.material?.name||'')).toLowerCase();
+ if(/shirt|jacket|hoodie|sweater|suit|blouse|top|coat|vest|uniform|torso/.test(n)&&!/face|skin|hair|eye/.test(n)){
+  o.material=Array.isArray(o.material)?o.material.map(m=>{let cp=m.clone();cp.color?.setStyle(f.color);return cp}):o.material.clone();if(!Array.isArray(o.material))o.material.color?.setStyle(f.color);garments++}
+ });}
+ const decor=new THREE.Group();g.add(decor);g.userData.teamDecal=decor;g.userData.faction=team;
+ // Thin cloth overlay on torso ensures faction shade remains visible on external GLTF as well.
+ const cloth=mat(f.color,.93,.02);let vest=mesh(new THREE.CylinderGeometry(.47,.42,.67,18,1,true),cloth,decor);vest.position.set(0,1.86,0);vest.scale.z=.77;vest.castShadow=false;
+ const front=mesh(new THREE.PlaneGeometry(.70,.19),new THREE.MeshBasicMaterial({map:makeText(f.short,256,80,team===3?'#1b2b31':'#ffffff','transparent',48),transparent:true,side:THREE.DoubleSide,depthWrite:false}),decor);
+ front.position.set(0,1.9,-.36);
+ if(team===3){const flag=mesh(new THREE.PlaneGeometry(.76,.50),new THREE.MeshBasicMaterial({map:taegeukTex,side:THREE.DoubleSide,depthWrite:false}),decor);flag.position.set(0,1.84,.378);flag.material.polygonOffset=true;flag.material.polygonOffsetFactor=-2;}
+ else{const stripe=block(0,1.83,.35,.64,.25,.015,mat(f.color),decor);stripe.castShadow=false}
+ return g
+}
+
 const skins=['#f1c6aa','#dba77f','#bd8a6c','#8e6450','#edd7bb'];const tops=['#263d5d','#ecebe3','#36594c','#a1443b','#3e3d45','#ad9b81','#6278a4','#d2c3ac','#6d365c','#2e706b'];const pants=['#222f3b','#5f6470','#293e47','#3e403f','#57606b'];const hair=['#292521','#40332a','#634935','#171b20','#86674b','#a29575'];
 function createHuman(style=0,col=0,sz=1){const g=new THREE.Group();const torso=new THREE.Group();g.add(torso);const female=style>=3,older=style===6;const jacket=mat(tops[(col+style*2)%tops.length]),skin=mat(skins[(style+col)%skins.length]),pantsMat=mat(pants[(col+2)%pants.length]),hmat=mat(older?'#aaa9a5':hair[(col+style)%hair.length],.9),shirt=mat(['#f0e9d9','#d7ddda','#e4cdad','#bac7d8'][col%4]);g.userData={torso,jacket,skin,style};
 // Sculpted tapered torso and coat, directional face toward local -Z.
@@ -462,13 +497,63 @@ const legs=[];for(let s of [-1,1]){let leg=new THREE.Group();leg.position.set(s*
 g.scale.setScalar(sz);g.userData.arms=arms;g.userData.legs=legs;g.userData.head=head;g.userData.size=sz;return g}
 let avatarFacingOffset=Math.PI;let player=createHuman(0,0,1);const p={x:-15,z:162,y:0,vy:0,rot:0,hp:100,onGround:true};scene.add(player);player.position.set(p.x,0,p.z);
 const npcs=[];const names=['민준','지우','서연','지민','도윤','하린','수빈','재혁','유나','태민','예진','건우','서준','하영','지호','윤서','진우','연우','수아','혜진','도현','유진','선우','보람'];
-for(let i=0;i<33;i++){let s=i%6,g=createHuman(s,i*3+1,.82+((i*7)%9)*.039),x=-44+((i*61)%43),z=-229+((i*83)%455);g.position.set(x,0,z);scene.add(g);const n={g,x,z,a:(i*1.63)%(Math.PI*2),speed:.48+((i*7)%9)/14,phase:i*1.5,hp:100,stun:0,down:0,name:names[i%names.length]+(i>=24?(i%7):''),active:true,brain:'wander',aggroUntil:0,attackStart:0,attackCooldown:0,attackHit:false,attackSide:i%2,lastDialogue:0,speechUntil:0,speechMesh:null,aggressionCount:0};npcs.push(n);if(i<15){let tx=makeText(n.name,256,64,'#f0fffd','#173244',30);let label=mesh(new THREE.PlaneGeometry(1.35,.31),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}),g);label.position.set(0,3.15,0);n.label=label}}
+for(let i=0;i<33;i++){let s=i%6,g=createHuman(s,i*3+1,.82+((i*7)%9)*.039),x=-44+((i*61)%43),z=-229+((i*83)%455);g.position.set(x,0,z);scene.add(g);const n={g,x,z,team:i%4,a:(i*1.63)%(Math.PI*2),speed:.48+((i*7)%9)/14,phase:i*1.5,hp:100,stun:0,down:0,name:names[i%names.length]+(i>=24?(i%7):''),active:true,brain:'wander',aggroUntil:0,attackStart:0,attackCooldown:0,attackHit:false,attackSide:i%2,lastDialogue:0,speechUntil:0,speechMesh:null,aggressionCount:0};uniformize(g,n.team);npcs.push(n);if(i<15){let tx=makeText(n.name,256,64,'#f0fffd','#173244',30);let label=mesh(new THREE.PlaneGeometry(1.35,.31),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}),g);label.position.set(0,3.15,0);n.label=label}}
 $('#npcCount').textContent=npcs.length;
 const keys={},clock=new THREE.Clock();let started=false,driving=null,camYaw=0,camPitch=.14,camDist=7.8,air=false,time=0,night=false,action='idle',actionEnd=0,actionStart=0,punchSide=0,punchCount=0,playerMoveSpeed=0,hitDone=false,emote='',toastT=0,spawnProgress=0,menu=false,damageT=0,board=null,aiClock=0,soundOn=true,dialogNPC=null,combatTextUntil=0;
 function toast(str){$('#toast').textContent=str;$('#toast').style.opacity='1';toastT=3.0}
 function addChat(author,s){let dv=document.createElement('div');let b=document.createElement('b');b.textContent=author+': ';b.style.color=author==='나'?'#85f4c8':'#a3c7f2';dv.appendChild(b);dv.appendChild(document.createTextNode(s));$('#messages').appendChild(dv);$('#messages').scrollTop=1e6}
-function setPlayerStyle(style,col){const x=player.position.clone(),ry=player.rotation.y;scene.remove(player);player=avatarAssets[style%6]?qualityAvatar('player',avatarAssets[style%6],1):createHuman(style,col,1);player.position.copy(x);player.rotation.y=ry;scene.add(player);if(board){board=null;addBoard()}if(myFlag){myFlag=null;toggleFlag()}}
-function addBoard(){if(board){player.remove(board);board=null;return}board=new THREE.Group();let stick=block(.7,1.45,-.52,.07,1.6,.07,mat('#856346'),board);block(.7,2.33,-.52,1.65,.8,.08,mat('#fbf4dc'),board);let txt=mesh(new THREE.PlaneGeometry(1.58,.71),new THREE.MeshBasicMaterial({map:makeText('광화문 시민',400,200,'#23445b','#fff5de',48),side:THREE.DoubleSide}),board);txt.position.set(.7,2.33,-.575);player.add(board)}
+function setPlayerStyle(style,col){const x=player.position.clone(),ry=player.rotation.y;scene.remove(player);player=avatarAssets[style%6]?qualityAvatar('player',avatarAssets[style%6],1):createHuman(style,col,1);player.position.copy(x);player.rotation.y=ry;scene.add(player);uniformize(player,currentTeam);if(board)mountBoard();if(myFlag){myFlag=null;toggleFlag()}}
+
+const PIXEL_SIZE=32,PIXEL_COLORS=['#ffffff','#151515','#e93a42','#ef842e','#fad448','#2aa86b','#217ad5','#8c50cb','#e4aec8','#784b32','#9daeb4','#415965','#f2ddc7','#c6e9ef','#333c2f','#f5f3e8'];
+let pixelPixels=new Array(PIXEL_SIZE*PIXEL_SIZE).fill(0);
+let boardDesign={mode:'text',text:'광화문 시민',bg:'#fff5de',fg:'#193648'};
+let boardEquipped=false;
+try{const saved=JSON.parse(localStorage.getItem('gwl7_picket')||'null');if(saved&&typeof saved.text==='string')boardDesign={...boardDesign,...saved};
+ const art=JSON.parse(localStorage.getItem('gwl7_pixels')||'null');if(Array.isArray(art)&&art.length===PIXEL_SIZE*PIXEL_SIZE)pixelPixels=art.map(n=>Math.max(0,Math.min(PIXEL_COLORS.length-1,Number(n)||0)))}catch(e){}
+function savePicket(){try{localStorage.setItem('gwl7_picket',JSON.stringify(boardDesign));localStorage.setItem('gwl7_pixels',JSON.stringify(pixelPixels))}catch(e){}}
+function makePicketTexture(){
+ const cv=document.createElement('canvas');cv.width=512;cv.height=288;const c=cv.getContext('2d');
+ c.fillStyle=boardDesign.bg;c.fillRect(0,0,512,288);
+ if(boardDesign.mode==='pixel'){const art=document.createElement('canvas');art.width=art.height=PIXEL_SIZE;const x=art.getContext('2d');for(let i=0;i<pixelPixels.length;i++){x.fillStyle=PIXEL_COLORS[pixelPixels[i]];x.fillRect(i%PIXEL_SIZE,Math.floor(i/PIXEL_SIZE),1,1)}
+  c.imageSmoothingEnabled=false;c.drawImage(art,105,3,302,282);
+ }else{c.fillStyle=boardDesign.fg;c.font='bold 56px "Malgun Gothic",sans-serif';c.textAlign='center';c.textBaseline='middle';
+  const lines=String(boardDesign.text||'광화문 시민').slice(0,60).split(/\n/).slice(0,3);
+  for(let j=0;j<lines.length;j++){let t=lines[j];let fs=56;while(fs>21&&c.measureText(t).width>465){fs-=3;c.font='bold '+fs+'px "Malgun Gothic",sans-serif'}c.fillText(t,256,144+(j-(lines.length-1)/2)*85,465);c.font='bold 56px "Malgun Gothic",sans-serif'}
+ }
+ c.strokeStyle='#746353';c.lineWidth=12;c.strokeRect(6,6,500,276);
+ let tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;return tx
+}
+function mountBoard(){
+ if(board){player.remove(board);board.traverse(o=>{if(o.isMesh){o.geometry.dispose();if(o.material.map)o.material.map.dispose();o.material.dispose()}});board=null;}
+ if(!boardEquipped)return;
+ board=new THREE.Group();block(.75,1.52,-.52,.065,1.48,.065,mat('#937756'),board);
+ block(.75,2.40,-.52,1.85,1.03,.095,mat('#fbf4dc'),board);
+ const tx=makePicketTexture(),surf=mesh(new THREE.PlaneGeometry(1.78,.96),new THREE.MeshBasicMaterial({map:tx,side:THREE.DoubleSide}),board);
+ surf.position.set(.75,2.4,-.58);player.add(board)
+}
+function addBoard(){boardEquipped=!boardEquipped;mountBoard();toast(boardEquipped?'피켓을 들었습니다':'피켓을 내렸습니다')}
+function openPicketEditor(){
+ setupMenu('🪧 내가 쓰는 피켓','<p>입력한 문구가 캐릭터가 드는 실제 3D 피켓에 표시됩니다. 최대 3줄 · 글자 60자.</p><textarea id="boardText" class="field" maxlength="60" rows="3" placeholder="피켓 문구"></textarea><div class="smallrow" style="margin-top:12px"><label>피켓 바탕색<input type="color" class="field" id="boardBg" style="height:45px;padding:4px" value="#fff5de"></label><label>글씨색<input type="color" class="field" id="boardFg" style="height:45px;padding:4px" value="#193648"></label></div><div class="smallrow" style="flex-wrap:wrap"><button id="boardApply" class="secondary">🪧 적용하고 들기</button><button id="boardRemove" class="secondary">피켓 내리기</button><button id="openPixelFromBoard" class="secondary">🧩 픽셀 그림 그리기</button></div>');
+ $('#boardText').value=boardDesign.text;$('#boardBg').value=boardDesign.bg;$('#boardFg').value=boardDesign.fg;
+ $('#boardApply').onclick=()=>{boardDesign={mode:'text',text:$('#boardText').value.slice(0,60)||'광화문 시민',bg:$('#boardBg').value,fg:$('#boardFg').value};boardEquipped=true;savePicket();mountBoard();closeMenu();toast('직접 쓴 문구로 피켓을 들었습니다')};
+ $('#boardRemove').onclick=()=>{boardEquipped=false;mountBoard();closeMenu()};
+ $('#openPixelFromBoard').onclick=openPixelEditor;
+}
+function openPixelEditor(){
+ setupMenu('🧩 32×32 픽셀 그림','<p>색상 선택 후 칸을 클릭하거나 드래그해 그리세요. 그린 그림을 피켓으로 들고 다닐 수 있습니다.</p><canvas id="paintgrid" width="32" height="32" aria-label="픽셀 그림 편집 캔버스"></canvas><div class="palette" id="paintPalette"></div><div class="smallrow" style="flex-wrap:wrap"><button class="secondary" id="paintErase">지우개</button><button class="secondary" id="paintUndo">↶ 되돌리기</button><button class="secondary" id="paintClear">전체 지우기</button><button class="secondary" id="paintApply">🎨 저장하고 피켓으로 들기</button></div>');
+ const cv=$('#paintgrid'),ctx=cv.getContext('2d'),pal=$('#paintPalette');let colorIndex=2,held=false,prev=[],lastCell=-1;
+ function repaint(){for(let i=0;i<pixelPixels.length;i++){ctx.fillStyle=PIXEL_COLORS[pixelPixels[i]];ctx.fillRect(i%PIXEL_SIZE,(i/PIXEL_SIZE)|0,1,1)}}
+ function select(k){colorIndex=k;for(const b of pal.children)b.classList.toggle('selected',Number(b.dataset.idx)===k)}
+ PIXEL_COLORS.forEach((col,j)=>{const b=document.createElement('button');b.className='swatch';b.type='button';b.dataset.idx=j;b.style.background=col;b.title=j===0?'흰색 / 지우기':col;b.onclick=()=>select(j);pal.append(b)});select(colorIndex);repaint();
+ function draw(e){const r=cv.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*PIXEL_SIZE),y=Math.floor((e.clientY-r.top)/r.height*PIXEL_SIZE);if(x<0||x>=PIXEL_SIZE||y<0||y>=PIXEL_SIZE)return;const i=y*PIXEL_SIZE+x;if(i===lastCell)return;lastCell=i;pixelPixels[i]=colorIndex;ctx.fillStyle=PIXEL_COLORS[colorIndex];ctx.fillRect(x,y,1,1)}
+ cv.onpointerdown=e=>{e.preventDefault();held=true;lastCell=-1;prev=pixelPixels.slice();cv.setPointerCapture(e.pointerId);draw(e)};
+ cv.onpointermove=e=>{if(held)draw(e)};cv.onpointerup=cv.onpointercancel=()=>{held=false;lastCell=-1};
+ $('#paintErase').onclick=()=>select(0);
+ $('#paintUndo').onclick=()=>{if(prev.length){pixelPixels=prev;prev=[];repaint()}};
+ $('#paintClear').onclick=()=>{prev=pixelPixels.slice();pixelPixels.fill(0);repaint()};
+ $('#paintApply').onclick=()=>{boardDesign.mode='pixel';boardEquipped=true;savePicket();mountBoard();closeMenu();toast('그린 32×32 픽셀 그림을 들었습니다')};
+}
+
 // In-world advertisement billboard with editable local message.
 const bannerGroup=new THREE.Group();bannerGroup.position.set(-53,0,77);scene.add(bannerGroup);
 for(let xx of [-6,6])block(xx,5.2,0,.47,10.4,.49,mat('#60666b'),bannerGroup);
@@ -477,12 +562,12 @@ let billboardFace=mesh(new THREE.PlaneGeometry(16.7,4.7),new THREE.MeshBasicMate
 function updateBillboard(msg){billboardFace.material.map.dispose();billboardFace.material.map=makeText((msg||'광화문 LIVE').slice(0,30),800,280,'#eafaff','#153f5c',70);billboardFace.material.needsUpdate=true}
 let myFlag=null,sprayMode=false,sprayDown=false,paintCount=0;const paints=[];
 function toggleFlag(){if(myFlag){player.remove(myFlag);myFlag=null;toast('깃발을 내렸습니다');return}myFlag=new THREE.Group();block(-.68,1.55,-.35,.052,2.9,.052,mat('#d1c8ab'),myFlag);
- const teamId=$('#team').value,clr=teamId==='1'?'#3169b1':teamId==='2'?'#c9443f':'#f0eee6';
+ const teamId=currentTeam,clr=FACTIONS[teamId].color;
  let cloth=mesh(new THREE.PlaneGeometry(1.5,.92),new THREE.MeshStandardMaterial({color:clr,roughness:.85,side:THREE.DoubleSide}),myFlag);cloth.position.set(-1.42,2.46,-.35);
- let emblem=mesh(new THREE.PlaneGeometry(1.35,.58),new THREE.MeshBasicMaterial({map:makeText('광화문',512,172,teamId==='0'?'#23394e':'#ffffff','transparent',75),transparent:true,side:THREE.DoubleSide}),myFlag);emblem.position.set(-1.4,2.46,-.365);player.add(myFlag);toast('깃발을 들었습니다')}
+ let emblem=mesh(new THREE.PlaneGeometry(1.35,.58),new THREE.MeshBasicMaterial({map:makeText('광화문',512,172,teamId===3?'#23394e':'#ffffff','transparent',75),transparent:true,side:THREE.DoubleSide}),myFlag);emblem.position.set(-1.4,2.46,-.365);player.add(myFlag);toast('깃발을 들었습니다')}
 const groundRay=new THREE.Raycaster(),groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.174),vPoint=new THREE.Vector3();
 function groundClick(e){if(!started)return;const rect=renderer.domElement.getBoundingClientRect();const mouse=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);groundRay.setFromCamera(mouse,camera);if(!groundRay.ray.intersectPlane(groundPlane,vPoint))return;if(Math.abs(vPoint.x)>68||Math.abs(vPoint.z)>254)return;
- const teamId=$('#team').value,color=teamId==='1'?'#387fda':teamId==='2'?'#e3524c':'#f3b745';
+ const teamId=currentTeam,color=FACTIONS[teamId].color;
  const circle=mesh(new THREE.CircleGeometry(.13+Math.random()*.18,9),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.65,depthWrite:false,side:THREE.DoubleSide}));circle.rotation.x=-Math.PI/2;circle.position.set(vPoint.x,.178+paintCount*.000015,vPoint.z);scene.add(circle);paints.push(circle);paintCount++;if(paints.length>600){const a=paints.shift();scene.remove(a);a.geometry.dispose();a.material.dispose()}}
 function toggleSpray(){sprayMode=!sprayMode;toast(sprayMode?'스프레이: 마우스를 누른 채 바닥에 그리세요. B 종료 · R 되돌리기':'스프레이 모드 종료');const b=$('#sprayBtn');if(b)b.style.background=sprayMode?'#137b73':''}
 function undoSpray(){const a=paints.pop();if(a){scene.remove(a);a.geometry.dispose();a.material.dispose();toast('마지막 낙서를 제거했습니다')}}
@@ -588,7 +673,7 @@ $('#closeModal').onclick=closeMenu;
 $('#garageBtn').onclick=()=>setupMenu('🚘 차량 / 차고','<p>차를 선택하면 현재 위치 근처에 생성됩니다. 탑승 후 실제로 운전할 수 있습니다.</p><div class="smallrow" style="flex-wrap:wrap"><button class="secondary" data-act="spawn" data-color="#e8e9ee">🚙 은색 세단</button><button class="secondary" data-act="spawn" data-color="#202d39">🚘 검은 세단</button><button class="secondary" data-act="spawn" data-color="#edc44e">🚖 택시</button><button class="secondary" data-act="spawn" data-color="#18a874" data-bus="1">🚌 서울 시내버스</button></div><p>운전 중 W 가속, S 후진·제동, A/D 조향, H 경적, E 하차</p>');
 $('#avatarBtn').onclick=()=>{let h='<p>실제 Quaternius 3D 캐릭터 모델 6종 중에서 선택합니다. 아래 색상 버튼은 기본 대체 캐릭터에서만 적용됩니다.</p>';for(let i=0;i<6;i++){h+='<div style="margin-top:9px"><b>'+['후드티 남성','정장 남성','작업복 남성','캐주얼 여성','정장 여성','작업복 여성'][i]+'</b><br>';for(let j=0;j<5;j++)h+=`<button class="secondary" data-act="avatar" data-style="${i}" data-col="${j}">${['남색','검정','흰색','초록','빨강'][j]}</button>`;h+='</div>'}setupMenu('🧍 캐릭터 외형',h)};
 $('#actionBtn').onclick=()=>{$('#emotes').style.display=$('#emotes').style.display==='flex'?'none':'flex'};$$('#emotes button').forEach(b=>b.onclick=()=>{emote=b.dataset.emote;$('#emotes').style.display='none';toast(b.textContent)});
-$('#boardBtn').onclick=()=>{addBoard();toast(board?'피켓을 들었습니다':'피켓을 내렸습니다')};$('#npcTalkBtn').onclick=tryTalk;$('#closeDialog').onclick=closeDialog;
+$('#boardBtn').onclick=openPicketEditor;$('#pixelBtn').onclick=openPixelEditor;$('#npcTalkBtn').onclick=tryTalk;$('#closeDialog').onclick=closeDialog;
 $('#chatBtn').onclick=()=>{$('#chatPanel').style.display=$('#chatPanel').style.display==='block'?'none':'block'};$('#closeChat').onclick=()=>$('#chatPanel').style.display='none';
 $('#chatform').onsubmit=e=>{e.preventDefault();const v=$('#chatinput').value.trim();if(!v)return;addChat('나',v);$('#chatinput').value='';setTimeout(()=>addChat(names[Math.floor(Math.random()*names.length)],['안녕하세요! 광화문광장에 오신 걸 환영해요.','저는 세종대왕상 근처를 구경 중이에요.','오늘은 날씨가 좋네요!','버스도 직접 운전해볼 수 있대요.','광화문은 북쪽에 있어요.'][Math.floor(Math.random()*5)]),300)};
 $('#sprayBtn').onclick=toggleSpray;
@@ -597,7 +682,7 @@ $('#billboardBtn').onclick=()=>{
  setupMenu('📺 광화문 전광판','<p>광장의 전광판 문구를 로컬로 변경할 수 있습니다. 다른 사용자에게 공유되지는 않습니다.</p><input id="billboardInput" class="field" maxlength="30" placeholder="표시할 문구를 입력하세요"/><p><button class="secondary" data-act="billboard">문구 적용하기</button></p>')};
 $('#dayBtn').onclick=()=>{night=!night;$('#dayBtn').textContent=night?'☀️ 주간 전환':'🌙 야간 전환';scene.background.set(night?'#151e31':daySky);scene.fog.color.set(night?'#151e31':daySky);ambient.intensity=night?.65:2.25;sun.intensity=night?.35:3;renderer.toneMappingExposure=night?.9:1.4};
 $('#settingsBtn').onclick=()=>setupMenu('⚙️ 그래픽 / 게임 설정','<p>V6: 1회 펀치, 피격 시민 추격·반격(거리에 따라 판정), 시민 선택형 대화, 추가 건물·거리 장식 및 CC0 3D 에셋 로딩. 원본 게임의 그래픽과 완전히 동일하진 않습니다.</p><p>기본은 프레임에 맞춰 자동으로 해상도를 조절합니다. 성능이 느린 경우 그래픽을 낮음으로 변경하세요.</p><button class="secondary" data-act="quality" data-ratio="0.8">낮음 · 그림자 끔</button><button class="secondary" data-act="quality" data-ratio="1.2">보통</button><button class="secondary" data-act="quality" data-ratio="1.65">높음</button><p>효과음</p><button class="secondary" data-act="volume">소리 켜기 / 끄기</button><p style="font-size:11px">진짜 온라인 접속, 구매·계정 저장, 광고 업로드 기능은 미구현입니다.</p>');
-$('#startBtn').onclick=()=>{const n=$('#playerName').value.trim()||'서울 시민';$('#nickHud').textContent=n;setPlayerStyle(Number($('#avatarStyle').value),Number($('#outfit').value));started=true;$('#start').style.display='none';toast('광화문광장에 입장했습니다! W로 광화문 방향으로 걸어보세요')};
+$('#startBtn').onclick=()=>{const n=$('#playerName').value.trim()||'서울 시민';$('#nickHud').textContent=n;currentTeam=Number($('#team').value)||0;setPlayerStyle(Number($('#avatarStyle').value),Number($('#outfit').value));started=true;$('#start').style.display='none';toast('광화문광장에 입장했습니다! W로 광화문 방향으로 걸어보세요')};
 let dragging=false,px=0,py=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType!=='touch')return;if(sprayMode){sprayDown=true;groundClick(e);return}dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(sprayMode&&sprayDown){groundClick(e);return}if(!dragging||!started)return;camYaw-=(e.clientX-px)*.006;camPitch=Math.max(-.15,Math.min(1.16,camPitch+(e.clientY-py)*.004));px=e.clientX;py=e.clientY});renderer.domElement.addEventListener('pointerup',()=>{dragging=false;sprayDown=false});renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();camDist=Math.max(4.4,Math.min(44,camDist+Math.sign(e.deltaY)*1.2))},{passive:false});
 window.addEventListener('keydown',e=>{if(!root.isConnected||!started||document.activeElement===$('#chatinput')||document.activeElement===$('#playerName'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();const wasHeld=!!keys[e.code];keys[e.code]=true;if(e.repeat||wasHeld)return;if(e.code==='KeyE'&&!dialogNPC)interact();if(e.code==='KeyG')tryTalk();if(e.code==='KeyF')punch();if(e.code==='KeyH'&&driving){beep(460,.17);toast('빵빵! 경적')};if(e.code==='KeyB'){toggleSpray()};if(e.code==='KeyR'){undoSpray()};if(e.code==='KeyT'){toggleFlag()};if(e.code==='KeyV'){air=!air;toast(air?'항공 카메라':'3인칭 카메라')};if(e.code==='KeyC'){avatarFacingOffset=(avatarFacingOffset+Math.PI)%(Math.PI*2);[player,...npcs.map(n=>n.g)].forEach(g=>{if(g.userData.external&&g.userData.torso)g.userData.torso.rotation.y=avatarFacingOffset});toast('3D 모델 앞뒤 방향을 교정했습니다')};if(e.code==='Digit1'){$('#garageBtn').click()};if(e.code==='Escape'){closeDialog();closeMenu();$('#chatPanel').style.display='none'}});
 window.addEventListener('keyup',e=>{keys[e.code]=false});window.addEventListener('blur',()=>{for(let k in keys)keys[k]=false});$$('#mobile [data-key]').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();const key=b.dataset.key,wasHeld=!!keys[key];keys[key]=true;if(!wasHeld&&key==='KeyF')punch();if(!wasHeld&&key==='KeyE')interact()});for(const evt of ['pointerup','pointercancel','pointerleave'])b.addEventListener(evt,()=>keys[b.dataset.key]=false)});
