@@ -417,7 +417,7 @@ async function installRealCharacters(){const ok=await installCharacterLoader();i
  const jobs=modelURLs.map((url,i)=>loadGLTF(url).catch(()=>loadGLTF(url.replace('https://cdn.jsdelivr.net/gh/agentkaerf/FreeModels@main/','https://raw.githubusercontent.com/agentkaerf/FreeModels/main/'))).then(x=>{avatarAssets[i]=x;loadedAvatarCount++;$('#loadingText').textContent=`실제 3D 시민 캐릭터 불러오는 중 · ${loadedAvatarCount}/6`;return x}).catch(e=>{console.warn('Model unavailable',url,e);return null}));
  const timeout=new Promise(resolve=>setTimeout(()=>resolve('timeout'),22000));await Promise.race([Promise.all(jobs),timeout]);
  if(!loadedAvatarCount){try{const local=await loadGLTF('./assets/characters/human_animated.glb');avatarAssets[0]=local;loadedAvatarCount=1;}catch(e){$('#loadingText').textContent='3D 에셋 서버에 접속할 수 없어 기본 모델로 전환했습니다.';$('#loadIndicator').textContent='외부 모델 미로드 · 대체 캐릭터';return}}
- if(avatarAssets[0]){player=swapRig(player,qualityAvatar('player',avatarAssets[0]),null);uniformize(player,currentTeam);if(board)mountBoard();updateWeaponModel();}
+ if(avatarAssets[0]){player=swapRig(player,qualityAvatar('player',avatarAssets[0]),null);uniformize(player,currentTeam);if(board)mountBoard();updateWeaponModel();updateSupplyHud();}
  for(let i=0;i<npcs.length;i++){let n=npcs[i],candidate=(i*5+Math.floor(i/4))%avatarAssets.length,idx=avatarAssets[candidate]?candidate:avatarAssets.findIndex(x=>x);if(idx<0)continue;let old=n.g;let rig=qualityAvatar('npc',avatarAssets[idx],.86+(i%5)*.035);rig=swapRig(old,rig,n);n.g=rig;uniformize(n.g,n.team);}
  const indicator=$('#loadIndicator');if(indicator)indicator.textContent='실제 애니메이션 모델 '+loadedAvatarCount+'종 적용';
 }
@@ -501,6 +501,9 @@ for(let i=0;i<33;i++){let s=i%6,g=createHuman(s,i*3+1,.82+((i*7)%9)*.039),x=i>=2
 $('#npcCount').textContent=npcs.length;
 
 const supply={branches:0,stones:0,club:false,axe:false,weapon:'fist',lastGather:-100};
+try{const inv=JSON.parse(localStorage.getItem('gwl7_inventory')||'null');if(inv){supply.branches=Math.min(99,Math.max(0,Number(inv.branches)||0));supply.stones=Math.min(99,Math.max(0,Number(inv.stones)||0));supply.club=!!inv.club;supply.axe=!!inv.axe;if(['club','axe'].includes(inv.weapon)&&supply[inv.weapon])supply.weapon=inv.weapon}}catch(e){}
+function saveSupply(){try{localStorage.setItem('gwl7_inventory',JSON.stringify({branches:supply.branches,stones:supply.stones,club:supply.club,axe:supply.axe,weapon:supply.weapon}))}catch(e){}}
+
 const resources=[];
 function resourceSpot(kind,x,z){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
@@ -540,10 +543,10 @@ function gatherResource(r){if(!r||driving)return;
  supply.lastGather=time;
  if(r.kind==='branch'){supply.branches=Math.min(99,supply.branches+1);toast('🌳 가지 +1 · 총 '+supply.branches+'개')}
  else{supply.stones=Math.min(99,supply.stones+2);toast('🪨 돌 +2 · 총 '+supply.stones+'개')}
- if(soundOn)beep(520,.09);updateSupplyHud()
+ if(soundOn)beep(520,.09);updateSupplyHud();saveSupply()
 }
 function updateSupplyHud(){const el=$('#supplyHud');if(el)el.textContent='🌿 가지 '+supply.branches+' · 🪨 돌 '+supply.stones+' · '+({fist:'주먹',club:'몽둥이',axe:'돌도끼'}[supply.weapon])}
-function equip(kind){if(!['fist','club','axe'].includes(kind))return;if(kind!=='fist'&&!supply[kind]){toast('아직 제작하지 않았습니다. B를 눌러 제작하세요');return}supply.weapon=kind;updateWeaponModel();updateSupplyHud();toast('장착: '+({fist:'맨손',club:'몽둥이',axe:'돌도끼'}[kind]))}
+function equip(kind){if(!['fist','club','axe'].includes(kind))return;if(kind!=='fist'&&!supply[kind]){toast('아직 제작하지 않았습니다. B를 눌러 제작하세요');return}supply.weapon=kind;updateWeaponModel();updateSupplyHud();saveSupply();toast('장착: '+({fist:'맨손',club:'몽둥이',axe:'돌도끼'}[kind]))}
 function craft(kind){const recipe=kind==='club'?{branches:2,stones:0}:kind==='axe'?{branches:1,stones:2}:null;if(!recipe)return;
  if(supply[kind]){equip(kind);closeMenu();return}
  if(supply.branches<recipe.branches||supply.stones<recipe.stones){toast('재료 부족! 주변 나무·돌덩이에서 E로 채집하세요');return}
@@ -575,7 +578,7 @@ function tickCapture(dt){
 }
 const flyingStones=[];
 function throwStone(){if(driving||menu||!started||dialogNPC||action==='punch')return;if(supply.stones<1){toast('돌이 없습니다. 돌덩이에서 채집하세요');return}
- supply.stones--;updateSupplyHud();const fx=-Math.sin(p.rot),fz=-Math.cos(p.rot),g=mesh(new THREE.IcosahedronGeometry(.21,1),mat('#a2aaa5'));g.position.set(p.x,1.55,p.z);flyingStones.push({g,fx,fz,x:p.x,z:p.z,age:0,hit:false});beep(290,.11)}
+ supply.stones--;updateSupplyHud();saveSupply();const fx=-Math.sin(p.rot),fz=-Math.cos(p.rot),g=mesh(new THREE.IcosahedronGeometry(.21,1),mat('#a2aaa5'));g.position.set(p.x,1.55,p.z);flyingStones.push({g,fx,fz,x:p.x,z:p.z,age:0,hit:false});beep(290,.11)}
 function tickStones(dt){for(let i=flyingStones.length-1;i>=0;i--){const q=flyingStones[i];q.age+=dt;q.x+=q.fx*20*dt;q.z+=q.fz*20*dt;q.g.position.set(q.x,1.55+Math.sin(q.age*3)*.2,q.z);q.g.rotation.x+=dt*8;
  for(const n of npcs){if(n.down>0||Math.hypot(n.x-q.x,n.z-q.z)>1.15)continue;impactNPC(n,14,q.fx,q.fz);q.hit=true;break}
  if(q.age>.68||q.hit){scene.remove(q.g);q.g.geometry.dispose();q.g.material.dispose();flyingStones.splice(i,1)}}}
@@ -583,7 +586,7 @@ function tickStones(dt){for(let i=flyingStones.length-1;i>=0;i--){const q=flying
 const keys={},clock=new THREE.Clock();let started=false,driving=null,camYaw=0,camPitch=.14,camDist=7.8,air=false,time=0,night=false,action='idle',actionEnd=0,actionStart=0,punchSide=0,punchCount=0,playerMoveSpeed=0,hitDone=false,emote='',toastT=0,spawnProgress=0,menu=false,damageT=0,board=null,aiClock=0,soundOn=true,dialogNPC=null,combatTextUntil=0;
 function toast(str){$('#toast').textContent=str;$('#toast').style.opacity='1';toastT=3.0}
 function addChat(author,s){let dv=document.createElement('div');let b=document.createElement('b');b.textContent=author+': ';b.style.color=author==='나'?'#85f4c8':'#a3c7f2';dv.appendChild(b);dv.appendChild(document.createTextNode(s));$('#messages').appendChild(dv);$('#messages').scrollTop=1e6}
-function setPlayerStyle(style,col){const x=player.position.clone(),ry=player.rotation.y;scene.remove(player);player=avatarAssets[style%6]?qualityAvatar('player',avatarAssets[style%6],1):createHuman(style,col,1);player.position.copy(x);player.rotation.y=ry;scene.add(player);uniformize(player,currentTeam);if(board)mountBoard();updateWeaponModel();if(myFlag){myFlag=null;toggleFlag()}}
+function setPlayerStyle(style,col){const x=player.position.clone(),ry=player.rotation.y;scene.remove(player);player=avatarAssets[style%6]?qualityAvatar('player',avatarAssets[style%6],1):createHuman(style,col,1);player.position.copy(x);player.rotation.y=ry;scene.add(player);uniformize(player,currentTeam);if(board)mountBoard();updateWeaponModel();updateSupplyHud();if(myFlag){myFlag=null;toggleFlag()}}
 
 const PIXEL_SIZE=32,PIXEL_COLORS=['#ffffff','#151515','#e93a42','#ef842e','#fad448','#2aa86b','#217ad5','#8c50cb','#e4aec8','#784b32','#9daeb4','#415965','#f2ddc7','#c6e9ef','#333c2f','#f5f3e8'];
 let pixelPixels=new Array(PIXEL_SIZE*PIXEL_SIZE).fill(0);
@@ -919,6 +922,6 @@ if(toastT>0){toastT-=dt;if(toastT<=0)$('#toast').style.opacity='0'}
 const target=(driving?driving.obj.position:new THREE.Vector3(p.x,p.y,p.z));let focus=new THREE.Vector3(target.x,target.y+(driving?1.45:1.95),target.z);const aimYaw=air?0:camYaw,dist=air?48:camDist,height=air?60:Math.sin(camPitch)*dist;let dest=new THREE.Vector3(focus.x+Math.sin(aimYaw)*dist*Math.cos(camPitch),focus.y+height+1,focus.z+Math.cos(aimYaw)*dist*Math.cos(camPitch));camera.position.lerp(dest,Math.min(1,dt*5.8));camera.lookAt(air?new THREE.Vector3(focus.x,0,focus.z-7):focus);
 const minican=$('#mini'),ctx=minican.getContext('2d'),ww=minican.width,hh=minican.height;ctx.clearRect(0,0,ww,hh);ctx.fillStyle='#334c5c';ctx.fillRect(0,0,ww,hh);const mp=(xx,zz)=>[ww*.5+(xx+15)*1.06,hh*.5+(zz-p.z)*.41];ctx.fillStyle='#516c6a';ctx.fillRect(6,0,75,hh);ctx.fillStyle='#b5b8ad';ctx.fillRect(76,0,57,hh);ctx.fillStyle='#313d46';ctx.fillRect(135,0,105,hh);ctx.fillStyle='#eef0d2';for(const z of [-95,95]){const point=mp(-18,z);ctx.fillRect(ww*.5-5,point[1]-4,10,8)}for(const n of npcs){const [x,y]=mp(n.x,n.z);ctx.fillStyle=FACTIONS[n.team].color;ctx.fillRect(x,y,3,3)}for(const c of cars){const [x,y]=mp(c.obj.position.x,c.obj.position.z);ctx.fillStyle='#f6cc70';ctx.fillRect(x-2,y-3,4,6)}ctx.save();const [pxx,pyy]=mp(p.x,p.z);ctx.translate(pxx,pyy);ctx.rotate(-p.rot);ctx.fillStyle=FACTIONS[currentTeam].color;ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(-4,5);ctx.lineTo(4,5);ctx.closePath();ctx.fill();ctx.restore();
 renderer.render(scene,camera)}
-function loop(){if(!root.isConnected)return;requestAnimationFrame(loop);update(Math.min(clock.getDelta(),.038))}function resize(){let w=root.clientWidth,h=root.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}window.addEventListener('resize',resize);new ResizeObserver(resize).observe(root);resize();$('#loadingText').textContent='3D 캐릭터·도시 모델을 불러오는 중...';$('#loading').style.display='none';loop();installRealCharacters().then(()=>installStreetModels()).catch(e=>console.warn('Additional assets unavailable',e));
+function loop(){if(!root.isConnected)return;requestAnimationFrame(loop);update(Math.min(clock.getDelta(),.038))}function resize(){let w=root.clientWidth,h=root.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}window.addEventListener('resize',resize);new ResizeObserver(resize).observe(root);resize();$('#loadingText').textContent='3D 캐릭터·도시 모델을 불러오는 중...';$('#loading').style.display='none';updateSupplyHud();loop();installRealCharacters().then(()=>installStreetModels()).catch(e=>console.warn('Additional assets unavailable',e));
 })();
 </script></body></html>
