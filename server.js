@@ -8,7 +8,7 @@ const WEBROOT=fs.existsSync(path.join(BUILD_ROOT,'index.html'))?BUILD_ROOT:ROOT;
 // Operators are authenticated only by server-side environment variable.
 const ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||'';
 const sessions=new Map(),staffInvites=new Map(),props=new Map(),limits=new Map();
-let billboard={text:'광화문 점령전 · 서로 존중하는 플레이',image:null};
+let billboard={text:'광화문 리브레 · 서로 존중하는 플레이',image:null};
 const SAVEFILE=path.resolve(process.env.GAME_DATA_FILE||path.join(ROOT,'game-data.json'));
 try{const state=JSON.parse(fs.readFileSync(SAVEFILE,'utf8'));if(Array.isArray(state.props)){for(let p of state.props.slice(0,120))if(p&&p.id&&p.kind)props.set(p.id,p)}if(state.billboard&&typeof state.billboard.text==='string')billboard={text:state.billboard.text.slice(0,90),image:typeof state.billboard.image==='string'?state.billboard.image.slice(0,210000):null}}catch{}
 let saveTimer=null;function scheduleSave(){if(saveTimer)return;saveTimer=setTimeout(()=>{saveTimer=null;let tmp=SAVEFILE+'.tmp';try{fs.writeFileSync(tmp,JSON.stringify({props:[...props.values()],billboard}));fs.renameSync(tmp,SAVEFILE)}catch(e){console.warn('game data not persistent:',e.message)}},1700)}
@@ -174,7 +174,7 @@ if(req.method==='POST'&&allowedRoutes.has(route)){
  if(route==='/api/admin/billboard'){
   const str=String(d.text||'').replace(/[<>]/g,'').slice(0,90);
   let pic=null;if(d.image){pic=String(d.image);if(!/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(pic)||pic.length>210000){jsonReply(res,400,{error:'허용되지 않는 이미지이거나 150KB를 초과합니다'});return}}
-  billboard={text:str||'광화문 점령전',image:pic};scheduleSave();broadcast({t:'billboard',...billboard});jsonReply(res,200,{ok:true});return
+  billboard={text:str||'광화문 리브레',image:pic};scheduleSave();broadcast({t:'billboard',...billboard});jsonReply(res,200,{ok:true});return
  }
  jsonReply(res,404,{error:'not found'})
  });return
@@ -182,4 +182,4 @@ if(req.method==='POST'&&allowedRoutes.has(route)){
 server.on('upgrade',(req,socket,head)=>{if(req.url!=='/play'||String(req.headers.upgrade).toLowerCase()!=='websocket'||!req.headers['sec-websocket-key']){socket.destroy();return}const origin=String(req.headers.origin||'');if(origin){try{let u=new URL(origin);let host=String(req.headers.host||'');if(u.host!==host){socket.destroy();return}}catch{socket.destroy();return}}
 let ip=ipOf(req);if(!rate(ip,'upgrade',30,60000)||[...clients.values()].filter(c=>c.ip===ip).length>=6){socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n');return}
 if(clients.size>=80){socket.end('HTTP/1.1 503 Service Unavailable\r\n\r\n');return}let key=crypto.createHash('sha1').update(req.headers['sec-websocket-key']+'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: '+key+'\r\n\r\n');let c={socket,req,ip,role:roleOf(req),id:crypto.randomUUID(),joined:false,name:'',team:'blue',x:0,z:60,hp:100,lastMove:0,lastChat:0,lastAttack:0,car:null,stamina:100,hunger:100,coins:0,branches:0,stones:0,food:3,weapons:{club:false,axe:false},weapon:'fist',maxHp:100,maxStamina:100,power:0,skillPoints:0,aliveSeconds:0,wellFedSeconds:0,lastPaidKO:0,lastGather:0,buffer:Buffer.alloc(0),invulnerableUntil:0};clients.set(c.id,c);socket.setNoDelay(true);socket.on('data',data=>parseFrames(c,data));if(head.length)parseFrames(c,head);let leave=()=>{if(!clients.has(c.id))return;clients.delete(c.id);releaseCar(c);if(c.joined){broadcast({t:'leave',id:c.id});count()}};socket.on('close',leave);socket.on('error',leave)});
-server.listen(PORT,'0.0.0.0',()=>console.log(`광화문 점령전 웹서버: http://localhost:${PORT} (assets: ${WEBROOT===BUILD_ROOT?'bundled dist':'unbuilt source'})`));
+server.listen(PORT,'0.0.0.0',()=>console.log(`광화문 리브레 웹서버: http://localhost:${PORT} (assets: ${WEBROOT===BUILD_ROOT?'bundled dist':'unbuilt source'})`));
