@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/><title>광화문 리브레 V7 | 3D 도시 리빌드</title><style>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/><title>광화문 리브레 V8 | 진영·커스터마이징</title><style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:#111b2c;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif;color:#fff;overflow:hidden}#gsp{height:100vh;min-height:540px;position:relative;background:linear-gradient(#83b2d8,#e7ebeb);overflow:hidden}#gsp button,#gsp select,#gsp input{font:inherit}#gsp button{cursor:pointer}#gsp #screen{position:absolute;inset:0}#gsp #screen canvas{display:block;width:100%;height:100%;touch-action:none}#gsp .glass{background:rgba(10,22,34,.78);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(12px);box-shadow:0 8px 24px #0003}#gsp .top{position:absolute;top:17px;left:20px;display:flex;align-items:center;gap:12px;z-index:3;pointer-events:none}#gsp .logo{padding:11px 15px;border-radius:12px}#gsp .logo strong{display:block;font-size:19px;font-weight:900;letter-spacing:-.6px}#gsp .logo small{color:#b8d0df;font-size:10px;letter-spacing:1.8px}#gsp .dot{display:inline-block;background:#43dd9b;width:7px;height:7px;border-radius:50%;box-shadow:0 0 10px #43dd9b;margin-right:6px}#gsp .hp{width:172px;padding:11px 13px;border-radius:11px}#gsp .hp .bar{background:#475466;border-radius:5px;height:6px;margin-top:6px;overflow:hidden}#gsp #hpfill{height:100%;background:linear-gradient(90deg,#43e29d,#aaf6b2);width:100%;transition:width .15s}#gsp .hp small{color:#b9d1de;font-size:11px}#gsp .headright{position:absolute;right:16px;top:16px;width:182px;z-index:3}#gsp .mapbox{border-radius:14px;padding:10px}#gsp #mini{display:block;width:160px;height:144px;border-radius:8px;background:#23384d}#gsp .mapcaption{font-size:10px;display:flex;justify-content:space-between;margin-top:6px;color:#bfd2df}#gsp .people{margin-top:8px;padding:9px 12px;font-size:12px;border-radius:10px;color:#d9ecf4}#gsp .people b{color:#83f1ce}#gsp .toolbar{position:absolute;right:16px;top:270px;display:flex;flex-direction:column;gap:6px;z-index:4}#gsp .toolbar button{width:132px;text-align:left;border-radius:10px;padding:10px 12px;background:rgba(13,26,40,.8);color:white;border:1px solid #ffffff24;font-size:12px;font-weight:650}#gsp .toolbar button:hover,#gsp .toolbar button.active{background:#1c6b7c}#gsp #bottom{position:absolute;bottom:18px;left:18px;z-index:4;display:flex;align-items:flex-end;gap:10px}#gsp .keys{padding:11px 14px;border-radius:13px;color:#c9dbe8;font-size:11px;line-height:1.9;max-width:340px}#gsp kbd{font-family:inherit;font-size:10px;border:1px solid #9ab5cb7a;background:#e4f4fb11;color:#fff;border-radius:3px;padding:1px 4px}#gsp #toast{position:absolute;top:80px;left:50%;transform:translateX(-50%);z-index:7;background:#142b3ee8;border:1px solid #9edee866;padding:10px 18px;border-radius:30px;color:#e0fcff;font-size:13px;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s;max-width:80%;}#gsp #notice{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:#122638cb;border:1px solid #fff2;padding:10px 18px;border-radius:11px;font-size:12px;color:#e6eef4;z-index:3;max-width:50%;text-align:center}#gsp .modalwrap{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:linear-gradient(100deg,#071521dd,#0c2233c4);padding:22px}#gsp .panel{width:min(560px,96vw);padding:27px;background:#122537ef;border:1px solid #ffffff2e;border-radius:20px;box-shadow:0 30px 100px #0009;max-height:93%;overflow:auto}#gsp .panel h1{font-size:35px;letter-spacing:-1.8px;line-height:1.17;margin:6px 0 12px}#gsp .panel p{color:#adc0cf;font-size:13px;line-height:1.7}#gsp .overline{color:#6fffc4;font-size:11px;font-weight:800;letter-spacing:2px}#gsp .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}#gsp label{font-size:12px;color:#b8cddd;display:block}#gsp .field{border:1px solid #ffffff2e;border-radius:10px;color:white;background:#ffffff11;padding:12px;width:100%;margin-top:6px;outline:0}#gsp option{color:#222}#gsp .primary{background:#4bd9ad;color:#0a2830;border:0;border-radius:10px;font-size:15px;font-weight:900;padding:14px 20px;margin-top:16px;width:100%}#gsp .primary:hover{background:#7df5cd}#gsp .secondary{background:#263e50;color:white;border:1px solid #ffffff2b;border-radius:9px;padding:9px 13px;margin:4px;font-size:12px}#gsp .secondary:hover{background:#365c72}#gsp .dim{font-size:10px;color:#849baa;margin-top:12px}#gsp #chatPanel{position:absolute;bottom:20px;right:165px;width:300px;z-index:6;border-radius:12px;overflow:hidden;display:none}#gsp .chatHead{padding:11px 12px;background:#19394e;font-size:13px;font-weight:800;display:flex;justify-content:space-between}#gsp #messages{height:160px;overflow-y:auto;padding:9px 12px;font-size:11px;line-height:1.8;color:#c3e0eb}#gsp .chatform{display:flex;padding:9px;gap:6px;border-top:1px solid #ffffff20}#gsp #chatinput{background:#153044;color:white;border:1px solid #ffffff30;border-radius:7px;padding:9px;min-width:0;width:100%;font-size:12px}#gsp .chatform button{background:#49cda6;border:0;border-radius:7px;padding:8px;color:#13313c;font-weight:800}#gsp #emotes{display:none;position:absolute;right:164px;top:270px;padding:8px;border-radius:12px;z-index:5;max-width:190px;flex-wrap:wrap}#gsp #emotes button{padding:8px 9px;margin:3px;border:1px solid #ffffff33;background:#315366;border-radius:8px;color:white;font-size:12px}#gsp #crosshair{position:absolute;left:50%;top:48%;width:4px;height:4px;border-radius:50%;background:#fff8;pointer-events:none;z-index:2}#gsp #damage{position:absolute;inset:0;border:0 solid #ef4b4b;pointer-events:none;z-index:6;transition:border-width .1s}#gsp #mobile{display:none;position:absolute;bottom:17px;right:15px;z-index:6;gap:9px;flex-direction:column}#gsp #mobile button{background:#12314fca;color:#fff;border:1px solid #fff6;border-radius:10px;padding:14px;min-width:55px;touch-action:none}#gsp .smallrow{display:flex;justify-content:space-between;gap:7px}#gsp .badge{font-size:10px;padding:4px 7px;border:1px solid #ffffff44;border-radius:20px;background:#24465a}#gsp .label{font-size:10px;color:#a5bcd0}#gsp #settingsOverlay{display:none}#gsp #modalInner{display:none}#gsp #mobileToggle{display:none}@media(max-width:800px){#gsp .top{top:9px;left:9px;gap:6px}#gsp .logo{padding:8px}#gsp .logo strong{font-size:14px}#gsp .hp{width:105px;padding:8px}#gsp .headright{right:8px;top:9px;width:110px}#gsp .mapbox{padding:5px}#gsp #mini{width:98px;height:92px}#gsp .people{font-size:9px;padding:6px}#gsp .toolbar{top:145px;right:8px}#gsp .toolbar button{width:88px;font-size:10px;padding:8px}#gsp .keys{max-width:225px;font-size:9px;padding:7px}#gsp #bottom{bottom:9px;left:9px}#gsp #notice{display:none}#gsp #mobile{display:flex}#gsp #chatPanel{right:105px;bottom:15px;width:min(255px,60vw)}#gsp #emotes{right:100px;top:145px}#gsp .formgrid{grid-template-columns:1fr}#gsp .panel{padding:17px}#gsp .panel h1{font-size:28px}}
 
 #gsp .toolbar{right:12px;top:258px;gap:6px}#gsp .toolbar button{background:linear-gradient(100deg,#17354de8,#1a3446d9);backdrop-filter:blur(9px);border:1px solid #ffffff2c;box-shadow:0 3px 14px #0c283554;transition:background .13s,transform .13s}#gsp .toolbar button:hover{background:#225873;transform:translateX(-3px)}
@@ -49,11 +49,42 @@
 #gsp .loading-ring{border-top-color:#eed780}
 @media(max-width:850px){#gsp #start.modalwrap{padding:12px;justify-content:center;align-items:flex-end;background:linear-gradient(#07171033,#09201cbd)}#gsp #start .panel{width:min(540px,96vw);max-height:73vh;padding:17px 18px}#gsp #start .panel h1{font-size:23px}#gsp #start .panel p{font-size:10px}#gsp #start .dim{display:none}#gsp #start .badge{font-size:8px}#gsp #start .formgrid{grid-template-columns:1fr 1fr}#gsp #preview3d{height:53vh;left:10%;width:45vw;bottom:41%}#gsp #introBrand{top:2%;left:3%}#gsp #introBrand .big{font-size:21px}#gsp #introBrand .sub{font-size:9px}#gsp #introBrand .mini{font-size:9px}}
 
+
+/* V8 – party choice stays separate from independently customizable character. */
+#gsp #start.modalwrap{align-items:flex-end;padding-bottom:2.5vh}
+#gsp #start .panel{max-height:calc(100vh - 257px);width:min(480px,43vw);padding:19px 24px;overflow:auto;margin-right:0}
+#gsp #start .panel h1{font-size:24px;margin:4px 0}
+#gsp #start .panel>p{display:none}
+#gsp #start .panel>.smallrow{display:none}
+#gsp #start .panel>.dim{display:none}
+#gsp #start .panel .formgrid{margin-top:10px;gap:7px 10px}
+#gsp #start .panel .formgrid .field{padding:7px 10px;margin-top:3px}
+#gsp #partyChoose{position:absolute;top:107px;left:50%;transform:translateX(-50%);width:min(1130px,92vw);z-index:12}
+#gsp .partyTitle{display:flex;align-items:baseline;justify-content:space-between;gap:12px;color:#f7e6aa;text-shadow:0 2px 7px #071f17;margin:0 4px 9px}
+#gsp .partyTitle b{font-size:15px;letter-spacing:.03em}
+#gsp .partyTitle span{font-size:11px;color:#e0e9d7}
+#gsp .partyChoices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#gsp .partyCard{position:relative;display:flex;align-items:center;gap:9px;text-align:left;min-width:0;min-height:72px;padding:10px 12px;color:#f8faf4;border:1px solid #a9c6b04d;border-radius:13px;background:linear-gradient(145deg,#082920ed,#142e28e8);box-shadow:0 8px 25px #0005;transition:border-color .15s,background .15s,transform .15s}
+#gsp .partyCard:hover{border-color:#ebd67d;transform:translateY(-2px)}
+#gsp .partyCard.selected{border:2px solid #f2d778;background:linear-gradient(145deg,#1d3e31f5,#203d33eb);box-shadow:0 0 0 1px #f5db7730,0 12px 30px #030f0c8a}
+#gsp .partyCard b{display:block;font-size:13px;white-space:nowrap}
+#gsp .partyCard small{display:block;font-size:9px;color:#c0d5ce;margin-top:4px;line-height:1.25}
+#gsp .partyIcon{width:34px;height:34px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;font-size:23px}
+#gsp .partyIcon.red{background:#a62f37;color:#ef6469}#gsp .partyIcon.blue{background:#1b5189;color:#519aff}#gsp .partyIcon.white{background:#f2f1e8;font-size:23px}#gsp .partyIcon.green{background:#24694b;color:#5bdd8c}
+#gsp .partyCheck{display:none;position:absolute;top:7px;right:8px;font-size:11px;color:#f5da83}#gsp .partyCard.selected .partyCheck{display:block}
+#gsp #preview3d{bottom:6%;left:9%;height:min(65vh,670px);width:min(34vw,520px)}
+#gsp #turnPreview{position:absolute;bottom:3vh;left:17%;z-index:14;border:1px solid #e7d98e77;border-radius:18px;background:#143327e8;color:#f2e4b0;padding:9px 14px;font-size:12px;font-weight:700}
+#gsp #turnPreview:hover{background:#2b5642}
+#gsp .customTitle{color:#f1dc8f;font-weight:900;font-size:14px;display:flex;justify-content:space-between;gap:5px}
+#gsp .customTitle small{color:#bdd2c4;font-size:10px;font-weight:400}
+#gsp #start .wardrobeBadge{padding:10px;border:1px solid #c9b86755;border-radius:8px;background:#eed98612;color:#f2e7bf;grid-column:1/-1;font-size:11px;font-weight:800}
+@media(max-width:1000px){#gsp #partyChoose{top:94px}#gsp #start .panel{max-height:calc(100vh - 242px)}#gsp .partyCard{gap:5px;padding:8px}#gsp .partyCard b{font-size:11px}#gsp .partyCard small{font-size:8px}#gsp .partyIcon{width:27px;height:27px;font-size:18px}}
+@media(max-width:700px){#gsp #start.modalwrap{padding:8px;align-items:flex-end;overflow-y:auto;justify-content:center}#gsp #introBrand{top:5px}#gsp #introBrand .sub{display:none}#gsp #partyChoose{top:49px;width:97%;left:50%}#gsp .partyTitle{margin-bottom:4px}#gsp .partyTitle b{font-size:11px}#gsp .partyTitle span{font-size:8px}#gsp .partyChoices{grid-template-columns:repeat(2,1fr);gap:4px}#gsp .partyCard{min-height:40px;padding:4px 8px;border-radius:7px}#gsp .partyIcon{width:23px;height:23px}#gsp #preview3d{height:39vh;width:62vw;left:5%;bottom:41%}#gsp #turnPreview{bottom:40%;left:50%;font-size:9px;padding:5px 9px}#gsp #start .panel{width:100%;max-height:42vh;min-height:0;padding:12px 16px;margin-top:0}#gsp #start .panel h1{display:none}#gsp #start .panel .formgrid{grid-template-columns:repeat(2,1fr)}#gsp #start .panel .primary{margin-top:9px;padding:10px}#gsp .customTitle{font-size:12px}#gsp .customTitle small{font-size:9px}}
 </style></head><body><div id="gsp">
 <div id="screen"></div><div id="damage"></div><div id="crosshair"></div>
-<div class="top"><div class="logo glass"><small>GWANGHWAMUN · SEOUL · V7</small><strong>광화문 <span style="color:#6ff2bd">리브레</span></strong></div><div class="hp glass"><div style="display:flex;justify-content:space-between;font-size:12px"><b id="nickHud">시민</b><b id="hpnum">100 HP</b></div><div class="bar"><div id="hpfill"></div></div><small id="modeHud">🚶 도보 · 광화문광장</small></div></div>
+<div class="top"><div class="logo glass"><small>GWANGHWAMUN · SEOUL · V8</small><strong>광화문 <span style="color:#6ff2bd">리브레</span></strong></div><div class="hp glass"><div style="display:flex;justify-content:space-between;font-size:12px"><b id="nickHud">시민</b><b id="hpnum">100 HP</b></div><div class="bar"><div id="hpfill"></div></div><small id="modeHud">🚶 도보 · 광화문광장</small></div></div>
 <div class="headright"><div class="mapbox glass"><canvas id="mini" width="240" height="220"></canvas><div class="mapcaption"><span>▲ 북 · 광화문</span><span>SEJONG-DAERO</span></div></div><div class="people glass"><span class="dot"></span> AI 시민 <b id="npcCount">0</b><span id="loadIndicator" style="font-size:9px;color:#b8e9d9">캐릭터 모델 준비 중</span><span id="assetStatus" style="display:block;color:#b1c8d5;font-size:9px">도시: 실경 지향 리빌드 준비</span>명 <span style="float:right;color:#93c8eb">싱글플레이</span></div></div>
-<div class="toolbar"><button id="garageBtn">🚘 차량 / 차고</button><button id="avatarBtn">🧍 외형 변경</button><button id="actionBtn">🙌 행동 / 감정</button><button id="boardBtn">🚩 피켓</button><button id="flagBtn">🏳️ 깃발</button><button id="sprayBtn">🎨 스프레이</button><button id="billboardBtn">📺 전광판</button><button id="chatBtn">💬 로컬 채팅</button><button id="npcTalkBtn">🗣️ 시민과 대화</button><button id="dayBtn">🌙 야간 전환</button><button id="settingsBtn">⚙️ 환경설정</button></div>
+<div class="toolbar"><button id="garageBtn">🚘 차량 / 차고</button><button id="avatarBtn">🧍 캐릭터 꾸미기</button><button id="partyBtn">🏷️ 지지정당 변경</button><button id="actionBtn">🙌 행동 / 감정</button><button id="boardBtn">🚩 피켓</button><button id="flagBtn">🏳️ 깃발</button><button id="sprayBtn">🎨 스프레이</button><button id="billboardBtn">📺 전광판</button><button id="chatBtn">💬 로컬 채팅</button><button id="npcTalkBtn">🗣️ 시민과 대화</button><button id="dayBtn">🌙 야간 전환</button><button id="settingsBtn">⚙️ 환경설정</button></div>
 <div id="bottom"><div class="keys glass"><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 이동　<kbd>Shift</kbd> 달리기　<kbd>Space</kbd> 점프</div><div><kbd>마우스 드래그</kbd> 카메라 회전　<kbd>휠</kbd> 줌</div><div><kbd>F</kbd> 펀치 1회 (길게 눌러도 연타 안 됨) <span id="punchCount" style="color:#7df6c6">· 0회</span>　<kbd>E</kbd> 탑승·대화　<kbd>G</kbd> 주변 NPC 대화　<kbd>H</kbd> 경적</div><div><kbd>V</kbd> 항공 시점　<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 차고</div></div></div>
 <div id="notice">마우스 드래그: 시점 · E: 탑승/대화 · G: 시민 대화 · F: 주먹 · T: 깃발</div><div id="toast"></div><div id="npcHint" aria-live="polite"></div><div id="combatFeedback" aria-live="polite"></div>
 <div id="emotes" class="glass"><button data-emote="wave">👋 손 흔들기</button><button data-emote="clap">👏 박수</button><button data-emote="dance">💃 춤추기</button><button data-emote="cheer">🙌 환호</button></div>
@@ -65,8 +96,8 @@
 <div id="chatPanel" class="glass"><div class="chatHead"><span>💬 광화문 · 로컬 채팅</span><button id="closeChat" style="color:white;background:none;border:0">×</button></div><div id="messages"><div><b style="color:#6ee6ae">안내:</b> 여기 있는 시민은 AI NPC입니다. 실제 다른 사용자와 연결되지 않습니다.</div></div><form class="chatform" id="chatform"><input id="chatinput" maxlength="80" placeholder="메시지 입력..."/><button>보내기</button></form></div>
 <div id="mobile"><div class="smallrow"><button data-key="KeyW">▲</button><button data-key="KeyF">👊</button><button data-key="KeyE">E</button></div><div class="smallrow"><button data-key="KeyA">◀</button><button data-key="KeyS">▼</button><button data-key="KeyD">▶</button></div><div class="smallrow"><button data-key="ShiftLeft">달리기</button><button data-key="Space">점프</button></div></div>
 <div id="modalInner" class="modalwrap"><div class="panel"><div class="smallrow"><strong id="modalTitle">메뉴</strong><button id="closeModal" class="secondary">✕ 닫기</button></div><div id="modalContent"></div></div></div>
-<div id="start" class="modalwrap"><div id="introBrand"><div class="mini">SEOUL · GWANGHWAMUN SQUARE</div><div class="big">광화문 리브레</div><div class="sub">당신의 존재, 당신만의 방식으로.</div></div><div id="introGround"></div><div id="preview3d"></div><div class="panel"><span class="overline">GWANGHWAMUN LIBRE · V7 · DISTRICT REBUILD</span><div class="intro-mark">서울 · 세종대로 · 광화문광장</div><h1>광화문을<br/>자유롭게 걸어보세요.</h1><p>광화문광장 공식 사진과 지도에서 보이는 핵심 요소를 반영해, 광화문·월대·세종대왕상·이순신 장군상·역사물길·광장숲·세종대로의 분위기를 더 가깝게 재구성한 3D 웹게임입니다. 시민과 대화하고, 반격 AI와 상호작용하고, 차량을 운전하며 광장을 둘러볼 수 있습니다. G키로 시민과 대화하고 F키로 1회 펀치를 할 수 있습니다.</p><div class="smallrow"><span class="badge">3인칭 자유 카메라</span><span class="badge">차량 운전</span><span class="badge">무료 3D 캐릭터 6종 (연결시)</span><span class="badge">NPC 추적·반격 AI</span><span class="badge">선택형 대화</span><span class="badge">지도·사진 기반 광장 리빌드</span></div><div class="formgrid"><label>닉네임<input class="field" id="playerName" maxlength="14" value="서울 시민"/></label><label>캐릭터 선택<select class="field" id="avatarStyle"><option value="0">남성 · 캐주얼 후드티</option><option value="1">남성 · 정장</option><option value="2">남성 · 작업복</option><option value="3">여성 · 캐주얼</option><option value="4">여성 · 정장</option><option value="5">여성 · 작업복</option></select></label><label>헤어·피부 스타일<select class="field" id="outfit"><option value="0">스타일 1</option><option value="1">스타일 2</option><option value="2">스타일 3</option><option value="3">스타일 4</option><option value="4">스타일 5</option></select></label><label>팀 소속 · 복장색 자동 통일 (태극기는 등 뒤)<select class="field" id="team"><option value="0">🔴 국민의힘 — 빨간 옷</option><option value="1">🔵 민주당 — 파란 옷</option><option value="3">⚪ 자유와혁신 — 흰 옷 + 등 뒤 태극기</option><option value="2">🟢 엔츄파도스 — 초록 옷</option></select></label></div><button class="primary" id="startBtn">▶ 광화문 입장하기</button><div class="dim">실시간 다중 접속·유료 상점·계정 서버는 아직 구현되지 않았습니다. 보이는 시민은 NPC이며 실제 접속자 수를 가장하지 않습니다. 무료 3D 모델은 인터넷 연결 시 점진적으로 적용되며, 실패해도 기본 월드를 플레이할 수 있습니다.<div class="credits">3D 시민 모델 및 애니메이션: Quaternius Ultimate Modular Men/Women (CC0) · 3D 도시 소품: Kenney City Kit Commercial (CC0) · 3D 엔진: Three.js (MIT) · 광화문 건물·기념물: 자체 제작한 근사 모델 (실측 모델 아님)</div></div></div></div>
-<div id="loading" style="position:absolute;inset:0;z-index:14;background:#0e2234;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div style="font-size:30px;font-weight:900">광화문 리브레</div><div class="loading-ring"></div><p id="loadingText" style="color:#8ebacc">광화문 V7 도시를 준비하는 중...</p></div></div>
+<div id="start" class="modalwrap"><div id="introBrand"><div class="mini">SEOUL · GWANGHWAMUN SQUARE</div><div class="big">광화문 리브레</div><div class="sub">당신의 존재, 당신만의 방식으로.</div></div><div id="introGround"></div><div id="partyChoose" role="group" aria-label="지지정당 선택"><div class="partyTitle"><b>01 · 지지정당 선택</b><span>정당을 누르면 캐릭터의 실제 상의가 바뀝니다</span></div><div class="partyChoices"><button type="button" class="partyCard selected" data-party="0" aria-pressed="true"><span class="partyIcon red">●</span><span><b>국민의힘</b><small>빨간색 상의</small></span><span class="partyCheck">✓</span></button><button type="button" class="partyCard" data-party="1" aria-pressed="false"><span class="partyIcon blue">●</span><span><b>민주당</b><small>파란색 상의</small></span><span class="partyCheck">✓</span></button><button type="button" class="partyCard" data-party="2" aria-pressed="false"><span class="partyIcon white">🇰🇷</span><span><b>자유와혁신</b><small>흰색 상의 · 등판 태극기 프린트</small></span><span class="partyCheck">✓</span></button><button type="button" class="partyCard" data-party="3" aria-pressed="false"><span class="partyIcon green">●</span><span><b>엔츄파도스</b><small>초록색 상의</small></span><span class="partyCheck">✓</span></button></div></div><div id="preview3d"></div><button id="turnPreview" type="button">↻ 캐릭터 뒷모습 보기</button><div class="panel"><div class="customTitle">02 · 캐릭터 꾸미기 <small>지지정당과 별개로 설정됩니다</small></div><span class="overline">GWANGHWAMUN LIBRE · V8 · CUSTOMIZE</span><div class="intro-mark">서울 · 세종대로 · 광화문광장</div><h1>광화문을<br/>자유롭게 걸어보세요.</h1><p>광화문광장 공식 사진과 지도에서 보이는 핵심 요소를 반영해, 광화문·월대·세종대왕상·이순신 장군상·역사물길·광장숲·세종대로의 분위기를 더 가깝게 재구성한 3D 웹게임입니다. 시민과 대화하고, 반격 AI와 상호작용하고, 차량을 운전하며 광장을 둘러볼 수 있습니다. G키로 시민과 대화하고 F키로 1회 펀치를 할 수 있습니다.</p><div class="smallrow"><span class="badge">3인칭 자유 카메라</span><span class="badge">차량 운전</span><span class="badge">무료 3D 캐릭터 6종 (연결시)</span><span class="badge">NPC 추적·반격 AI</span><span class="badge">선택형 대화</span><span class="badge">지도·사진 기반 광장 리빌드</span></div><div class="formgrid"><label>닉네임<input class="field" id="playerName" maxlength="14" value="서울 시민"/></label><label>캐릭터 선택<select class="field" id="avatarStyle"><option value="0">남성 · 캐주얼 후드티</option><option value="1">남성 · 정장</option><option value="2">남성 · 작업복</option><option value="3">여성 · 캐주얼</option><option value="4">여성 · 정장</option><option value="5">여성 · 작업복</option></select></label><label>피부색<select class="field" id="skinTone"><option value="0">밝은 피부</option><option value="1">자연스러운 피부</option><option value="2">태닝 피부</option><option value="3">진한 피부</option><option value="4">밝은 베이지</option></select></label><label>머리색<select class="field" id="hairColor"><option value="0">검은색</option><option value="1">짙은 갈색</option><option value="2">갈색</option><option value="3">흑청색</option><option value="4">금발</option><option value="5">회색</option></select></label><label>머리 모양<select class="field" id="hairStyle"><option value="0">기본</option><option value="1">짧은 머리</option><option value="2">긴 머리</option><option value="3">포니테일</option></select></label><label>바지색<select class="field" id="pantsColor"><option value="0">진청</option><option value="1">검정</option><option value="2">회색</option><option value="3">카키</option></select></label><label>액세서리<select class="field" id="accessory"><option value="0">없음</option><option value="1">안경</option><option value="2">선글라스</option><option value="3">모자</option></select></label><input id="team" type="hidden" value="0"/><div class="wardrobeBadge" id="wardrobeBadge">현재 복장: 국민의힘 · 빨간 상의</div></div><button class="primary" id="startBtn">▶ 광화문 입장하기</button><div class="dim">실시간 다중 접속·유료 상점·계정 서버는 아직 구현되지 않았습니다. 보이는 시민은 NPC이며 실제 접속자 수를 가장하지 않습니다. 무료 3D 모델은 인터넷 연결 시 점진적으로 적용되며, 실패해도 기본 월드를 플레이할 수 있습니다.<div class="credits">3D 시민 모델 및 애니메이션: Quaternius Ultimate Modular Men/Women (CC0) · 3D 도시 소품: Kenney City Kit Commercial (CC0) · 3D 엔진: Three.js (MIT) · 광화문 건물·기념물: 자체 제작한 근사 모델 (실측 모델 아님)</div></div></div></div>
+<div id="loading" style="position:absolute;inset:0;z-index:14;background:#0e2234;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div style="font-size:30px;font-weight:900">광화문 리브레</div><div class="loading-ring"></div><p id="loadingText" style="color:#8ebacc">광화문 V8 도시를 준비하는 중...</p></div></div>
 </div><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script><script>
 (async function(){
 const root=document.getElementById('gsp'),$=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
@@ -533,13 +564,20 @@ function rigAnimation(g,dt,mov,run,act){
    u.current=target;
  }
  u.mixer.update(dt);
+ if(u.uniformGarment&&u.uniformBone&&u.uniformBoneRest){
+  g.updateMatrixWorld(true);
+  const inverseGroup=g.matrixWorld.clone().invert();
+  const pose=inverseGroup.multiply(u.uniformBone.matrixWorld).multiply(u.uniformBoneRest);
+  u.uniformGarment.matrixAutoUpdate=false;u.uniformGarment.matrix.copy(pose);
+  u.uniformGarment.matrixWorldNeedsUpdate=true;
+ }
 }
 async function installRealCharacters(){const ok=await installCharacterLoader();if(!ok)return;
  const modelURLs=avatarSpecs.map(([key,folder,name])=>'https://cdn.jsdelivr.net/gh/agentkaerf/FreeModels@main/'+encodeURIComponent(folder)+'/Individual%20Characters/glTF/'+name+'.gltf');
  const jobs=modelURLs.map((url,i)=>loadGLTF(url).catch(()=>loadGLTF(url.replace('https://cdn.jsdelivr.net/gh/agentkaerf/FreeModels@main/','https://raw.githubusercontent.com/agentkaerf/FreeModels/main/'))).then(x=>{avatarAssets[i]=x;loadedAvatarCount++;$('#loadingText').textContent=`실제 3D 시민 캐릭터 불러오는 중 · ${loadedAvatarCount}/6`;return x}).catch(e=>{console.warn('Model unavailable',url,e);return null}));
  const timeout=new Promise(resolve=>setTimeout(()=>resolve('timeout'),22000));await Promise.race([Promise.all(jobs),timeout]);
  if(!loadedAvatarCount){try{const local=await loadGLTF('./assets/characters/human_animated.glb');avatarAssets[0]=local;loadedAvatarCount=1;}catch(e){$('#loadingText').textContent='3D 에셋 서버에 접속할 수 없어 기본 모델로 전환했습니다.';$('#loadIndicator').textContent='외부 모델 미로드 · 대체 캐릭터';return}}
- if(avatarAssets[0]){player=swapRig(player,qualityAvatar('player',avatarAssets[0]),null);applyUniform(player,Number($('#team').value))}
+ if(avatarAssets[0]){if(started){setPlayerStyle(Number($('#avatarStyle').value))}else{player=swapRig(player,qualityAvatar('player',avatarAssets[0]),null);applyUniform(player,Number($('#team').value));applyAppearance(player,readPlayerLook())}}
  for(let i=0;i<npcs.length;i++){let n=npcs[i],candidate=(i*5+Math.floor(i/4))%avatarAssets.length,idx=avatarAssets[candidate]?candidate:avatarAssets.findIndex(x=>x);if(idx<0)continue;let old=n.g;let rig=qualityAvatar('npc',avatarAssets[idx],.86+(i%5)*.035);rig=swapRig(old,rig,n);n.g=rig;applyUniform(n.g,i%4);}
  const indicator=$('#loadIndicator');if(indicator)indicator.textContent='실제 애니메이션 모델 '+loadedAvatarCount+'종 적용';
 }
@@ -578,14 +616,20 @@ async function installStreetModels(){
  }catch(e){ $('#assetStatus').textContent='도시: 일부 외부 GLB 미로드 · 자체 모델 유지'; console.warn('Optional parasol detail failed',e)}
 }
 
+const playerLook={skin:0,hair:0,hairStyle:0,pants:0,accessory:0};
+function readPlayerLook(){const value=id=>Number($('#'+id)?.value)||0;return {skin:value('skinTone'),hair:value('hairColor'),hairStyle:value('hairStyle'),pants:value('pantsColor'),accessory:value('accessory')}}
 const skins=['#f1c6aa','#dba77f','#bd8a6c','#8e6450','#edd7bb'];const tops=['#263d5d','#ecebe3','#36594c','#a1443b','#3e3d45','#ad9b81','#6278a4','#d2c3ac','#6d365c','#2e706b'];const pants=['#222f3b','#5f6470','#293e47','#3e403f','#57606b'];const hair=['#292521','#40332a','#634935','#171b20','#86674b','#a29575'];
-function createHuman(style=0,col=0,sz=1){const g=new THREE.Group();const torso=new THREE.Group();g.add(torso);const female=style%2===1,older=style===4;const jacket=mat(tops[(col+style*2)%tops.length]),skin=mat(skins[(style+col)%skins.length]),pantsMat=mat(pants[(col+2)%pants.length]),hmat=mat(older?'#aaa9a5':hair[(col+style)%hair.length],.9),shirt=mat(['#f0e9d9','#d7ddda','#e4cdad','#bac7d8'][col%4]);g.userData={torso,jacket,shirt,pantsMat,skin,style};
+function createHuman(style=0,col=0,sz=1,look=null){const g=new THREE.Group();const torso=new THREE.Group();g.add(torso);const female=style%2===1,older=style===4;const jacket=mat(tops[(col+style*2)%tops.length]),skin=mat(skins[look?look.skin%skins.length:(style+col)%skins.length]),pantsMat=mat(look?['#23374a','#20242a','#686967','#505640'][look.pants%4]:pants[(col+2)%pants.length]),hmat=mat(older&&!look?'#aaa9a5':hair[look?look.hair%hair.length:(col+style)%hair.length],.9),shirt=mat(['#f0e9d9','#d7ddda','#e4cdad','#bac7d8'][col%4]);g.userData={torso,jacket,skin,style,look};
 // Sculpted tapered torso and coat, directional face toward local -Z.
-const waist=new THREE.Group();waist.position.y=1.18;g.add(waist);let chest=mesh(new THREE.CylinderGeometry(female?.43:.49,.36,.95,12),jacket,torso);chest.position.y=1.78;chest.scale.z=.74;let lapel=mesh(new THREE.ConeGeometry(.26,.62,3),shirt,torso);lapel.position.set(0,2.02,-.39);lapel.rotation.y=Math.PI/3; sphere(0,2.32,0,.17,.18,.16,skin,torso);
-const head=new THREE.Group();head.position.set(0,2.56,-.04);torso.add(head);sphere(0,.03,-.015,.31,.39,.275,skin,head);sphere(0,-.13,-.245,.115,.10,.08,skin,head);for(let s of [-1,1]){sphere(s*.13,.075,-.272,.038,.027,.013,mat('#212a2d'),head);sphere(s*.13,.146,-.274,.11,.027,.021,hmat,head)}sphere(0,-.1,-.302,.034,.065,.042,skin,head);block(0,-.22,-.263,.14,.017,.018,mat('#805747'),head);let hh=sphere(0,.30,.015,.33,.16,.29,hmat,head);if(female){sphere(-.29,.06,.15,.15,.35,.19,hmat,head);sphere(.29,.06,.15,.15,.35,.19,hmat,head)}else if(style===2){sphere(0,.32,-.15,.33,.14,.2,mat('#343c44'),head);block(0,.23,-.35,.49,.07,.24,mat('#303843'),head)}if(older){let gg=mat('#6d706f');for(let s of [-1,1])sphere(s*.135,.075,-.284,.14,.08,.017,gg,head)}
+const waist=new THREE.Group();waist.position.y=1.18;g.add(waist);let chest=mesh(new THREE.CylinderGeometry(female?.43:.49,.36,.95,12),jacket,torso);chest.position.y=1.78;chest.scale.z=.74;g.userData.shirtChest=chest;let lapel=mesh(new THREE.ConeGeometry(.26,.62,3),shirt,torso);lapel.position.set(0,2.02,-.39);lapel.rotation.y=Math.PI/3; sphere(0,2.32,0,.17,.18,.16,skin,torso);
+const head=new THREE.Group();head.position.set(0,2.56,-.04);torso.add(head);sphere(0,.03,-.015,.31,.39,.275,skin,head);sphere(0,-.13,-.245,.115,.10,.08,skin,head);for(let s of [-1,1]){sphere(s*.13,.075,-.272,.038,.027,.013,mat('#212a2d'),head);sphere(s*.13,.146,-.274,.11,.027,.021,hmat,head)}sphere(0,-.1,-.302,.034,.065,.042,skin,head);block(0,-.22,-.263,.14,.017,.018,mat('#805747'),head);let hh=sphere(0,.30,.015,.33,.16,.29,hmat,head);if(female){sphere(-.29,.06,.15,.15,.35,.19,hmat,head);sphere(.29,.06,.15,.15,.35,.19,hmat,head)}else if(style===2){sphere(0,.32,-.15,.33,.14,.2,mat('#343c44'),head);block(0,.23,-.35,.49,.07,.24,mat('#303843'),head)}if(look){const hs=look.hairStyle;if(hs===1){hh.scale.y=.65}else if(hs===2||hs===3){for(const side of [-1,1])sphere(side*.27,-.08,.11,.11,hs===2?.48:.25,.17,hmat,head);if(hs===3)sphere(0,-.18,.28,.15,.38,.17,hmat,head)}}if(older){let gg=mat('#6d706f');for(let s of [-1,1])sphere(s*.135,.075,-.284,.14,.08,.017,gg,head)}
 const arms=[];for(let s of [-1,1]){let ag=new THREE.Group();ag.position.set(s*(female?.46:.55),2.12,0);torso.add(ag);let sleeve=mesh(new THREE.CylinderGeometry(.17,.12,.66,10),jacket,ag);sleeve.position.y=-.34;sleeve.rotation.z=s*.05;let elbow=new THREE.Group();elbow.position.y=-.65;ag.add(elbow);mesh(new THREE.CylinderGeometry(.12,.09,.53,10),jacket,elbow).position.y=-.25;sphere(0,-.56,0,.105,.14,.11,skin,elbow);arms.push({upper:ag,elbow})}
 const legs=[];for(let s of [-1,1]){let leg=new THREE.Group();leg.position.set(s*.22,1.17,0);g.add(leg);let upper=mesh(new THREE.CylinderGeometry(.20,.16,.65,10),pantsMat,leg);upper.position.y=-.33;let shin=new THREE.Group();shin.position.y=-.65;leg.add(shin);mesh(new THREE.CylinderGeometry(.16,.11,.53,10),pantsMat,shin).position.y=-.25;sphere(0,-.54,-.11,.17,.14,.29,mat('#30343b'),shin);legs.push({upper:leg,knee:shin})}
 g.scale.setScalar(sz);g.userData.arms=arms;g.userData.legs=legs;g.userData.head=head;g.userData.size=sz;return g}
+const PARTY_COLORS=['#c9343a','#276ac4','#f7f5ef','#279157'];
+const PARTY_NAMES=['국민의힘','민주당','자유와혁신','엔츄파도스'];
+const PARTY_DETAILS=['빨간 상의','파란 상의','흰 상의 · 등판 태극기','초록 상의'];
+let patchTexture=null;
 let player=createHuman(0,0,1);const p={x:-15,z:162,y:0,vy:0,rot:0,hp:100,onGround:true};scene.add(player);player.position.set(p.x,0,p.z);
 const npcs=[];const names=['민준','지우','서연','지민','도윤','하린','수빈','재혁','유나','태민','예진','건우','서준','하영','지호','윤서','진우','연우','수아','혜진','도현','유진','선우','보람'];
 for(let i=0;i<33;i++){let s=i%5===0?4:i%4,g=createHuman(s,i+1,.88+((i*7)%7)*.034),x=-44+((i*61)%43),z=-229+((i*83)%455);g.position.set(x,0,z);scene.add(g);const n={g,x,z,a:(i*1.63)%(Math.PI*2),speed:.48+((i*7)%9)/14,phase:i*1.5,hp:100,stun:0,down:0,name:names[i%names.length]+(i>=24?(i%7):''),active:true,brain:'wander',aggroUntil:0,attackStart:0,attackCooldown:0,attackHit:false,attackSide:i%2,lastDialogue:0,speechUntil:0,speechMesh:null,aggressionCount:0};npcs.push(n);applyUniform(g,i%4);if(i<15){let tx=makeText(n.name,256,64,'#f0fffd','#173244',30);let label=mesh(new THREE.PlaneGeometry(1.35,.31),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}),g);label.position.set(0,3.15,0);n.label=label}}
@@ -593,76 +637,83 @@ $('#npcCount').textContent=npcs.length;
 const keys={},clock=new THREE.Clock();let started=false,driving=null,camYaw=0,camPitch=.26,camDist=11,air=false,time=0,night=false,action='idle',actionEnd=0,actionStart=0,punchSide=0,punchCount=0,playerMoveSpeed=0,hitDone=false,emote='',toastT=0,spawnProgress=0,menu=false,damageT=0,board=null,aiClock=0,soundOn=true,dialogNPC=null,combatTextUntil=0;
 function toast(str){$('#toast').textContent=str;$('#toast').style.opacity='1';toastT=3.0}
 function addChat(author,s){let dv=document.createElement('div');let b=document.createElement('b');b.textContent=author+': ';b.style.color=author==='나'?'#85f4c8':'#a3c7f2';dv.appendChild(b);dv.appendChild(document.createTextNode(s));$('#messages').appendChild(dv);$('#messages').scrollTop=1e6}
-
-const TEAM_UNIFORMS=[
- {name:'국민의힘',shirt:'#c93643',trousers:'#252d35'},
- {name:'민주당',shirt:'#2675c9',trousers:'#252d35'},
- {name:'엔츄파도스',shirt:'#27935d',trousers:'#252d35'},
- {name:'자유와혁신',shirt:'#f5f4ef',trousers:'#252d35'}
-];
-// The flag is a clothing back patch, never a mask, face accessory or floating front decal.
-const taegeukgiTexture=(()=>{
- const cv=document.createElement('canvas');cv.width=384;cv.height=256;
- const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,384,256);
- c.save();c.translate(192,128);c.rotate(-.57);
- c.fillStyle='#cd2e3a';c.beginPath();c.arc(0,0,65,Math.PI,0);c.arc(32.5,0,32.5,Math.PI,0,true);c.arc(-32.5,0,32.5,0,Math.PI,true);c.closePath();c.fill();
- c.fillStyle='#0047a0';c.beginPath();c.arc(0,0,65,0,Math.PI);c.arc(-32.5,0,32.5,0,Math.PI,true);c.arc(32.5,0,32.5,Math.PI,0,true);c.closePath();c.fill();c.restore();
- function trigram(x,y,rot,broken){c.save();c.translate(x,y);c.rotate(rot);c.fillStyle='#111';
-  for(let row=0;row<3;row++){let yy=(row-1)*11;if(broken[row]){c.fillRect(-30,yy-3,26,6);c.fillRect(4,yy-3,26,6)}else c.fillRect(-30,yy-3,60,6)}c.restore();}
- trigram(73,55,-.60,[false,false,false]);
- trigram(310,201,-.60,[true,true,true]);
- trigram(310,56,.60,[true,false,true]);
- trigram(73,201,.60,[false,true,false]);
- const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;return tx
-})();
-function disposeOldUniformPatch(g){
- const patch=g.userData.uniformPatch;if(!patch)return;
- patch.parent?.remove(patch);
- patch.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});
- g.userData.uniformPatch=null;
+// Party uniforms are real garment meshes; skin, hair and legs stay independent.
+function koreanFlagTexture(){if(patchTexture)return patchTexture;
+ const c=document.createElement('canvas');c.width=512;c.height=344;const x=c.getContext('2d');
+ x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+ x.strokeStyle='#c7c9c6';x.lineWidth=2;x.strokeRect(1,1,510,342);
+ const cx=256,cy=172,r=76;
+ x.save();x.translate(cx,cy);x.rotate(-Math.atan(2/3));
+ x.fillStyle='#cd2e3a';x.beginPath();x.arc(0,0,r,Math.PI,Math.PI*2);x.lineTo(r,0);x.arc(0,0,r,0,Math.PI);x.closePath();x.fill();
+ x.fillStyle='#0047a0';x.beginPath();x.arc(0,0,r,0,Math.PI);x.closePath();x.fill();
+ // Two half-radius lobes create the taegeuk swirl within its outer circle.
+ x.fillStyle='#cd2e3a';x.beginPath();x.arc(-r/2,0,r/2,0,Math.PI*2);x.fill();
+ x.fillStyle='#0047a0';x.beginPath();x.arc(r/2,0,r/2,0,Math.PI*2);x.fill();x.restore();
+ function trigram(px,py,angle,lines){x.save();x.translate(px,py);x.rotate(angle);x.fillStyle='#111';for(let i=0;i<3;i++){let yy=(i-1)*13;if(lines[i]===1)x.fillRect(-32,yy-4,64,8);else{x.fillRect(-32,yy-4,27,8);x.fillRect(5,yy-4,27,8)}}x.restore()}
+ trigram(98,91,-.58,[1,1,1]);trigram(413,90,.58,[0,1,0]);
+ trigram(100,254,.58,[1,0,1]);trigram(413,254,-.58,[0,0,0]);
+ patchTexture=new THREE.CanvasTexture(c);patchTexture.colorSpace=THREE.SRGBColorSpace;patchTexture.anisotropy=8;return patchTexture;
+}
+// Back embroidery conforms to the SHIRT'S cylindrical surface, not a floating plane behind the person.
+function backShirtPrint(parent,midY,radiusTop,radiusBottom,height,scaleZ=1){
+ const patch=mesh(new THREE.CylinderGeometry(radiusTop,radiusBottom,height,32,1,true,-.54,1.08),new THREE.MeshStandardMaterial({map:koreanFlagTexture(),transparent:false,roughness:.87,side:THREE.FrontSide,polygonOffset:true,polygonOffsetFactor:-1}),parent);
+ patch.position.set(0,midY,0);patch.scale.z=scaleZ;patch.name='태극기 등판 프린트';patch.userData.uniformPrint=true;return patch
+}
+function externalGarment(g,clr,team){
+ // The original imported models sometimes have unnamed/merged glTF materials.
+ // A geometrically separate, visibly colored overshirt is therefore fitted over the body.
+ if(g.userData.uniformGarment){const prev=g.userData.uniformGarment;g.remove(prev);prev.traverse(o=>{if(o.isMesh&&o.geometry)o.geometry.dispose()})}
+ const box=new THREE.Box3().setFromObject(g);const h=Math.max(2.3,box.max.y-box.min.y);
+ const ch=h*.68+box.min.y,wide=h*.176,shirtH=h*.34;
+ const jersey=new THREE.Group();g.add(jersey);jersey.name='진영 상의';
+ const cloth=new THREE.MeshStandardMaterial({color:clr,roughness:.91,metalness:0,side:THREE.FrontSide});
+ const t=mesh(new THREE.CylinderGeometry(wide*.99,wide*.79,shirtH,32),cloth,jersey);t.position.y=ch;t.scale.z=.80;t.name='상의 몸통';
+ // The print is curved and slightly inset into the jersey shell, like an actual fabric transfer.
+ if(team===2){backShirtPrint(jersey,ch,wide*.945,wide*.839,shirtH*.48,.808)}
+ const sleeves=[];for(let side of [-1,1]){const sleeve=mesh(new THREE.CylinderGeometry(wide*.35,wide*.30,shirtH*.60,14),cloth,jersey);sleeve.position.set(side*wide*1.07,ch+shirtH*.05,0);sleeve.rotation.z=side*.20;sleeve.name='진영 상의 소매';sleeves.push(sleeve)}
+ g.userData.uniformGarment=jersey;g.userData.uniformSleeves=sleeves;g.userData.shirtColor=clr;
+ // Bind the shirt to the animated chest transform, not to an unmoving world coordinate.
+ const bones=[];g.traverse(o=>{if(o.isBone&&/(spine2|spine3|chest|upper.?body|spine_02)/i.test(o.name))bones.push(o)});
+ g.userData.uniformBone=bones[0]||null;
+ if(g.userData.uniformBone){g.updateMatrixWorld(true);const inv=g.matrixWorld.clone().invert();
+  g.userData.uniformBoneRest=inv.multiply(g.userData.uniformBone.matrixWorld).invert();}
+ else{g.userData.uniformBoneRest=null}
 }
 function applyUniform(g,team){
- team=(Number.isInteger(team)&&team>=0&&team<TEAM_UNIFORMS.length)?team:0;
- const spec=TEAM_UNIFORMS[team];g.userData.uniformTeam=team;
- disposeOldUniformPatch(g);
- // Procedural models use the EXISTING shirt, jacket and sleeves; no added vest or mask geometry.
- if(g.userData.jacket)g.userData.jacket.color.setStyle(spec.shirt);
- if(g.userData.shirt)g.userData.shirt.color.setStyle(spec.shirt);
- if(g.userData.pantsMat)g.userData.pantsMat.color.setStyle(spec.trousers);
+ team=Number(team)||0;const clr=PARTY_COLORS[team]||PARTY_COLORS[0];
+ if(g.userData.uniformPrint){g.userData.uniformPrint.parent.remove(g.userData.uniformPrint);g.userData.uniformPrint=null}
+ if(g.userData.jacket){g.userData.jacket.color.set(clr);if(team===2){
+  const torso=g.userData.torso;
+  g.userData.uniformPrint=backShirtPrint(torso,1.83,.461,.410,.38,.748);
+ }}
  if(g.userData.external){
-  const clothes=/(?:shirt|t.?shirt|hoodie|sweater|jacket|coat|suit|blazer|blouse|cardigan|sweatshirt|uniform|outfit.?top|clothing|clothes|vest|upper.?body|torso|dress)/i;
-  const exposed=/(?:face|head|eye|eyebrow|eyelash|hair|mouth|teeth|tongue|skin|hand|finger|neck|ear|nose|lip|beard|facial)/i;
-  // Retint garment meshes only. Meshes containing skin/face geometry are not recolored.
-  g.userData.torso.traverse(o=>{
-   if(!o.isMesh||!o.material)return;
-   const materialList=Array.isArray(o.material)?o.material:[o.material];
-   const meshName=String(o.name||'');
-   const replacement=materialList.map(m=>{
-    const partName=meshName+' '+String(m?.name||'');
-    if(!clothes.test(partName)||exposed.test(partName))return m;
-    // Never tint a material shared with skin, and never tint a face overlay.
-    const tinted=m.clone();tinted.color.setStyle(spec.shirt);
-    // Atlas textures multiply in their original colors; use the team's cloth color instead.
-    tinted.map=null;tinted.vertexColors=false;tinted.needsUpdate=true;
-    return tinted;
-   });
-   if(replacement.some((m,i)=>m!==materialList[i]))o.material=Array.isArray(o.material)?replacement:replacement[0];
+  // Tint existing materials where identified, preserving the head / face / skin and trousers.
+  g.traverse(o=>{if(!o.isMesh||!o.material||o.userData.uniformPrint||o.parent?.name==='진영 상의')return;
+   const name=(o.name+' '+(Array.isArray(o.material)?o.material.map(m=>m.name).join(' '):o.material.name)).toLowerCase();
+   if(/shirt|sweat|jacket|hoodie|coat|torso|upperbody|tshirt|uniform|clothes|top|suit/.test(name)&&!(/skin|hair|face|head|pants|trouser|shoe/.test(name))){
+    const a=Array.isArray(o.material)?o.material:[o.material];const next=a.map(m=>{const mm=m.clone();mm.color.set(clr);return mm});o.material=Array.isArray(o.material)?next:next[0];
+   }
   });
+  externalGarment(g,clr,team);
  }
- // Only the white team gets a patch, fitted to the upper BACK (local +Z).
- // The front-sided plane is intentionally invisible from the character's front.
- if(team===3){
-  const anchor=(!g.userData.external&&g.userData.torso)?g.userData.torso:g;
-  const patch=new THREE.Mesh(
-    new THREE.PlaneGeometry(.65,.43),
-    new THREE.MeshBasicMaterial({map:taegeukgiTexture,side:THREE.FrontSide,transparent:false,depthTest:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1})
-  );
-  patch.position.set(0,1.83,g.userData.external?.54:.39);
-  patch.renderOrder=2;patch.name='TaegukgiBackOnly';
-  anchor.add(patch);g.userData.uniformPatch=patch;
- }
+ g.userData.party=team;
 }
-function setPlayerStyle(style,col){const x=player.position.clone(),ry=player.rotation.y;scene.remove(player);player=avatarAssets[style%6]?qualityAvatar('player',avatarAssets[style%6],1):createHuman(style,col,1);player.position.copy(x);player.rotation.y=ry;scene.add(player);applyUniform(player,Number($('#team').value));if(board){board=null;addBoard()}if(myFlag){myFlag=null;toggleFlag()}}
+function applyAppearance(g,look){
+ g.userData.look=look;
+ if(g.userData.external){g.traverse(o=>{if(!o.isMesh||!o.material||o.parent?.name==='진영 상의')return;
+   const name=(o.name+' '+(Array.isArray(o.material)?o.material.map(m=>m.name).join(' '):o.material.name)).toLowerCase();
+   const change=/hair|beard|eyebrow/.test(name)?hair[look.hair%hair.length]:/skin|body|face|head|hand/.test(name)?skins[look.skin%skins.length]:/trouser|pants|jeans/.test(name)?['#23374a','#20242a','#686967','#505640'][look.pants%4]:null;
+   if(!change)return;const a=Array.isArray(o.material)?o.material:[o.material];const next=a.map(m=>{const mm=m.clone();mm.color.set(change);return mm});o.material=Array.isArray(o.material)?next:next[0];
+ })}
+ if(g.userData.accessoryGroup){g.userData.accessoryGroup.parent.remove(g.userData.accessoryGroup);g.userData.accessoryGroup=null}
+ if(!look.accessory)return;
+ const target=g.userData.head||g;
+ const ag=new THREE.Group();target.add(ag);g.userData.accessoryGroup=ag;
+ if(!g.userData.head){const bounds=new THREE.Box3().setFromObject(g);ag.position.y=bounds.max.y-bounds.getSize(new THREE.Vector3()).y*.09}
+ if(look.accessory===3){let hat=mesh(new THREE.CylinderGeometry(.34,.35,.22,18),mat('#212c38'),ag);hat.position.set(0,.37,0);block(0,.27,-.15,.77,.07,.4,mat('#293e4a'),ag)}
+ else{const tone=look.accessory===1?'#222931':'#10121b',lens=new THREE.MeshStandardMaterial({color:look.accessory===1?'#b6d9e8':'#1b202a',transparent:true,opacity:look.accessory===1?.18:.94,metalness:.1});for(const side of [-1,1]){let fr=mesh(new THREE.TorusGeometry(.128,.017,6,18),mat(tone),ag);fr.position.set(side*.155,.08,-.28);fr.scale.y=.65;let gl=mesh(new THREE.CircleGeometry(.118,20),lens,ag);gl.position.set(side*.155,.08,-.281);gl.scale.y=.65}block(0,.08,-.28,.07,.018,.03,mat(tone),ag)}
+}
+function setPlayerStyle(style,col=0){const look=readPlayerLook(),x=player.position.clone(),ry=player.rotation.y;scene.remove(player);player=avatarAssets[style%6]?qualityAvatar('player',avatarAssets[style%6],1):createHuman(style,col,1,look);player.position.copy(x);player.rotation.y=ry;scene.add(player);applyUniform(player,Number($('#team').value));applyAppearance(player,look);if(board){board=null;addBoard()}if(myFlag){myFlag=null;toggleFlag()}}
 let boardMessage='광화문 시민';
 function addBoard(){if(board){player.remove(board);board=null;return}board=new THREE.Group();let stick=block(.7,1.45,-.52,.07,1.6,.07,mat('#856346'),board);block(.7,2.33,-.52,1.65,.8,.08,mat('#fbf4dc'),board);let txt=mesh(new THREE.PlaneGeometry(1.58,.71),new THREE.MeshBasicMaterial({map:makeText(boardMessage,400,200,'#23445b','#fff5de',48),side:THREE.DoubleSide}),board);txt.position.set(.7,2.33,-.575);player.add(board)}
 // In-world advertisement billboard with editable local message.
@@ -673,12 +724,12 @@ let billboardFace=mesh(new THREE.PlaneGeometry(16.7,4.7),new THREE.MeshBasicMate
 function updateBillboard(msg){billboardFace.material.map.dispose();billboardFace.material.map=makeText((msg||'광화문 리브레').slice(0,30),800,280,'#eafaff','#153f5c',70);billboardFace.material.needsUpdate=true}
 let myFlag=null,sprayMode=false,sprayDown=false,paintCount=0;const paints=[];
 function toggleFlag(){if(myFlag){player.remove(myFlag);myFlag=null;toast('깃발을 내렸습니다');return}myFlag=new THREE.Group();block(-.68,1.55,-.35,.052,2.9,.052,mat('#d1c8ab'),myFlag);
- const teamId=$('#team').value,clr=TEAM_UNIFORMS[Number(teamId)||0].shirt;
+ const teamId=$('#team').value,clr=PARTY_COLORS[Number(teamId)||0];
  let cloth=mesh(new THREE.PlaneGeometry(1.5,.92),new THREE.MeshStandardMaterial({color:clr,roughness:.85,side:THREE.DoubleSide}),myFlag);cloth.position.set(-1.42,2.46,-.35);
  let emblem=mesh(new THREE.PlaneGeometry(1.35,.58),new THREE.MeshBasicMaterial({map:makeText('광화문',512,172,teamId==='0'?'#23394e':'#ffffff','transparent',75),transparent:true,side:THREE.DoubleSide}),myFlag);emblem.position.set(-1.4,2.46,-.365);player.add(myFlag);toast('깃발을 들었습니다')}
 const groundRay=new THREE.Raycaster(),groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.174),vPoint=new THREE.Vector3();
 function groundClick(e){if(!started)return;const rect=renderer.domElement.getBoundingClientRect();const mouse=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);groundRay.setFromCamera(mouse,camera);if(!groundRay.ray.intersectPlane(groundPlane,vPoint))return;if(Math.abs(vPoint.x)>68||Math.abs(vPoint.z)>254)return;
- const teamId=$('#team').value,color=TEAM_UNIFORMS[Number(teamId)||0].shirt;
+ const teamId=$('#team').value,color=PARTY_COLORS[Number(teamId)||0];
  const circle=mesh(new THREE.CircleGeometry(.13+Math.random()*.18,9),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.65,depthWrite:false,side:THREE.DoubleSide}));circle.rotation.x=-Math.PI/2;circle.position.set(vPoint.x,.178+paintCount*.000015,vPoint.z);scene.add(circle);paints.push(circle);paintCount++;if(paints.length>600){const a=paints.shift();scene.remove(a);a.geometry.dispose();a.material.dispose()}}
 function toggleSpray(){sprayMode=!sprayMode;toast(sprayMode?'스프레이: 마우스를 누른 채 바닥에 그리세요. B 종료 · R 되돌리기':'스프레이 모드 종료');const b=$('#sprayBtn');if(b)b.style.background=sprayMode?'#137b73':''}
 function undoSpray(){const a=paints.pop();if(a){scene.remove(a);a.geometry.dispose();a.material.dispose();toast('마지막 낙서를 제거했습니다')}}
@@ -767,11 +818,17 @@ function animateRig(g,dt,walk=0,run=false,t=0,act='',stage=0){
  if(act==='clap'){A[0].upper.rotation.x=A[1].upper.rotation.x=1.48;A[0].upper.rotation.z=.53+.15*Math.sin(t*7);A[1].upper.rotation.z=-.53-.15*Math.sin(t*7)}
  if(act==='cheer'||act==='dance'){A[0].upper.rotation.x=2.8;A[1].upper.rotation.x=2.7;A[0].upper.rotation.z=.35;A[1].upper.rotation.z=-.35;if(act==='dance')u.torso.rotation.z=Math.sin(t*4)*.14}
 }
-function setupMenu(title,html){menu=true;$('#modalInner').style.display='flex';$('#modalTitle').textContent=title;$('#modalContent').innerHTML=html;$$('#modalContent button[data-act]').forEach(b=>b.onclick=()=>{const a=b.dataset.act;if(a==='board'){boardMessage=($('#boardText')?.value||'광화문 시민').slice(0,24);if(board){player.remove(board);board=null}addBoard();closeMenu();toast('피켓 적용')}if(a==='boardoff'){if(board)addBoard();closeMenu();toast('피켓을 내렸습니다')}if(a==='billboard'){updateBillboard($('#billboardInput')?.value||'광화문 리브레');toast('전광판을 변경했습니다');closeMenu()}if(a==='spawn'){const bus=b.dataset.bus==='1',c=putCar(p.x+2,p.z-3.5,bus,b.dataset.color||'#e5e6e8',false);toast('차량이 근처에 배치되었습니다. 가까이에서 E를 누르세요');closeMenu()}if(a==='avatar'){setPlayerStyle(Number(b.dataset.style),Number(b.dataset.col));toast('캐릭터 외형을 변경했습니다');closeMenu()}if(a==='quality'){renderer.setPixelRatio(Math.min(devicePixelRatio,Number(b.dataset.ratio)));sun.castShadow=b.dataset.ratio!=='0.8';toast('그래픽 옵션을 변경했습니다')}if(a==='volume'){soundOn=!soundOn;toast('효과음 '+(soundOn?'켜짐':'꺼짐'))}})}
+function setupMenu(title,html){menu=true;$('#modalInner').style.display='flex';$('#modalTitle').textContent=title;$('#modalContent').innerHTML=html;$$('#modalContent button[data-act]').forEach(b=>b.onclick=()=>{const a=b.dataset.act;if(a==='board'){boardMessage=($('#boardText')?.value||'광화문 시민').slice(0,24);if(board){player.remove(board);board=null}addBoard();closeMenu();toast('피켓 적용')}if(a==='boardoff'){if(board)addBoard();closeMenu();toast('피켓을 내렸습니다')}if(a==='billboard'){updateBillboard($('#billboardInput')?.value||'광화문 리브레');toast('전광판을 변경했습니다');closeMenu()}if(a==='spawn'){const bus=b.dataset.bus==='1',c=putCar(p.x+2,p.z-3.5,bus,b.dataset.color||'#e5e6e8',false);toast('차량이 근처에 배치되었습니다. 가까이에서 E를 누르세요');closeMenu()}if(a==='applyavatar'){for(const id of ['avatarStyle','skinTone','hairColor','hairStyle','pantsColor','accessory'])$('#'+id).value=$('#modal_'+id).value;setPlayerStyle(Number($('#avatarStyle').value));toast('캐릭터 꾸미기를 적용했습니다. 상의 색은 지지정당에 따라 유지됩니다.');closeMenu()}if(a==='applyparty'){chooseParty(Number(b.dataset.party));toast('지지정당: '+PARTY_NAMES[Number(b.dataset.party)]);closeMenu()}if(a==='quality'){renderer.setPixelRatio(Math.min(devicePixelRatio,Number(b.dataset.ratio)));sun.castShadow=b.dataset.ratio!=='0.8';toast('그래픽 옵션을 변경했습니다')}if(a==='volume'){soundOn=!soundOn;toast('효과음 '+(soundOn?'켜짐':'꺼짐'))}})}
 function closeMenu(){menu=false;$('#modalInner').style.display='none';$('#modalContent').innerHTML=''}
 $('#closeModal').onclick=closeMenu;
 $('#garageBtn').onclick=()=>setupMenu('🚘 차량 / 차고','<p>차를 선택하면 현재 위치 근처에 생성됩니다. 탑승 후 실제로 운전할 수 있습니다.</p><div class="smallrow" style="flex-wrap:wrap"><button class="secondary" data-act="spawn" data-color="#e8e9ee">🚙 은색 세단</button><button class="secondary" data-act="spawn" data-color="#202d39">🚘 검은 세단</button><button class="secondary" data-act="spawn" data-color="#edc44e">🚖 택시</button><button class="secondary" data-act="spawn" data-color="#18a874" data-bus="1">🚌 서울 시내버스</button></div><p>운전 중 W 가속, S 후진·제동, A/D 조향, H 경적, E 하차</p>');
-$('#avatarBtn').onclick=()=>{let h='<p>실제 Quaternius 3D 캐릭터 모델 6종 중에서 선택합니다. 아래 색상 버튼은 기본 대체 캐릭터에서만 적용됩니다.</p>';for(let i=0;i<6;i++){h+='<div style="margin-top:9px"><b>'+['후드티 남성','정장 남성','작업복 남성','캐주얼 여성','정장 여성','작업복 여성'][i]+'</b><br>';for(let j=0;j<5;j++)h+=`<button class="secondary" data-act="avatar" data-style="${i}" data-col="${j}">${['남색','검정','흰색','초록','빨강'][j]}</button>`;h+='</div>'}setupMenu('🧍 캐릭터 외형',h)};
+$('#avatarBtn').onclick=()=>{
+ const defs=[['avatarStyle','캐릭터 종류',['남성 · 캐주얼 후드티','남성 · 정장','남성 · 작업복','여성 · 캐주얼','여성 · 정장','여성 · 작업복']],['skinTone','피부색',['밝은 피부','자연스러운 피부','태닝 피부','진한 피부','밝은 베이지']],['hairColor','머리색',['검은색','짙은 갈색','갈색','흑청색','금발','회색']],['hairStyle','머리 모양',['기본','짧은 머리','긴 머리','포니테일']],['pantsColor','바지색',['진청','검정','회색','카키']],['accessory','액세서리',['없음','안경','선글라스','모자']]];
+ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const f=defs.map(([id,title,opts])=>'<label>'+title+'<select class="field" id="modal_'+id+'">'+opts.map((v,i)=>'<option value="'+i+'" '+(Number($('#'+id).value)===i?'selected':'')+'>'+esc(v)+'</option>').join('')+'</select></label>').join('');
+ setupMenu('🧍 캐릭터 꾸미기',`<p>지지정당은 유지됩니다. 몸과 얼굴·머리·바지·액세서리만 변경합니다.</p><div class="formgrid">${f}</div><button class="primary" data-act="applyavatar">꾸미기 적용</button>`);
+};
+$('#partyBtn').onclick=()=>{let h='<p>정당을 변경하면 캐릭터 상의가 즉시 바뀝니다. 자유와혁신은 흰 옷의 등판에 태극기를 인쇄합니다.</p><div class="partyChoices" style="grid-template-columns:repeat(2,1fr)">';for(let i=0;i<4;i++)h+=`<button class="partyCard ${Number($('#team').value)===i?'selected':''}" data-act="applyparty" data-party="${i}"><span class="partyIcon ${['red','blue','white','green'][i]}">${i===2?'🇰🇷':'●'}</span><span><b>${PARTY_NAMES[i]}</b><small>${PARTY_DETAILS[i]}</small></span></button>`;h+='</div>';setupMenu('🏷️ 지지정당 선택',h)};
 $('#actionBtn').onclick=()=>{$('#emotes').style.display=$('#emotes').style.display==='flex'?'none':'flex'};$$('#emotes button').forEach(b=>b.onclick=()=>{emote=b.dataset.emote;$('#emotes').style.display='none';toast(b.textContent)});
 $('#boardBtn').onclick=()=>{setupMenu('🚩 나만의 피켓 만들기',`<p>적은 문구가 캐릭터가 드는 피켓에 실제로 나타납니다.</p><label>피켓 문구<input id="boardText" class="field" maxlength="24" value="${boardMessage.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}"></label><button class="primary" data-act="board">문구 적용 · 피켓 들기</button><button class="secondary" data-act="boardoff">피켓 내리기</button>`)};$('#npcTalkBtn').onclick=tryTalk;$('#closeDialog').onclick=closeDialog;
 $('#chatBtn').onclick=()=>{$('#chatPanel').style.display=$('#chatPanel').style.display==='block'?'none':'block'};$('#closeChat').onclick=()=>$('#chatPanel').style.display='none';
@@ -797,13 +854,21 @@ try{
 }catch(e){console.warn('Preview WebGL unavailable',e)}
 function updatePreviewRig(){if(!pvRenderer)return;
  if(pvCharacter){pvScene.remove(pvCharacter);pvCharacter=null}
- const i=Number($('#avatarStyle').value)||0,c=Number($('#outfit').value)||0;
- pvCharacter=(avatarAssets[i]&&cloneSkinned)?qualityAvatar('preview',avatarAssets[i],1):createHuman(i,c,1);
- pvCharacter.rotation.y=-.25;pvScene.add(pvCharacter);applyUniform(pvCharacter,Number($('#team').value));
+ const i=Number($('#avatarStyle').value)||0,look=readPlayerLook();
+ pvCharacter=(avatarAssets[i]&&cloneSkinned)?qualityAvatar('preview',avatarAssets[i],1):createHuman(i,0,1,look);
+ pvCharacter.rotation.y=-.25;pvScene.add(pvCharacter);applyUniform(pvCharacter,Number($('#team').value));applyAppearance(pvCharacter,look);
 }
-$('#avatarStyle').addEventListener('change',updatePreviewRig);
-$('#outfit').addEventListener('change',updatePreviewRig);
-$('#team').addEventListener('change',updatePreviewRig);
+for(const id of ['avatarStyle','skinTone','hairColor','hairStyle','pantsColor','accessory'])$('#'+id).addEventListener('change',updatePreviewRig);
+function chooseParty(team){team=Number(team)||0;$('#team').value=String(team);
+ $$('#partyChoose .partyCard').forEach(b=>{const yes=Number(b.dataset.party)===team;b.classList.toggle('selected',yes);b.setAttribute('aria-pressed',String(yes))});
+ $('#wardrobeBadge').textContent='현재 복장: '+PARTY_NAMES[team]+' · '+PARTY_DETAILS[team];
+ $('#wardrobeBadge').style.borderColor=PARTY_COLORS[team];
+ if(pvCharacter)applyUniform(pvCharacter,team);
+ if(started)applyUniform(player,team);
+}
+$$('#partyChoose .partyCard').forEach(b=>b.addEventListener('click',()=>chooseParty(b.dataset.party)));
+let previewRear=false;
+$('#turnPreview').addEventListener('click',()=>{previewRear=!previewRear;$('#turnPreview').textContent=previewRear?'↻ 캐릭터 앞모습 보기':'↻ 캐릭터 뒷모습 보기'});
 updatePreviewRig();
 let previewFrame=0;
 function renderPreview(dt){
@@ -813,11 +878,11 @@ function renderPreview(dt){
   pvRenderer.setSize(w,h,false);pvCamera.aspect=w/h;pvCamera.updateProjectionMatrix();
  }
  previewFrame+=dt;
- if(pvCharacter){pvCharacter.rotation.y=-.18+previewFrame*.34;animateRig(pvCharacter,dt,0,false,previewFrame);}
+ if(pvCharacter){pvCharacter.rotation.y=(previewRear?0:Math.PI)-.18+Math.sin(previewFrame*.38)*.12;animateRig(pvCharacter,dt,0,false,previewFrame);}
  pvRenderer.render(pvScene,pvCamera);
 }
 
-$('#startBtn').onclick=()=>{const n=$('#playerName').value.trim()||'서울 시민';$('#nickHud').textContent=n;setPlayerStyle(Number($('#avatarStyle').value),Number($('#outfit').value));started=true;$('#start').style.display='none';toast('광화문광장 V7에 입장했습니다! W로 광화문 방향으로 걸어보세요')};
+$('#startBtn').onclick=()=>{const n=$('#playerName').value.trim()||'서울 시민';$('#nickHud').textContent=n;setPlayerStyle(Number($('#avatarStyle').value));started=true;$('#start').style.display='none';toast('광화문광장 V8에 입장했습니다! W로 광화문 방향으로 걸어보세요')};
 let dragging=false,px=0,py=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType!=='touch')return;if(sprayMode){sprayDown=true;groundClick(e);return}dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(sprayMode&&sprayDown){groundClick(e);return}if(!dragging||!started)return;camYaw-=(e.clientX-px)*.006;camPitch=Math.max(-.15,Math.min(1.16,camPitch+(e.clientY-py)*.004));px=e.clientX;py=e.clientY});renderer.domElement.addEventListener('pointerup',()=>{dragging=false;sprayDown=false});renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();camDist=Math.max(4.4,Math.min(44,camDist+Math.sign(e.deltaY)*1.2))},{passive:false});
 window.addEventListener('keydown',e=>{if(!root.isConnected||!started||document.activeElement===$('#chatinput')||document.activeElement===$('#playerName'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();const wasHeld=!!keys[e.code];keys[e.code]=true;if(e.repeat||wasHeld)return;if(e.code==='KeyE'&&!dialogNPC)interact();if(e.code==='KeyG')tryTalk();if(e.code==='KeyF')punch();if(e.code==='KeyH'&&driving){beep(460,.17);toast('빵빵! 경적')};if(e.code==='KeyB'){toggleSpray()};if(e.code==='KeyR'){undoSpray()};if(e.code==='KeyT'){toggleFlag()};if(e.code==='KeyV'){air=!air;toast(air?'항공 카메라':'3인칭 카메라')};if(e.code==='Digit1'){$('#garageBtn').click()};if(e.code==='Escape'){closeDialog();closeMenu();$('#chatPanel').style.display='none'}});
 window.addEventListener('keyup',e=>{keys[e.code]=false});window.addEventListener('blur',()=>{for(let k in keys)keys[k]=false});$$('#mobile [data-key]').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();const key=b.dataset.key,wasHeld=!!keys[key];keys[key]=true;if(!wasHeld&&key==='KeyF')punch();if(!wasHeld&&key==='KeyE')interact()});for(const evt of ['pointerup','pointercancel','pointerleave'])b.addEventListener(evt,()=>keys[b.dataset.key]=false)});
