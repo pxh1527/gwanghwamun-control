@@ -10,9 +10,7 @@
     "check": "node --check --input-type=module < src/main.js && node --check server.js"
   },
   "dependencies": {
-    "three": "0.164.1"
-  },
-  "devDependencies": {
+    "three": "0.164.1",
     "vite": "5.4.19"
   },
   "engines": {
