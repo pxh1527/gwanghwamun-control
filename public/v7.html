@@ -715,7 +715,7 @@ function applyAppearance(g,look){
  g.userData.look=look;
  if(g.userData.external){g.traverse(o=>{if(!o.isMesh||!o.material||o.parent?.name==='진영 상의')return;
    const name=(o.name+' '+(Array.isArray(o.material)?o.material.map(m=>m.name).join(' '):o.material.name)).toLowerCase();
-   const change=/hair|beard|eyebrow/.test(name)?hair[look.hair%hair.length]:/skin|body|face|head|hand/.test(name)?skins[look.skin%skins.length]:/trouser|pants|jeans/.test(name)?['#23374a','#20242a','#686967','#505640'][look.pants%4]:null;
+   const change=/hair|beard|eyebrow/.test(name)?hair[look.hair%hair.length]:/skin|face|head|hand|finger|ear|neck/.test(name)&&!CLOTH_RE.test(name)?skins[look.skin%skins.length]:/trouser|pants|jeans/.test(name)?['#23374a','#20242a','#686967','#505640'][look.pants%4]:null;
    if(!change)return;const a=Array.isArray(o.material)?o.material:[o.material];const next=a.map(m=>{const mm=m.clone();mm.color.set(change);return mm});o.material=Array.isArray(o.material)?next:next[0];
  })}
  if(g.userData.accessoryGroup){g.userData.accessoryGroup.parent.remove(g.userData.accessoryGroup);g.userData.accessoryGroup=null}
