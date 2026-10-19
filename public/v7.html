@@ -527,7 +527,13 @@ async function installCharacterLoader(){
  loadGLTF=(url)=>new Promise((resolve,reject)=>loader.load(url,resolve,undefined,reject));
  }catch(e){console.warn('3D character addon unavailable',e);return false}return true
 }
-function qualityAvatar(name,base,scale=1){const g=new THREE.Group();
+function qualityAvatar(name,base,scale=1){
+ // Do not stain the head if an asset merges skin and clothing.
+ if(!hasClothes(base.scene)){
+  const style=Math.max(0,avatarAssets.indexOf(base));
+  return createHuman(style,0,scale,name==='player'||name==='preview'?readPlayerLook():null)
+ }
+ const g=new THREE.Group();
  // World controls are relative to player group; animation is local to its skeleton.
  const clone=cloneSkinned(base.scene);clone.rotation.y=Math.PI;clone.scale.setScalar(1.28*scale);g.add(clone);
  clone.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false}});
@@ -564,12 +570,12 @@ function rigAnimation(g,dt,mov,run,act){
    u.current=target;
  }
  u.mixer.update(dt);
- if(u.uniformGarment&&u.uniformBone&&u.uniformBoneRest){
+ if(u.uniformPrint&&u.uniformBone&&u.uniformBoneRest){
   g.updateMatrixWorld(true);
   const inverseGroup=g.matrixWorld.clone().invert();
   const pose=inverseGroup.multiply(u.uniformBone.matrixWorld).multiply(u.uniformBoneRest);
-  u.uniformGarment.matrixAutoUpdate=false;u.uniformGarment.matrix.copy(pose);
-  u.uniformGarment.matrixWorldNeedsUpdate=true;
+  u.uniformPrint.matrixAutoUpdate=false;u.uniformPrint.matrix.copy(pose);
+  u.uniformPrint.matrixWorldNeedsUpdate=true;
  }
 }
 async function installRealCharacters(){const ok=await installCharacterLoader();if(!ok)return;
@@ -619,7 +625,7 @@ async function installStreetModels(){
 const playerLook={skin:0,hair:0,hairStyle:0,pants:0,accessory:0};
 function readPlayerLook(){const value=id=>Number($('#'+id)?.value)||0;return {skin:value('skinTone'),hair:value('hairColor'),hairStyle:value('hairStyle'),pants:value('pantsColor'),accessory:value('accessory')}}
 const skins=['#f1c6aa','#dba77f','#bd8a6c','#8e6450','#edd7bb'];const tops=['#263d5d','#ecebe3','#36594c','#a1443b','#3e3d45','#ad9b81','#6278a4','#d2c3ac','#6d365c','#2e706b'];const pants=['#222f3b','#5f6470','#293e47','#3e403f','#57606b'];const hair=['#292521','#40332a','#634935','#171b20','#86674b','#a29575'];
-function createHuman(style=0,col=0,sz=1,look=null){const g=new THREE.Group();const torso=new THREE.Group();g.add(torso);const female=style%2===1,older=style===4;const jacket=mat(tops[(col+style*2)%tops.length]),skin=mat(skins[look?look.skin%skins.length:(style+col)%skins.length]),pantsMat=mat(look?['#23374a','#20242a','#686967','#505640'][look.pants%4]:pants[(col+2)%pants.length]),hmat=mat(older&&!look?'#aaa9a5':hair[look?look.hair%hair.length:(col+style)%hair.length],.9),shirt=mat(['#f0e9d9','#d7ddda','#e4cdad','#bac7d8'][col%4]);g.userData={torso,jacket,skin,style,look};
+function createHuman(style=0,col=0,sz=1,look=null){const g=new THREE.Group();const torso=new THREE.Group();g.add(torso);const female=style%2===1,older=style===4;const jacket=mat(tops[(col+style*2)%tops.length]),skin=mat(skins[look?look.skin%skins.length:(style+col)%skins.length]),pantsMat=mat(look?['#23374a','#20242a','#686967','#505640'][look.pants%4]:pants[(col+2)%pants.length]),hmat=mat(older&&!look?'#aaa9a5':hair[look?look.hair%hair.length:(col+style)%hair.length],.9),shirt=mat(['#f0e9d9','#d7ddda','#e4cdad','#bac7d8'][col%4]);g.userData={torso,jacket,shirt,skin,style,look};
 // Sculpted tapered torso and coat, directional face toward local -Z.
 const waist=new THREE.Group();waist.position.y=1.18;g.add(waist);let chest=mesh(new THREE.CylinderGeometry(female?.43:.49,.36,.95,12),jacket,torso);chest.position.y=1.78;chest.scale.z=.74;g.userData.shirtChest=chest;let lapel=mesh(new THREE.ConeGeometry(.26,.62,3),shirt,torso);lapel.position.set(0,2.02,-.39);lapel.rotation.y=Math.PI/3; sphere(0,2.32,0,.17,.18,.16,skin,torso);
 const head=new THREE.Group();head.position.set(0,2.56,-.04);torso.add(head);sphere(0,.03,-.015,.31,.39,.275,skin,head);sphere(0,-.13,-.245,.115,.10,.08,skin,head);for(let s of [-1,1]){sphere(s*.13,.075,-.272,.038,.027,.013,mat('#212a2d'),head);sphere(s*.13,.146,-.274,.11,.027,.021,hmat,head)}sphere(0,-.1,-.302,.034,.065,.042,skin,head);block(0,-.22,-.263,.14,.017,.018,mat('#805747'),head);let hh=sphere(0,.30,.015,.33,.16,.29,hmat,head);if(female){sphere(-.29,.06,.15,.15,.35,.19,hmat,head);sphere(.29,.06,.15,.15,.35,.19,hmat,head)}else if(style===2){sphere(0,.32,-.15,.33,.14,.2,mat('#343c44'),head);block(0,.23,-.35,.49,.07,.24,mat('#303843'),head)}if(look){const hs=look.hairStyle;if(hs===1){hh.scale.y=.65}else if(hs===2||hs===3){for(const side of [-1,1])sphere(side*.27,-.08,.11,.11,hs===2?.48:.25,.17,hmat,head);if(hs===3)sphere(0,-.18,.28,.15,.38,.17,hmat,head)}}if(older){let gg=mat('#6d706f');for(let s of [-1,1])sphere(s*.135,.075,-.284,.14,.08,.017,gg,head)}
@@ -659,44 +665,51 @@ function backShirtPrint(parent,midY,radiusTop,radiusBottom,height,scaleZ=1){
  const patch=mesh(new THREE.CylinderGeometry(radiusTop,radiusBottom,height,32,1,true,-.54,1.08),new THREE.MeshStandardMaterial({map:koreanFlagTexture(),transparent:false,roughness:.87,side:THREE.FrontSide,polygonOffset:true,polygonOffsetFactor:-1}),parent);
  patch.position.set(0,midY,0);patch.scale.z=scaleZ;patch.name='태극기 등판 프린트';patch.userData.uniformPrint=true;return patch
 }
-function externalGarment(g,clr,team){
- // The original imported models sometimes have unnamed/merged glTF materials.
- // A geometrically separate, visibly colored overshirt is therefore fitted over the body.
- if(g.userData.uniformGarment){const prev=g.userData.uniformGarment;g.remove(prev);prev.traverse(o=>{if(o.isMesh&&o.geometry)o.geometry.dispose()})}
- const box=new THREE.Box3().setFromObject(g);const h=Math.max(2.3,box.max.y-box.min.y);
- const ch=h*.68+box.min.y,wide=h*.176,shirtH=h*.34;
- const jersey=new THREE.Group();g.add(jersey);jersey.name='진영 상의';
- const cloth=new THREE.MeshStandardMaterial({color:clr,roughness:.91,metalness:0,side:THREE.FrontSide});
- const t=mesh(new THREE.CylinderGeometry(wide*.99,wide*.79,shirtH,32),cloth,jersey);t.position.y=ch;t.scale.z=.80;t.name='상의 몸통';
- // The print is curved and slightly inset into the jersey shell, like an actual fabric transfer.
- if(team===2){backShirtPrint(jersey,ch,wide*.945,wide*.839,shirtH*.48,.808)}
- const sleeves=[];for(let side of [-1,1]){const sleeve=mesh(new THREE.CylinderGeometry(wide*.35,wide*.30,shirtH*.60,14),cloth,jersey);sleeve.position.set(side*wide*1.07,ch+shirtH*.05,0);sleeve.rotation.z=side*.20;sleeve.name='진영 상의 소매';sleeves.push(sleeve)}
- g.userData.uniformGarment=jersey;g.userData.uniformSleeves=sleeves;g.userData.shirtColor=clr;
- // Bind the shirt to the animated chest transform, not to an unmoving world coordinate.
- const bones=[];g.traverse(o=>{if(o.isBone&&/(spine2|spine3|chest|upper.?body|spine_02)/i.test(o.name))bones.push(o)});
- g.userData.uniformBone=bones[0]||null;
- if(g.userData.uniformBone){g.updateMatrixWorld(true);const inv=g.matrixWorld.clone().invert();
-  g.userData.uniformBoneRest=inv.multiply(g.userData.uniformBone.matrixWorld).invert();}
- else{g.userData.uniformBoneRest=null}
+
+/* Party uniforms: tint clothing that belongs to the animated avatar. No extra torso shells. */
+const CLOTH_RE=/(hoodie|shirt|t.?shirt|jacket|coat|sweater|sweatshirt|blazer|suit|polo|cardigan|vest|blouse|uniform|clothing|clothes|upper.?body|torso|top|dress|jumper)/i;
+const SKIN_RE=/(skin|head|face|hair|eye|brow|lash|mouth|nose|lip|beard|ear|hand|finger|foot|teeth|tongue|neck|pants|jeans|trouser|leg|skirt|shoe|boot)/i;
+function isClothes(mesh,material){const label=(mesh.name||'')+' '+(material?.name||'');return CLOTH_RE.test(label)&&!SKIN_RE.test(label)}
+function hasClothes(root){let yes=false;root.traverse(o=>{if(!yes&&o.isMesh&&o.material){const a=Array.isArray(o.material)?o.material:[o.material];if(a.some(m=>isClothes(o,m)))yes=true}});return yes}
+function dressExternal(g,color){
+ if(g.userData.uniformTinted)for(const o of g.userData.uniformTinted){o.mesh.material=o.original;for(const m of o.created)m.dispose()}
+ g.userData.uniformTinted=[];const matched=[];
+ g.userData.torso.traverse(o=>{
+  if(!o.isMesh||!o.material||o.userData.uniformPrint)return;
+  const src=Array.isArray(o.material)?o.material:[o.material],created=[],out=[];
+  for(const m of src){
+   if(!isClothes(o,m)){out.push(m);continue}
+   const cp=m.clone();cp.color.setStyle(color);cp.map=null;cp.vertexColors=false;cp.roughness=.87;cp.metalness=0;cp.needsUpdate=true;
+   out.push(cp);created.push(cp);
+  }
+  if(created.length){g.userData.uniformTinted.push({mesh:o,original:o.material,created});o.material=Array.isArray(o.material)?out:out[0];matched.push(o)}
+ });return matched
+}
+function clearUniform(g){
+ const old=g.userData.uniformPrint;if(old){old.parent?.remove(old);old.geometry?.dispose();old.material?.dispose();g.userData.uniformPrint=null}
+ g.userData.uniformBone=null;g.userData.uniformBoneRest=null;
+ if(g.userData.uniformGarment){const bad=g.userData.uniformGarment;bad.parent?.remove(bad);bad.traverse(o=>{if(o.isMesh){o.geometry?.dispose();o.material?.dispose()}});g.userData.uniformGarment=null}
 }
 function applyUniform(g,team){
- team=Number(team)||0;const clr=PARTY_COLORS[team]||PARTY_COLORS[0];
- if(g.userData.uniformPrint){g.userData.uniformPrint.parent.remove(g.userData.uniformPrint);g.userData.uniformPrint=null}
- if(g.userData.jacket){g.userData.jacket.color.set(clr);if(team===2){
-  const torso=g.userData.torso;
-  g.userData.uniformPrint=backShirtPrint(torso,1.83,.461,.410,.38,.748);
- }}
+ team=Math.max(0,Math.min(3,Number(team)||0));
+ const color=PARTY_COLORS[team];clearUniform(g);
+ if(g.userData.jacket){g.userData.jacket.color.setStyle(color);g.userData.shirt?.color.setStyle(color);
+  if(team===2)g.userData.uniformPrint=backShirtPrint(g.userData.torso,1.83,.461,.410,.38,.748)}
  if(g.userData.external){
-  // Tint existing materials where identified, preserving the head / face / skin and trousers.
-  g.traverse(o=>{if(!o.isMesh||!o.material||o.userData.uniformPrint||o.parent?.name==='진영 상의')return;
-   const name=(o.name+' '+(Array.isArray(o.material)?o.material.map(m=>m.name).join(' '):o.material.name)).toLowerCase();
-   if(/shirt|sweat|jacket|hoodie|coat|torso|upperbody|tshirt|uniform|clothes|top|suit/.test(name)&&!(/skin|hair|face|head|pants|trouser|shoe/.test(name))){
-    const a=Array.isArray(o.material)?o.material:[o.material];const next=a.map(m=>{const mm=m.clone();mm.color.set(clr);return mm});o.material=Array.isArray(o.material)?next:next[0];
-   }
-  });
-  externalGarment(g,clr,team);
+  const clothing=dressExternal(g,color);
+  if(team===2&&clothing.length){
+   // A narrow curved print follows the back of the actual shirt, not the face.
+   g.updateMatrixWorld(true);const bbox=new THREE.Box3();
+   for(const m of clothing)bbox.expandByObject(m);
+   const dimensions=bbox.getSize(new THREE.Vector3()),midpoint=g.worldToLocal(bbox.getCenter(new THREE.Vector3()));
+   const radius=Math.max(.30,Math.min(.47,dimensions.x*.29));
+   g.userData.uniformPrint=backShirtPrint(g,midpoint.y,radius*1.025,radius*.96,.40,.83);
+   const bones=[];g.traverse(o=>{if(o.isBone&&/(chest|spine.?2|spine.?3|upper.?body|spine_02)/i.test(o.name))bones.push(o)});
+   g.userData.uniformBone=bones[0]||null;
+   if(g.userData.uniformBone){g.updateMatrixWorld(true);g.userData.uniformBoneRest=new THREE.Matrix4().copy(g.matrixWorld).invert().multiply(g.userData.uniformBone.matrixWorld).invert()}
+  }
  }
- g.userData.party=team;
+ g.userData.party=team
 }
 function applyAppearance(g,look){
  g.userData.look=look;
