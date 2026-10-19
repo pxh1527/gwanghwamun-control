@@ -716,6 +716,7 @@ function startRespawn(){
  if(respawnDeadline)return;
  respawnDeadline=Date.now()+RESPAWN_DELAY_MS;
  closeDialog();if(menu)closeMenu();
+ for(const n of npcs){if(n.down<=0){n.aggroUntil=0;n.brain='wander';n.attackHit=false}}
  if(driving){driving.driving=false;driving.ai=false;driving.vel=0;driving=null}
  player.visible=true;player.rotation.z=1.25;playerMoveSpeed=0;action='idle';emote='';
  p.y=0;p.vy=0;p.onGround=true;player.position.set(p.x,0,p.z);
@@ -829,7 +830,7 @@ function npcCombatStep(n,dt){
  if(n.down>0){
   const remain=(n.downUntil-Date.now())/1000;
   if(remain<=0){
-   n.down=0;n.downUntil=0;n.g.rotation.z=0;n.x=-40+Math.random()*29;n.z=-228+Math.random()*420;n.brain='wander';n.hp=100;n.stun=0;
+   n.down=0;n.downUntil=0;n.g.rotation.z=0;const spawn=TEAM_SPAWNS[n.team]||TEAM_SPAWNS[0];n.x=spawn[0]+(Math.random()-.5)*5;n.z=spawn[1]+(Math.random()-.5)*5;n.brain='wander';n.hp=100;n.stun=0;
    n.g.position.set(n.x,0,n.z);animateRig(n.g,dt,0,false,time+n.phase);return;
   }
   n.down=remain;n.brain='down';n.g.rotation.z=THREE.MathUtils.lerp(n.g.rotation.z,1.25,dt*9);
