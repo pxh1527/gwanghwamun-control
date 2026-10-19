@@ -315,7 +315,7 @@ function makeCar(bus=false,tint='#ddd8cf'){
  const sh=mesh(new THREE.CircleGeometry(bus?3.7:2.35,30),new THREE.MeshBasicMaterial({color:'#101b1b',transparent:true,opacity:.16,depthWrite:false}),g);sh.rotation.x=-Math.PI/2;sh.scale.y=bus?2.5:1.8;sh.position.y=.015;
  g.userData={bus,L,W,radius:bus?5:2.8,speed:0,wheelPivots};return g
 }
-const colors=['#ffffff','#282f35','#c3c8ce','#d7dbe0','#6e8298','#f1c76b','#2b9a65','#d53a36'];const cars=[];function putCar(x,z,bus,col,ai=true){const obj=makeCar(bus,col);obj.position.set(x,0,z);scene.add(obj);const car={obj,x,z,bus,ai,vel:ai?(bus?7.3:11):0,dir:ai?(x>37?0:Math.PI):0,driving:false};obj.rotation.y=car.dir;cars.push(car);return car}
+const colors=['#ffffff','#282f35','#c3c8ce','#d7dbe0','#6e8298','#f1c76b','#2b9a65','#d53a36'];const cars=[];function putCar(x,z,bus,col,ai=true){const obj=makeCar(bus,col);obj.position.set(x,0,z);scene.add(obj);const car={obj,x,z,bus,ai,vel:ai?(bus?7.3:11):0,cruise:bus?7.3:11,dir:ai?(x>37?0:Math.PI):0,driving:false};obj.rotation.y=car.dir;cars.push(car);return car}
 for(let i=0;i<11;i++){const x=[14,27,38,49,59][i%5],z=-240+i*48-((i%3)*6);putCar(x,z,i%5===0,i%5===0?(i%2?'#0b8c6d':'#309fb5'):colors[(i+2)%colors.length])}
 let parked=putCar(4,122,false,'#dadce2',false);putCar(5,132,true,'#22a676',false);
 // Static instancing pass: convert repeated boxes/spheres to InstancedMesh, excluding cars
@@ -809,6 +809,28 @@ function npcCombatStep(n,dt){
  n.g.position.set(n.x,0,n.z);n.g.rotation.y=n.a;animateRig(n.g,dt,walk?1:0,false,time+n.phase);
 }
 
+
+function carClearance(c,reverse=false){
+ const car=c.obj,fx=(reverse?1:-1)*Math.sin(c.dir),fz=(reverse?1:-1)*Math.cos(c.dir);
+ const length=car.userData.L||5.15,width=car.userData.W||2.28,ownFront=length*.5+.82;
+ let clear=Infinity;
+ const detect=(x,z,radius=.53,extra=0)=>{
+  const dx=x-car.position.x,dz=z-car.position.z,front=dx*fx+dz*fz;
+  if(front<=0)return;
+  const lateral=Math.abs(dx*fz-dz*fx);
+  if(lateral>width/2+radius+.24)return;
+  clear=Math.min(clear,front-ownFront-radius-extra);
+ };
+ if(started&&!driving)detect(p.x,p.z,.58);
+ for(const n of npcs)if(n.down<=0)detect(n.x,n.z,.56);
+ for(const other of cars){if(other===c)continue;const obj=other.obj;detect(obj.position.x,obj.position.z,(obj.userData.W||2.2)*.5+.1,(obj.userData.L||5.2)*.5-.15)}
+ return clear
+}
+function brakeSpeed(current,desired,dt,deceleration=12,acceleration=3.2){
+ if(desired<current)return Math.max(desired,current-deceleration*dt);
+ return Math.min(desired,current+acceleration*dt)
+}
+
 let fpsFrames=0,fpsT=0,fpsSum=0,qualityAuto=true,qualityScale=Math.min(devicePixelRatio,1.2);
 function update(dt){time+=dt;
  fpsFrames++;fpsT+=dt;fpsSum+=dt;
@@ -820,7 +842,40 @@ function update(dt){time+=dt;
     if(Math.abs(next-qualityScale)>.02){qualityScale=next;renderer.setPixelRatio(qualityScale)}
   }fpsFrames=0;fpsT=0;fpsSum=0;
  }const moving=!menu&&!dialogNPC&&started,dir=new THREE.Vector3(0,0,0);if(moving){dir.set(((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0),0,((keys.KeyS||keys.ArrowDown)?1:0)-((keys.KeyW||keys.ArrowUp)?1:0));if(dir.lengthSq())dir.normalize()}
-if(driving){playerMoveSpeed=0;if(moving){let v=driving.vel;if(keys.KeyW||keys.ArrowUp)v+=12*dt;else if(keys.KeyS||keys.ArrowDown)v-=10*dt;else v*=Math.pow(.88,dt*15);driving.vel=THREE.MathUtils.clamp(v,-6.8,19);let steer=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0);driving.dir+=steer*(driving.vel>=0?1:-1)*Math.min(Math.abs(v)/8,1)*dt*.68}let nx=driving.obj.position.x-Math.sin(driving.dir)*driving.vel*dt,nz=driving.obj.position.z-Math.cos(driving.dir)*driving.vel*dt;if(!collides(nx,nz,2)){let blocked=false;for(const c of cars)if(c!==driving&&Math.hypot(nx-c.obj.position.x,nz-c.obj.position.z)<(c.bus?3.5:2.9)+(driving.bus?3.5:2.9)){blocked=true;break}if(blocked){driving.vel*=-.28;hurt(2);beep(110,.09)}else{driving.obj.position.set(nx,0,nz)}}else{driving.vel*= -.16}driving.obj.rotation.y=driving.dir;for(const wheel of driving.obj.userData.wheelPivots){wheel.pivot.rotation.x+=driving.vel*dt/(driving.bus?.58:.46);wheel.pivot.rotation.y=wheel.front?THREE.MathUtils.clamp(((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0),-1,1)*.19:0}p.x=driving.obj.position.x;p.z=driving.obj.position.z;for(const n of npcs){if(n.down>0)continue;const nx=n.x-p.x,nz=n.z-p.z;if(Math.hypot(nx,nz)<(driving.bus?2.75:1.5)+.45&&Math.abs(driving.vel)>2){impactNPC(n,Math.min(50,9+Math.abs(driving.vel)*2),nx,nz);driving.vel*=.62}}}else if(moving){const mv=dir.clone().applyAxisAngle(new THREE.Vector3(0,1,0),camYaw),desiredSpeed=dir.lengthSq()?((keys.ShiftLeft||keys.ShiftRight)?6.1:3.25):0;
+if(driving){
+ playerMoveSpeed=0;
+ if(moving){
+  let v=driving.vel;
+  if(keys.KeyW||keys.ArrowUp)v+=12*dt;
+  else if(keys.KeyS||keys.ArrowDown)v-=10*dt;
+  else v*=Math.pow(.88,dt*15);
+  driving.vel=THREE.MathUtils.clamp(v,-6.8,19);
+  const steer=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0);
+  driving.dir+=steer*(driving.vel>=0?1:-1)*Math.min(Math.abs(driving.vel)/8,1)*dt*.68;
+ }
+ // Pedestrian/vehicle forward sensor. Traffic stops instead of running over a person.
+ const reverse=driving.vel<0,free=carClearance(driving,reverse);
+ if(Number.isFinite(free)){
+  const limit=Math.sqrt(2*11*Math.max(0,free-.25));
+  if(Math.abs(driving.vel)>limit)driving.vel=Math.sign(driving.vel)*Math.max(limit,Math.abs(driving.vel)-15*dt);
+  if(free<=.20)driving.vel=0;
+ }
+ let travel=driving.vel*dt;
+ if(Number.isFinite(free))travel=Math.sign(travel)*Math.min(Math.abs(travel),Math.max(0,free-.12));
+ const nx=driving.obj.position.x-Math.sin(driving.dir)*travel;
+ const nz=driving.obj.position.z-Math.cos(driving.dir)*travel;
+ if(!collides(nx,nz,2)){
+  let blocked=false;for(const c of cars)if(c!==driving&&Math.hypot(nx-c.obj.position.x,nz-c.obj.position.z)<(c.bus?3.5:2.9)+(driving.bus?3.5:2.9)){blocked=true;break}
+  if(blocked){driving.vel=0;travel=0}
+  else driving.obj.position.set(nx,0,nz)
+ }else{driving.vel=0;travel=0}
+ driving.obj.rotation.y=driving.dir;
+ for(const wheel of driving.obj.userData.wheelPivots){
+  wheel.pivot.rotation.x+=travel/(driving.bus?.58:.46);
+  wheel.pivot.rotation.y=wheel.front?THREE.MathUtils.clamp(((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0),-1,1)*.19:0;
+ }
+ p.x=driving.obj.position.x;p.z=driving.obj.position.z;
+}else if(moving){const mv=dir.clone().applyAxisAngle(new THREE.Vector3(0,1,0),camYaw),desiredSpeed=dir.lengthSq()?((keys.ShiftLeft||keys.ShiftRight)?6.1:3.25):0;
  playerMoveSpeed=THREE.MathUtils.damp(playerMoveSpeed,desiredSpeed,desiredSpeed>playerMoveSpeed?5.0:7.5,dt);
  let nx=p.x+mv.x*playerMoveSpeed*dt,nz=p.z+mv.z*playerMoveSpeed*dt;if(!collides(nx,p.z,.55))p.x=nx;if(!collides(p.x,nz,.55))p.z=nz;if(dir.lengthSq()>0){let target=Math.atan2(-mv.x,-mv.z),a=((target-p.rot+Math.PI*3)%(Math.PI*2))-Math.PI;p.rot+=a*Math.min(1,dt*7.0)}if((keys.Space)&&p.onGround){p.vy=8.8;p.onGround=false}p.vy-=23*dt;p.y+=p.vy*dt;if(p.y<=0){p.y=0;p.vy=0;p.onGround=true}player.position.set(p.x,p.y,p.z);player.rotation.y=p.rot}if(!driving&&!moving){playerMoveSpeed=0;player.position.set(p.x,p.y,p.z)}
 // Punch is a complete timed strike with actual fist extension and hit test.
@@ -840,7 +895,21 @@ tickImpacts(dt);tickStones(dt);tickCapture(dt);for(let ni=0;ni<npcs.length;ni++)
  if(ds>150*150 && ni%3!==(Math.floor(time*8)%3))continue;
  npcCombatStep(n,dt);if(n.label && ds<85*85)n.label.lookAt(camera.position);
 }
-for(const c of cars){if(!c.ai||c.driving)continue;let z=c.obj.position.z-c.vel*dt*(c.dir===0?1:-1);if(z< -258)z=251;if(z>254)z=-247;c.obj.position.z=z;c.obj.rotation.y=c.dir;for(const wheel of c.obj.userData.wheelPivots)wheel.pivot.rotation.x+=c.vel*dt/(c.bus?.58:.46);if(!driving){const dx=p.x-c.obj.position.x,dz=p.z-c.obj.position.z;if(Math.abs(dx)<c.obj.userData.W*.52&&Math.abs(dz)<c.obj.userData.L*.52+.45){hurt(12);p.x+=Math.sign(dx||1)*2.3;p.z+=Math.sign(dz||1)*2.2}}}
+for(const c of cars){
+ if(!c.ai||c.driving)continue;
+ const clearance=carClearance(c,false);
+ // Braking curve: v^2=2as; within bumper safety distance force zero movement.
+ const targetSpeed=Number.isFinite(clearance)?Math.min(c.cruise,Math.sqrt(2*9*Math.max(0,clearance-.42))):c.cruise;
+ c.vel=brakeSpeed(c.vel,targetSpeed,dt,15,2.9);
+ if(clearance<=.20)c.vel=0;
+ const forwardTravel=Math.max(0,Math.min(c.vel*dt,Number.isFinite(clearance)?Math.max(0,clearance-.16):Infinity));
+ let nx=c.obj.position.x-Math.sin(c.dir)*forwardTravel;
+ let nz=c.obj.position.z-Math.cos(c.dir)*forwardTravel;
+ // Reset position only after leaving the street, not while pedestrian is directly ahead.
+ if(nz< -258)nz=251;if(nz>254)nz=-247;
+ c.obj.position.set(nx,0,nz);c.obj.rotation.y=c.dir;
+ for(const wheel of c.obj.userData.wheelPivots)wheel.pivot.rotation.x+=forwardTravel/(c.bus?.58:.46);
+}
 if(toastT>0){toastT-=dt;if(toastT<=0)$('#toast').style.opacity='0'}
  if(time>combatTextUntil)$('#combatFeedback').style.opacity='0';
  const supplyPoint=!driving&&!dialogNPC?nearResource(3.4):null,nearest=!driving&&!dialogNPC?nearestNPC(2.85):null;$('#npcHint').style.display=(nearest||supplyPoint)?'block':'none';if(supplyPoint&&(!nearest||supplyPoint.d<Math.hypot(nearest.x-p.x,nearest.z-p.z)))$('#npcHint').textContent=supplyPoint.name+' · E 채집 · B 제작';else if(nearest)$('#npcHint').textContent=nearest.name+' · E / G 대화 · F 공격시 추격·반격';
