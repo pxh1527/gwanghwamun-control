@@ -26,7 +26,7 @@
 @media(max-width:950px){#gsp #captureHud{top:65px;left:50%;min-width:190px;width:43vw;font-size:9px;padding:6px 8px;max-width:270px}#gsp .toolbar{top:300px;max-height:54vh;overflow:auto}}
 @media(max-width:800px){#gsp #captureHud{top:110px;left:43%;width:56vw;max-width:240px}#gsp .toolbar{top:205px;max-height:49vh}}
 </style></head><body><div id="gsp">
-<div id="screen"></div><div id="perf" aria-live="off" style="position:absolute;right:16px;bottom:14px;padding:6px 9px;border-radius:7px;background:#081a28b8;color:#bee6da;font:10px monospace;z-index:3;pointer-events:none">측정 중...</div><div id="damage"></div><div id="crosshair"></div>
+<div id="respawnOverlay" role="status" aria-live="polite" style="display:none;position:absolute;inset:0;z-index:18;background:rgba(3,13,25,.76);backdrop-filter:blur(4px);align-items:center;justify-content:center;pointer-events:auto"><div style="width:min(440px,90vw);padding:30px 25px;text-align:center;background:#112b3be9;border:1px solid #c7526280;border-radius:20px;box-shadow:0 20px 70px #0009"><div style="font-size:14px;color:#ffb3b9;letter-spacing:2px;font-weight:900">전투 불능 · 부활 대기</div><div id="respawnCounter" style="font:bold clamp(52px,10vw,82px)/1.4 monospace;letter-spacing:4px;color:white;font-variant-numeric:tabular-nums">01:00</div><div style="color:#d7e6ed;font-size:13px;line-height:1.9">60초 동안 이동·공격·채집·점령을 할 수 없습니다.<div>시간이 끝나면 소속 팀 출발 지점에서 부활합니다.</div></div></div></div><div id="screen"></div><div id="perf" aria-live="off" style="position:absolute;right:16px;bottom:14px;padding:6px 9px;border-radius:7px;background:#081a28b8;color:#bee6da;font:10px monospace;z-index:3;pointer-events:none">측정 중...</div><div id="damage"></div><div id="crosshair"></div>
 <div class="top"><div class="logo glass"><small>GWANGHWAMUN · SEOUL · V7</small><strong>광화문 <span style="color:#6ff2bd">리브레</span></strong></div><div class="hp glass"><div style="display:flex;justify-content:space-between;font-size:12px"><b id="nickHud">시민</b><b id="hpnum">100 HP</b></div><div class="bar"><div id="hpfill"></div></div><small id="modeHud">🚶 도보 · 광화문광장</small></div></div>
 <div class="headright"><div class="mapbox glass"><canvas id="mini" width="240" height="220"></canvas><div class="mapcaption"><span>▲ 북 · 광화문</span><span>SEJONG-DAERO</span></div></div><div class="people glass"><span class="dot"></span> AI 시민 <b id="npcCount">0</b><span id="loadIndicator" style="font-size:9px;color:#b8e9d9">캐릭터 모델 준비 중</span><span id="assetStatus" style="display:block;color:#b1c8d5;font-size:9px">도시: 정밀 모델 로딩 준비</span>명 <span style="float:right;color:#93c8eb">싱글플레이</span></div></div>
 <div class="toolbar"><button id="garageBtn">🚘 차량 / 차고</button><button id="avatarBtn">🧍 외형 변경</button><button id="teamBtn">🏳️ 소속 팀 변경</button><button id="actionBtn">🙌 행동 / 감정</button><button id="boardBtn">🪧 문구 피켓</button><button id="pixelBtn">🧩 픽셀 그림</button><button id="craftBtn">🪵 채집·제작</button><button id="flagBtn">🏳️ 깃발</button><button id="sprayBtn">🎨 스프레이</button><button id="billboardBtn">📺 전광판</button><button id="chatBtn">💬 로컬 채팅</button><button id="npcTalkBtn">🗣️ 시민과 대화</button><button id="dayBtn">🌙 야간 전환</button><button id="settingsBtn">⚙️ 환경설정</button></div>
@@ -487,6 +487,9 @@ function uniformize(g,team){
  return g
 }
 
+const TEAM_SPAWNS=[[-39,38],[-4,38],[-42,-33],[3,-30]];
+const RESPAWN_DELAY_MS=60_000;
+const NPC_RESPAWN_MS=60_000;
 const skins=['#f1c6aa','#dba77f','#bd8a6c','#8e6450','#edd7bb'];const tops=['#263d5d','#ecebe3','#36594c','#a1443b','#3e3d45','#ad9b81','#6278a4','#d2c3ac','#6d365c','#2e706b'];const pants=['#222f3b','#5f6470','#293e47','#3e403f','#57606b'];const hair=['#292521','#40332a','#634935','#171b20','#86674b','#a29575'];
 function createHuman(style=0,col=0,sz=1){const g=new THREE.Group();const torso=new THREE.Group();g.add(torso);const female=style>=3,older=style===6;const jacket=mat(tops[(col+style*2)%tops.length]),skin=mat(skins[(style+col)%skins.length]),pantsMat=mat(pants[(col+2)%pants.length]),hmat=mat(older?'#aaa9a5':hair[(col+style)%hair.length],.9),shirt=mat(['#f0e9d9','#d7ddda','#e4cdad','#bac7d8'][col%4]);g.userData={torso,jacket,skin,style};
 // Sculpted tapered torso and coat, directional face toward local -Z.
@@ -538,7 +541,7 @@ function updateWeaponModel(){
  w.position.set(-.62,1.5,-.5);w.rotation.z=-.45;player.add(w);weaponModels.current=w
 }
 function nearResource(range=3.8){let best=null,md=range;for(const r of resources){const d=Math.hypot(p.x-r.x,p.z-r.z);if(d<md){md=d;best=r}}return best?{...best,d:md}:null}
-function gatherResource(r){if(!r||driving)return;
+function gatherResource(r){if(!r||driving||p.hp<=0)return;
  if(time-supply.lastGather<10){toast('채집 대기: '+Math.ceil(10-(time-supply.lastGather))+'초 남았습니다');return}
  supply.lastGather=time;
  if(r.kind==='branch'){supply.branches=Math.min(99,supply.branches+1);toast('🌳 가지 +1 · 총 '+supply.branches+'개')}
@@ -546,13 +549,13 @@ function gatherResource(r){if(!r||driving)return;
  if(soundOn)beep(520,.09);updateSupplyHud();saveSupply()
 }
 function updateSupplyHud(){const el=$('#supplyHud');if(el)el.textContent='🌿 가지 '+supply.branches+' · 🪨 돌 '+supply.stones+' · '+({fist:'주먹',club:'몽둥이',axe:'돌도끼'}[supply.weapon])}
-function equip(kind){if(!['fist','club','axe'].includes(kind))return;if(kind!=='fist'&&!supply[kind]){toast('아직 제작하지 않았습니다. B를 눌러 제작하세요');return}supply.weapon=kind;updateWeaponModel();updateSupplyHud();saveSupply();toast('장착: '+({fist:'맨손',club:'몽둥이',axe:'돌도끼'}[kind]))}
-function craft(kind){const recipe=kind==='club'?{branches:2,stones:0}:kind==='axe'?{branches:1,stones:2}:null;if(!recipe)return;
+function equip(kind){if(p.hp<=0||!['fist','club','axe'].includes(kind))return;if(kind!=='fist'&&!supply[kind]){toast('아직 제작하지 않았습니다. B를 눌러 제작하세요');return}supply.weapon=kind;updateWeaponModel();updateSupplyHud();saveSupply();toast('장착: '+({fist:'맨손',club:'몽둥이',axe:'돌도끼'}[kind]))}
+function craft(kind){if(p.hp<=0)return;const recipe=kind==='club'?{branches:2,stones:0}:kind==='axe'?{branches:1,stones:2}:null;if(!recipe)return;
  if(supply[kind]){equip(kind);closeMenu();return}
  if(supply.branches<recipe.branches||supply.stones<recipe.stones){toast('재료 부족! 주변 나무·돌덩이에서 E로 채집하세요');return}
  supply.branches-=recipe.branches;supply.stones-=recipe.stones;supply[kind]=true;equip(kind);closeMenu();toast(kind==='club'?'나무 몽둥이 제작 완료':'돌도끼 제작 완료')
 }
-function openCraftMenu(){
+function openCraftMenu(){if(p.hp<=0)return;
  setupMenu('🌳 채집과 장비 제작','<p>광장에서 나무 또는 돌덩이 옆으로 이동해 <b>E</b>를 누르면 채집합니다. 채집 간격은 10초입니다.</p><p id="supplyLine"></p><button class="secondary" id="craftClub">🪵 몽둥이 · 가지 2개 (3)</button><button class="secondary" id="craftAxe">🪓 돌도끼 · 가지 1개 + 돌 2개 (4)</button><button class="secondary" id="craftFist">👊 맨손 (2)</button><p>R로 돌 1개를 소비해 던질 수 있습니다. 채집 자원·장비는 현재 브라우저 게임 세션에만 적용됩니다.</p>');
  $('#supplyLine').textContent='현재: 가지 '+supply.branches+'개 · 돌 '+supply.stones+'개';
  $('#craftClub').onclick=()=>craft('club');$('#craftAxe').onclick=()=>craft('axe');$('#craftFist').onclick=()=>{equip('fist');closeMenu()}
@@ -577,7 +580,7 @@ function tickCapture(dt){
  }
 }
 const flyingStones=[];
-function throwStone(){if(driving||menu||!started||dialogNPC||action==='punch')return;if(supply.stones<1){toast('돌이 없습니다. 돌덩이에서 채집하세요');return}
+function throwStone(){if(driving||menu||!started||dialogNPC||action==='punch'||p.hp<=0)return;if(supply.stones<1){toast('돌이 없습니다. 돌덩이에서 채집하세요');return}
  supply.stones--;updateSupplyHud();saveSupply();const fx=-Math.sin(p.rot),fz=-Math.cos(p.rot),g=mesh(new THREE.IcosahedronGeometry(.21,1),mat('#a2aaa5'));g.position.set(p.x,1.55,p.z);flyingStones.push({g,fx,fz,x:p.x,z:p.z,age:0,hit:false});beep(290,.11)}
 function tickStones(dt){for(let i=flyingStones.length-1;i>=0;i--){const q=flyingStones[i];q.age+=dt;q.x+=q.fx*20*dt;q.z+=q.fz*20*dt;q.g.position.set(q.x,1.55+Math.sin(q.age*3)*.2,q.z);q.g.rotation.x+=dt*8;
  for(const n of npcs){if(n.down>0||Math.hypot(n.x-q.x,n.z-q.z)>1.15)continue;impactNPC(n,14,q.fx,q.fz);q.hit=true;break}
@@ -690,11 +693,11 @@ function openDialog(n){if(!n||driving||n.down>0){toast('먼저 시민에게 가�
  writeTalk(n.name,text);npcSay(n,text);showChoices(n)
 }
 function closeDialog(){dialogNPC=null;$('#dialogPanel').style.display='none'}
-function tryTalk(){if(dialogNPC){closeDialog();return}openDialog(nearestNPC())}
+function tryTalk(){if(p.hp<=0)return;if(dialogNPC){closeDialog();return}openDialog(nearestNPC())}
 
-function interact(){if(!driving){const near=nearResource(3.4);if(near){const cc=nearCar(),nn=nearestNPC(2.85);const cd=cc?Math.hypot(cc.obj.position.x-p.x,cc.obj.position.z-p.z):Infinity,nd=nn?Math.hypot(nn.x-p.x,nn.z-p.z):Infinity;if(near.d<Math.min(cd,nd)+.2){gatherResource(near);return}}}if(driving){p.x=driving.obj.position.x+Math.sin(driving.dir)*3;p.z=driving.obj.position.z+Math.cos(driving.dir)*3;p.y=0;if(collides(p.x,p.z)){p.x=driving.obj.position.x-3;p.z=driving.obj.position.z+2}driving.driving=false;driving.ai=false;driving=null;player.visible=true;updateTeamHud();toast('차량에서 내렸습니다');return}let c=nearCar(),n=nearestNPC(2.85),nd=n?Math.hypot(n.x-p.x,n.z-p.z):Infinity,cd=c?Math.hypot(c.obj.position.x-p.x,c.obj.position.z-p.z):Infinity;if(n&&nd<cd+.35){openDialog(n);return}if(c){driving=c;c.driving=true;c.ai=false;c.vel=0;player.visible=false;$('#modeHud').textContent=c.bus?'🚌 버스 운전':'🚘 자동차 운전';toast('운전 시작! WASD로 가속·후진·핸들, H 경적, E 하차')}else if(n){openDialog(n)}else toast('가까운 시민은 G/E로 대화하고 차량은 E로 탑승할 수 있습니다')}
+function interact(){if(p.hp<=0)return;if(!driving){const near=nearResource(3.4);if(near){const cc=nearCar(),nn=nearestNPC(2.85);const cd=cc?Math.hypot(cc.obj.position.x-p.x,cc.obj.position.z-p.z):Infinity,nd=nn?Math.hypot(nn.x-p.x,nn.z-p.z):Infinity;if(near.d<Math.min(cd,nd)+.2){gatherResource(near);return}}}if(driving){p.x=driving.obj.position.x+Math.sin(driving.dir)*3;p.z=driving.obj.position.z+Math.cos(driving.dir)*3;p.y=0;if(collides(p.x,p.z)){p.x=driving.obj.position.x-3;p.z=driving.obj.position.z+2}driving.driving=false;driving.ai=false;driving=null;player.visible=true;updateTeamHud();toast('차량에서 내렸습니다');return}let c=nearCar(),n=nearestNPC(2.85),nd=n?Math.hypot(n.x-p.x,n.z-p.z):Infinity,cd=c?Math.hypot(c.obj.position.x-p.x,c.obj.position.z-p.z):Infinity;if(n&&nd<cd+.35){openDialog(n);return}if(c){driving=c;c.driving=true;c.ai=false;c.vel=0;player.visible=false;$('#modeHud').textContent=c.bus?'🚌 버스 운전':'🚘 자동차 운전';toast('운전 시작! WASD로 가속·후진·핸들, H 경적, E 하차')}else if(n){openDialog(n)}else toast('가까운 시민은 G/E로 대화하고 차량은 E로 탑승할 수 있습니다')}
 function beginPunch(){
- if(driving||!started||menu||dialogNPC)return;
+ if(driving||!started||menu||dialogNPC||p.hp<=0)return;
  action='punch';actionStart=time;actionEnd=time+PUNCH_DURATION;hitDone=false;emote='';punchSide=1-punchSide;
  // Each accepted physical key-press owns one fixed hand and exactly one animation clip.
  player.userData.punchClipSide=punchSide;
@@ -702,13 +705,52 @@ function beginPunch(){
  if(soundOn)beep(165,.095);
 }
 function punch(){
- if(driving||!started||menu||dialogNPC)return;
+ if(driving||!started||menu||dialogNPC||p.hp<=0)return;
  // Never buffer another punch: one completed keydown gives at most one strike.
  if(action==='punch'&&time<actionEnd)return;
  beginPunch();
 }
 let audioCtx;function beep(fr=440,dur=.1){if(!soundOn)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(fr,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(fr*.65,audioCtx.currentTime+dur);g.gain.setValueAtTime(.04,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch(e){}}
-function hurt(d){if(time<damageT)return;combatTextUntil=time+1.05;$('#combatFeedback').textContent='−'+d+' HP · NPC 반격';$('#combatFeedback').style.opacity='1';p.hp=Math.max(0,p.hp-d);damageT=time+.55;$('#hpnum').textContent=p.hp+' HP';$('#hpfill').style.width=p.hp+'%';$('#damage').style.borderWidth='9px';setTimeout(()=>{$('#damage').style.borderWidth='0'},120);if(p.hp<=0){for(const n of npcs){n.aggroUntil=0;n.brain='wander';n.stun=0}closeDialog();toast('쓰러졌습니다. 광장 입구에서 회복합니다');p.hp=100;p.x=-15;p.z=162;p.y=0;$('#hpnum').textContent='100 HP';$('#hpfill').style.width='100%'}}
+let respawnDeadline=0;
+function startRespawn(){
+ if(respawnDeadline)return;
+ respawnDeadline=Date.now()+RESPAWN_DELAY_MS;
+ closeDialog();if(menu)closeMenu();
+ if(driving){driving.driving=false;driving.ai=false;driving.vel=0;driving=null}
+ player.visible=true;player.rotation.z=1.25;playerMoveSpeed=0;action='idle';emote='';
+ p.y=0;p.vy=0;p.onGround=true;player.position.set(p.x,0,p.z);
+ for(const key in keys)keys[key]=false;
+ $('#respawnCounter').textContent='01:00';
+ $('#respawnOverlay').style.display='flex';
+ $('#modeHud').textContent='☠️ 전투 불능 · 부활까지 60초';
+ toast('사망했습니다. 60초 후 소속 팀 시작점에서 부활합니다');
+}
+function tickRespawn(){
+ if(!respawnDeadline)return;
+ const ms=respawnDeadline-Date.now();
+ if(ms<=0){
+  respawnDeadline=0;
+  p.hp=100;p.vy=0;p.y=0;p.onGround=true;
+  const spot=TEAM_SPAWNS[currentTeam];p.x=spot[0];p.z=spot[1];
+  player.position.set(p.x,0,p.z);player.rotation.z=0;player.visible=true;
+  if(player.userData?.external){player.userData.current='';for(const clip of Object.values(player.userData.actions||{}))clip.stop()}
+  for(const key in keys)keys[key]=false;
+  $('#hpnum').textContent='100 HP';$('#hpfill').style.width='100%';
+  $('#respawnOverlay').style.display='none';updateTeamHud();
+  damageT=time+1.5;toast('부활 완료! 소속 팀 출발점으로 복귀했습니다');
+  return;
+ }
+ const remaining=Math.ceil(ms/1000);
+ $('#respawnCounter').textContent=String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0');
+}
+function hurt(d){
+ if(p.hp<=0||time<damageT)return;
+ combatTextUntil=time+1.05;$('#combatFeedback').textContent='−'+d+' HP · NPC 반격';$('#combatFeedback').style.opacity='1';
+ p.hp=Math.max(0,p.hp-d);damageT=time+.55;
+ $('#hpnum').textContent=p.hp+' HP';$('#hpfill').style.width=p.hp+'%';$('#damage').style.borderWidth='9px';
+ setTimeout(()=>{$('#damage').style.borderWidth='0'},120);
+ if(p.hp===0)startRespawn();
+}
 const hitEffects=[];
 function hitBurst(x,y,z){const g=new THREE.Group();g.position.set(x,y,z);scene.add(g);
  const shock=mesh(new THREE.TorusGeometry(.46,.075,6,19),new THREE.MeshBasicMaterial({color:'#ffd48c',transparent:true,opacity:.95,depthWrite:false}),g);
@@ -720,7 +762,15 @@ function tickImpacts(dt){for(let i=hitEffects.length-1;i>=0;i--){const e=hitEffe
  for(const p of e.sparks){p.v.position.set(Math.cos(p.angle)*u*1.2,.25+Math.sin(p.angle*2)*u*.7,Math.sin(p.angle)*u*1.2);p.v.material.opacity=1-u}
  if(u>=1){e.g.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});scene.remove(e.g);hitEffects.splice(i,1)}
 }}
-function impactNPC(n,impact=18,dx=0,dz=0){hitBurst(n.x,1.65,n.z);n.hp=Math.max(0,n.hp-impact);n.stun=.58;n.down=n.hp<=0?3:0;n.attackHit=false;n.aggroUntil=time+18;n.brain='alert';n.aggressionCount++;n.attackCooldown=time+1.05;const len=Math.hypot(dx,dz)||1;n.x+=dx/len*1.25;n.z+=dz/len*1.25;if(dialogNPC===n)closeDialog();if(n.hp===0){n.hp=100;n.down=3;n.aggroUntil=0;n.brain='down';toast(n.name+'(이)가 넘어졌습니다')}else{toast(n.name+' · HP '+n.hp+' · 반격 준비');npcSay(n,['지금 뭐 하시는 거예요?','그만하세요!','저도 가만히 있지 않습니다!'][n.aggressionCount%3],3.1)}}
+function impactNPC(n,impact=18,dx=0,dz=0){
+ if(n.down>0)return;
+ hitBurst(n.x,1.65,n.z);n.hp=Math.max(0,n.hp-impact);n.stun=.58;
+ n.attackHit=false;n.aggroUntil=time+18;n.brain='alert';n.aggressionCount++;n.attackCooldown=time+1.05;
+ const len=Math.hypot(dx,dz)||1;n.x+=dx/len*1.25;n.z+=dz/len*1.25;
+ if(dialogNPC===n)closeDialog();
+ if(n.hp===0){n.downUntil=Date.now()+NPC_RESPAWN_MS;n.down=60;n.aggroUntil=0;n.brain='down';toast(n.name+' 제압 · 60초간 점령 참여 불가')}
+ else{toast(n.name+' · HP '+n.hp+' · 반격 준비');npcSay(n,['지금 뭐 하시는 거예요?','그만하세요!','저도 가만히 있지 않습니다!'][n.aggressionCount%3],3.1)}
+}
 function animateRig(g,dt,walk=0,run=false,t=0,act='',stage=0){
  if(g.userData.external){rigAnimation(g,dt,walk,run,act);return}
  const u=g.userData,A=u.arms,L=u.legs,spd=run?7.4:5.2,b=Math.sin(t*spd),amount=Math.min(1,walk);
@@ -768,17 +818,23 @@ $('#billboardBtn').onclick=()=>{
  setupMenu('📺 광화문 전광판','<p>광장의 전광판 문구를 로컬로 변경할 수 있습니다. 다른 사용자에게 공유되지는 않습니다.</p><input id="billboardInput" class="field" maxlength="30" placeholder="표시할 문구를 입력하세요"/><p><button class="secondary" data-act="billboard">문구 적용하기</button></p>')};
 $('#dayBtn').onclick=()=>{night=!night;$('#dayBtn').textContent=night?'☀️ 주간 전환':'🌙 야간 전환';scene.background.set(night?'#151e31':daySky);scene.fog.color.set(night?'#151e31':daySky);ambient.intensity=night?.65:2.25;sun.intensity=night?.35:3;renderer.toneMappingExposure=night?.9:1.4};
 $('#settingsBtn').onclick=()=>setupMenu('⚙️ 그래픽 / 게임 설정','<p>V6: 1회 펀치, 피격 시민 추격·반격(거리에 따라 판정), 시민 선택형 대화, 추가 건물·거리 장식 및 CC0 3D 에셋 로딩. 원본 게임의 그래픽과 완전히 동일하진 않습니다.</p><p>기본은 프레임에 맞춰 자동으로 해상도를 조절합니다. 성능이 느린 경우 그래픽을 낮음으로 변경하세요.</p><button class="secondary" data-act="quality" data-ratio="0.8">낮음 · 그림자 끔</button><button class="secondary" data-act="quality" data-ratio="1.2">보통</button><button class="secondary" data-act="quality" data-ratio="1.65">높음</button><p>효과음</p><button class="secondary" data-act="volume">소리 켜기 / 끄기</button><p style="font-size:11px">진짜 온라인 접속, 구매·계정 저장, 광고 업로드 기능은 미구현입니다.</p>');
-$('#startBtn').onclick=()=>{const n=$('#playerName').value.trim()||'서울 시민';$('#nickHud').textContent=n;currentTeam=Number($('#team').value)||0;setPlayerStyle(Number($('#avatarStyle').value),Number($('#outfit').value));const entry=[[-39,38],[-4,38],[-42,-33],[3,-30]][currentTeam];p.x=entry[0];p.z=entry[1];player.position.set(p.x,0,p.z);updateTeamHud();started=true;$('#start').style.display='none';toast('광화문광장에 입장했습니다! W로 광화문 방향으로 걸어보세요')};
+$('#startBtn').onclick=()=>{const n=$('#playerName').value.trim()||'서울 시민';$('#nickHud').textContent=n;currentTeam=Number($('#team').value)||0;setPlayerStyle(Number($('#avatarStyle').value),Number($('#outfit').value));const entry=TEAM_SPAWNS[currentTeam];p.x=entry[0];p.z=entry[1];player.position.set(p.x,0,p.z);updateTeamHud();started=true;$('#start').style.display='none';toast('광화문광장에 입장했습니다! W로 광화문 방향으로 걸어보세요')};
 let dragging=false,px=0,py=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType!=='touch')return;if(sprayMode){sprayDown=true;groundClick(e);return}dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(sprayMode&&sprayDown){groundClick(e);return}if(!dragging||!started)return;camYaw-=(e.clientX-px)*.006;camPitch=Math.max(-.15,Math.min(1.16,camPitch+(e.clientY-py)*.004));px=e.clientX;py=e.clientY});renderer.domElement.addEventListener('pointerup',()=>{dragging=false;sprayDown=false});renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();camDist=Math.max(4.4,Math.min(44,camDist+Math.sign(e.deltaY)*1.2))},{passive:false});
-window.addEventListener('keydown',e=>{if(!root.isConnected||!started)return;const target=document.activeElement;if(target&&['INPUT','TEXTAREA','SELECT'].includes(target.tagName)){if(e.code==='Escape'){target.blur();closeMenu()}return;}if(menu&&e.code!=='Escape')return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();const wasHeld=!!keys[e.code];keys[e.code]=true;if(e.repeat||wasHeld)return;if(e.code==='KeyE'&&!dialogNPC)interact();if(e.code==='KeyG')tryTalk();if(e.code==='KeyF')punch();if(e.code==='KeyH'&&driving){beep(460,.17);toast('빵빵! 경적')};if(e.code==='KeyB'){openCraftMenu()};if(e.code==='KeyR'){if(sprayMode)undoSpray();else throwStone()};if(e.code==='Digit2')equip('fist');if(e.code==='Digit3')equip('club');if(e.code==='Digit4')equip('axe');if(e.code==='KeyT'){toggleFlag()};if(e.code==='KeyV'){air=!air;toast(air?'항공 카메라':'3인칭 카메라')};if(e.code==='KeyC'){avatarFacingOffset=(avatarFacingOffset+Math.PI)%(Math.PI*2);[player,...npcs.map(n=>n.g)].forEach(g=>{if(g.userData.external&&g.userData.torso)g.userData.torso.rotation.y=avatarFacingOffset});toast('3D 모델 앞뒤 방향을 교정했습니다')};if(e.code==='Digit1'){$('#garageBtn').click()};if(e.code==='Escape'){closeDialog();closeMenu();$('#chatPanel').style.display='none'}});
+window.addEventListener('keydown',e=>{if(!root.isConnected||!started||p.hp<=0)return;const target=document.activeElement;if(target&&['INPUT','TEXTAREA','SELECT'].includes(target.tagName)){if(e.code==='Escape'){target.blur();closeMenu()}return;}if(menu&&e.code!=='Escape')return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();const wasHeld=!!keys[e.code];keys[e.code]=true;if(e.repeat||wasHeld)return;if(e.code==='KeyE'&&!dialogNPC)interact();if(e.code==='KeyG')tryTalk();if(e.code==='KeyF')punch();if(e.code==='KeyH'&&driving){beep(460,.17);toast('빵빵! 경적')};if(e.code==='KeyB'){openCraftMenu()};if(e.code==='KeyR'){if(sprayMode)undoSpray();else throwStone()};if(e.code==='Digit2')equip('fist');if(e.code==='Digit3')equip('club');if(e.code==='Digit4')equip('axe');if(e.code==='KeyT'){toggleFlag()};if(e.code==='KeyV'){air=!air;toast(air?'항공 카메라':'3인칭 카메라')};if(e.code==='KeyC'){avatarFacingOffset=(avatarFacingOffset+Math.PI)%(Math.PI*2);[player,...npcs.map(n=>n.g)].forEach(g=>{if(g.userData.external&&g.userData.torso)g.userData.torso.rotation.y=avatarFacingOffset});toast('3D 모델 앞뒤 방향을 교정했습니다')};if(e.code==='Digit1'){$('#garageBtn').click()};if(e.code==='Escape'){closeDialog();closeMenu();$('#chatPanel').style.display='none'}});
 window.addEventListener('keyup',e=>{keys[e.code]=false});window.addEventListener('blur',()=>{for(let k in keys)keys[k]=false});$$('#mobile [data-key]').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();const key=b.dataset.key,wasHeld=!!keys[key];keys[key]=true;if(!wasHeld&&key==='KeyF')punch();if(!wasHeld&&key==='KeyE')interact()});for(const evt of ['pointerup','pointercancel','pointerleave'])b.addEventListener(evt,()=>keys[b.dataset.key]=false)});
 
 // V5 NPC finite-state AI: wander -> alert -> pursue -> windup -> recover.
 // All strike and damage timings are simulation seconds, not rendering frame counts.
 function npcCombatStep(n,dt){
- if(n.down>0){n.down-=dt;n.brain='down';n.g.rotation.z=THREE.MathUtils.lerp(n.g.rotation.z,1.25,dt*9);
-  if(n.down<=0){n.g.rotation.z=0;n.x=-40+Math.random()*29;n.z=-228+Math.random()*420;n.brain='wander';n.hp=100}
-  n.g.position.set(n.x,.07,n.z);animateRig(n.g,dt,0,false,time+n.phase,'death');return}
+ if(n.down>0){
+  const remain=(n.downUntil-Date.now())/1000;
+  if(remain<=0){
+   n.down=0;n.downUntil=0;n.g.rotation.z=0;n.x=-40+Math.random()*29;n.z=-228+Math.random()*420;n.brain='wander';n.hp=100;n.stun=0;
+   n.g.position.set(n.x,0,n.z);animateRig(n.g,dt,0,false,time+n.phase);return;
+  }
+  n.down=remain;n.brain='down';n.g.rotation.z=THREE.MathUtils.lerp(n.g.rotation.z,1.25,dt*9);
+  n.g.position.set(n.x,.07,n.z);animateRig(n.g,dt,0,false,time+n.phase,'death');return
+ }
  n.g.rotation.z=THREE.MathUtils.damp(n.g.rotation.z,0,9,dt);
  if(n.speechMesh){n.speechMesh.lookAt(camera.position);if(time>n.speechUntil){n.g.remove(n.speechMesh);n.speechMesh.material.dispose();n.speechMesh.geometry.dispose();n.speechMesh=null}}
  if(n.stun>0){n.stun-=dt;animateRig(n.g,dt,0,false,time+n.phase,'hit');n.g.position.set(n.x,0,n.z);return}
@@ -837,7 +893,7 @@ function brakeSpeed(current,desired,dt,deceleration=12,acceleration=3.2){
 }
 
 let fpsFrames=0,fpsT=0,fpsSum=0,qualityAuto=true,qualityScale=Math.min(devicePixelRatio,1.2);
-function update(dt){time+=dt;
+function update(dt){time+=dt;tickRespawn();
  fpsFrames++;fpsT+=dt;fpsSum+=dt;
  if(fpsT>1.5){const fps=Math.round(fpsFrames/fpsT),draws=renderer.info.render.calls;
   $('#perf').textContent=fps+' FPS · '+draws+' 드로우콜 · 정적 인스턴스 '+batchInfo.original;
@@ -846,7 +902,7 @@ function update(dt){time+=dt;
     else if(fps>54)next=Math.min(Math.min(devicePixelRatio,1.28),qualityScale+.055);
     if(Math.abs(next-qualityScale)>.02){qualityScale=next;renderer.setPixelRatio(qualityScale)}
   }fpsFrames=0;fpsT=0;fpsSum=0;
- }const moving=!menu&&!dialogNPC&&started,dir=new THREE.Vector3(0,0,0);if(moving){dir.set(((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0),0,((keys.KeyS||keys.ArrowDown)?1:0)-((keys.KeyW||keys.ArrowUp)?1:0));if(dir.lengthSq())dir.normalize()}
+ }const moving=!menu&&!dialogNPC&&started&&p.hp>0,dir=new THREE.Vector3(0,0,0);if(moving){dir.set(((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0),0,((keys.KeyS||keys.ArrowDown)?1:0)-((keys.KeyW||keys.ArrowUp)?1:0));if(dir.lengthSq())dir.normalize()}
 if(driving){
  playerMoveSpeed=0;
  if(moving){
@@ -884,7 +940,7 @@ if(driving){
  playerMoveSpeed=THREE.MathUtils.damp(playerMoveSpeed,desiredSpeed,desiredSpeed>playerMoveSpeed?5.0:7.5,dt);
  let nx=p.x+mv.x*playerMoveSpeed*dt,nz=p.z+mv.z*playerMoveSpeed*dt;if(!collides(nx,p.z,.55))p.x=nx;if(!collides(p.x,nz,.55))p.z=nz;if(dir.lengthSq()>0){let target=Math.atan2(-mv.x,-mv.z),a=((target-p.rot+Math.PI*3)%(Math.PI*2))-Math.PI;p.rot+=a*Math.min(1,dt*7.0)}if((keys.Space)&&p.onGround){p.vy=8.8;p.onGround=false}p.vy-=23*dt;p.y+=p.vy*dt;if(p.y<=0){p.y=0;p.vy=0;p.onGround=true}player.position.set(p.x,p.y,p.z);player.rotation.y=p.rot}if(!driving&&!moving){playerMoveSpeed=0;player.position.set(p.x,p.y,p.z)}
 // Punch is a complete timed strike with actual fist extension and hit test.
-if(action==='punch'&&time<actionEnd){
+if(p.hp>0&&action==='punch'&&time<actionEnd){
  const stage=THREE.MathUtils.clamp((time-actionStart)/PUNCH_DURATION,0,1);
  if(stage>.43&&!hitDone){hitDone=true;const fx=-Math.sin(p.rot),fz=-Math.cos(p.rot);
    for(const n of npcs){if(n.down>0)continue;const dx=n.x-p.x,dz=n.z-p.z,d=Math.hypot(dx,dz);
@@ -893,7 +949,7 @@ if(action==='punch'&&time<actionEnd){
  animateRig(player,dt,0,false,time,'punch',stage);
 }else{
  // Return to locomotion after exactly one clip. Do not start another strike here.
- action='idle';animateRig(player,dt,Math.min(1,playerMoveSpeed/3.25),!!(keys.ShiftLeft||keys.ShiftRight),time,emote)
+ action='idle';animateRig(player,dt,p.hp>0?Math.min(1,playerMoveSpeed/3.25):0,p.hp>0&&!!(keys.ShiftLeft||keys.ShiftRight),time,p.hp>0?emote:'death')
 }
 tickImpacts(dt);tickStones(dt);tickCapture(dt);for(let ni=0;ni<npcs.length;ni++){const n=npcs[ni];
  const ds=(n.x-p.x)**2+(n.z-p.z)**2;
@@ -917,7 +973,7 @@ for(const c of cars){
 }
 if(toastT>0){toastT-=dt;if(toastT<=0)$('#toast').style.opacity='0'}
  if(time>combatTextUntil)$('#combatFeedback').style.opacity='0';
- const supplyPoint=!driving&&!dialogNPC?nearResource(3.4):null,nearest=!driving&&!dialogNPC?nearestNPC(2.85):null;$('#npcHint').style.display=(nearest||supplyPoint)?'block':'none';if(supplyPoint&&(!nearest||supplyPoint.d<Math.hypot(nearest.x-p.x,nearest.z-p.z)))$('#npcHint').textContent=supplyPoint.name+' · E 채집 · B 제작';else if(nearest)$('#npcHint').textContent=nearest.name+' · E / G 대화 · F 공격시 추격·반격';
+ const supplyPoint=p.hp>0&&!driving&&!dialogNPC?nearResource(3.4):null,nearest=p.hp>0&&!driving&&!dialogNPC?nearestNPC(2.85):null;$('#npcHint').style.display=(nearest||supplyPoint)?'block':'none';if(supplyPoint&&(!nearest||supplyPoint.d<Math.hypot(nearest.x-p.x,nearest.z-p.z)))$('#npcHint').textContent=supplyPoint.name+' · E 채집 · B 제작';else if(nearest)$('#npcHint').textContent=nearest.name+' · E / G 대화 · F 공격시 추격·반격';
  if(dialogNPC&&Math.hypot(dialogNPC.x-p.x,dialogNPC.z-p.z)>5)closeDialog();
 const target=(driving?driving.obj.position:new THREE.Vector3(p.x,p.y,p.z));let focus=new THREE.Vector3(target.x,target.y+(driving?1.45:1.95),target.z);const aimYaw=air?0:camYaw,dist=air?48:camDist,height=air?60:Math.sin(camPitch)*dist;let dest=new THREE.Vector3(focus.x+Math.sin(aimYaw)*dist*Math.cos(camPitch),focus.y+height+1,focus.z+Math.cos(aimYaw)*dist*Math.cos(camPitch));camera.position.lerp(dest,Math.min(1,dt*5.8));camera.lookAt(air?new THREE.Vector3(focus.x,0,focus.z-7):focus);
 const minican=$('#mini'),ctx=minican.getContext('2d'),ww=minican.width,hh=minican.height;ctx.clearRect(0,0,ww,hh);ctx.fillStyle='#334c5c';ctx.fillRect(0,0,ww,hh);const mp=(xx,zz)=>[ww*.5+(xx+15)*1.06,hh*.5+(zz-p.z)*.41];ctx.fillStyle='#516c6a';ctx.fillRect(6,0,75,hh);ctx.fillStyle='#b5b8ad';ctx.fillRect(76,0,57,hh);ctx.fillStyle='#313d46';ctx.fillRect(135,0,105,hh);ctx.fillStyle='#eef0d2';for(const z of [-95,95]){const point=mp(-18,z);ctx.fillRect(ww*.5-5,point[1]-4,10,8)}for(const n of npcs){const [x,y]=mp(n.x,n.z);ctx.fillStyle=FACTIONS[n.team].color;ctx.fillRect(x,y,3,3)}for(const c of cars){const [x,y]=mp(c.obj.position.x,c.obj.position.z);ctx.fillStyle='#f6cc70';ctx.fillRect(x-2,y-3,4,6)}ctx.save();const [pxx,pyy]=mp(p.x,p.z);ctx.translate(pxx,pyy);ctx.rotate(-p.rot);ctx.fillStyle=FACTIONS[currentTeam].color;ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(-4,5);ctx.lineTo(4,5);ctx.closePath();ctx.fill();ctx.restore();
