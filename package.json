@@ -1,10 +1,19 @@
 {
   "name": "gwanghwamun-control",
-  "version": "4.2.0",
+  "version": "5.6.0",
   "private": true,
+  "description": "Gwanghwamun Control: bundled static web client",
   "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0",
     "start": "node server.js",
-    "check": "node --check server.js"
+    "check": "node --check --input-type=module < src/main.js && node --check server.js"
+  },
+  "dependencies": {
+    "three": "0.164.1"
+  },
+  "devDependencies": {
+    "vite": "5.4.19"
   },
   "engines": {
     "node": ">=20"
